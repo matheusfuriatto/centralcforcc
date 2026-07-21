@@ -1,11 +1,16 @@
 {
   "version": 2,
-  "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/$1" },
-    { "source": "/assets/(.*)", "destination": "/public/assets/$1" },
-    { "source": "/aluno", "destination": "/public/aluno.html" },
-    { "source": "/avaliador", "destination": "/public/avaliador.html" },
-    { "source": "/gestao", "destination": "/public/gestao.html" },
-    { "source": "/(.*)", "destination": "/public/$1" }
+  "builds": [
+    { "src": "api/*.js", "use": "@vercel/node" },
+    { "src": "*.html", "use": "@vercel/static" },
+    { "src": "public/**/*", "use": "@vercel/static" }
+  ],
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api/$1.js" },
+    { "src": "/public/(.*)", "dest": "/public/$1" },
+    { "src": "/aluno", "dest": "/aluno.html" },
+    { "src": "/avaliador", "dest": "/avaliador.html" },
+    { "src": "/gestao", "dest": "/gestao.html" },
+    { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
