@@ -11,7 +11,7 @@ module.exports = async function handler(req, res) {
       try { body = JSON.parse(body); } catch (e) { body = {}; }
     }
 
-    // 1. Gerar Token / Cadastrar Avaliado
+    // 1. Gerar Token (Separado da Avaliação)
     if (req.method === 'POST' && action === 'gerarToken') {
       const { nickAvaliador, nickCandidato } = body;
 
@@ -22,12 +22,8 @@ module.exports = async function handler(req, res) {
       const nickLimpo = String(nickCandidato).trim();
       const avaliadorLimpo = nickAvaliador ? String(nickAvaliador).trim() : 'Avaliador';
 
-      // Verificar se o usuário existe no DB Neon
-      const cand = await db.query(
-        'SELECT id FROM usuarios WHERE nick_policial = $1',
-        [nickLimpo]
-      );
-
+      // Criar/Garantir Usuário
+      const cand = await db.query('SELECT id FROM usuarios WHERE nick_policial = $1', [nickLimpo]);
       let senhaGerada = null;
 
       if (!cand.rows || cand.rows.length === 0) {
@@ -35,11 +31,6 @@ module.exports = async function handler(req, res) {
         await db.query(
           'INSERT INTO usuarios (nome, nick_policial, senha, role) VALUES ($1, $2, $3, $4)',
           [nickLimpo, nickLimpo, senhaGerada, 'candidato']
-        );
-      } else {
-        await db.query(
-          'UPDATE usuarios SET role = $1 WHERE nick_policial = $2',
-          ['candidato', nickLimpo]
         );
       }
 
@@ -55,15 +46,19 @@ module.exports = async function handler(req, res) {
         nick: nickLimpo,
         senhaGerada,
         message: senhaGerada
-          ? `Conta criada para ${nickLimpo}! Senha inicial: ${senhaGerada}`
+          ? `Conta criada para ${nickLimpo}! Senha: ${senhaGerada}`
           : `Token gerado para ${nickLimpo}.`
       });
     }
 
-    // 2. Listar Provas
+    // 2. Listar Avaliações (Retorna todas as provas e todas as questões do banco)
     if (req.method === 'GET' && action === 'listarProvas') {
       const nick = req.query ? req.query.nick : '';
-      const provas = await db.query('SELECT * FROM provas WHERE avaliador_nick = $1 ORDER BY id DESC', [nick]);
+
+      const provas = await db.query(
+        'SELECT * FROM provas WHERE avaliador_nick = $1 OR $1 = \'\' ORDER BY id DESC',
+        [nick]
+      );
       const questoes = await db.query('SELECT * FROM questoes ORDER BY id ASC');
 
       return res.status(200).json({
@@ -72,13 +67,62 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    return res.status(400).json({ error: 'Ação não informada ou inválida' });
+    // 3. Corrigir Avaliação
+    if (req.method === 'POST' && action === 'corrigir') {
+      const { provaId, nota, feedback } = body;
+
+      await db.query(
+        'UPDATE provas SET nota = $1, feedback_avaliador = $2, status = $3, corrigido_em = NOW() WHERE id = $4',
+        [nota, feedback, 'Corrigido', provaId]
+      );
+
+      return res.status(200).json({ success: true, message: 'Avaliação corrigida com sucesso!' });
+    }
+
+    // 4. Listar Dúvidas (Para o Painel do Avaliador e Aluno)
+    if (req.method === 'GET' && action === 'listarDuvidas') {
+      const aluno = req.query ? req.query.alunoNick : null;
+
+      let duvidas;
+      if (aluno) {
+        duvidas = await db.query('SELECT * FROM duvidas WHERE aluno_nick = $1 ORDER BY id DESC', [aluno]);
+      } else {
+        duvidas = await db.query('SELECT * FROM duvidas ORDER BY id DESC');
+      }
+
+      return res.status(200).json({ duvidas: duvidas.rows || [] });
+    }
+
+    // 5. Assumir Dúvida
+    if (req.method === 'POST' && action === 'assumirDuvida') {
+      const { id, nickAvaliador } = body;
+
+      await db.query(
+        'UPDATE duvidas SET avaliador_nick = $1, status = $2 WHERE id = $3',
+        [nickAvaliador, 'Em Andamento', id]
+      );
+
+      return res.status(200).json({ success: true });
+    }
+
+    // 6. Responder Dúvida
+    if (req.method === 'POST' && action === 'responderDuvida') {
+      const { id, resposta } = body;
+
+      await db.query(
+        'UPDATE duvidas SET resposta = $1, status = $2, respondido_em = NOW() WHERE id = $3',
+        [resposta, 'Respondida', id]
+      );
+
+      return res.status(200).json({ success: true });
+    }
+
+    return res.status(400).json({ error: 'Ação não encontrada' });
   } catch (err) {
-    // Retorna a mensagem real de erro do Postgres em formato JSON
+    console.error('Erro na API Avaliador:', err);
     return res.status(500).json({
       error: 'Erro na execução da Serverless Function',
-      message: err.message,
-      stack: err.stack
+      message: err.message
     });
   }
 };
