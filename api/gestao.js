@@ -1,63 +1,52 @@
-const db = require('./db');
+import { sql } from './_db.js';
 
-module.exports = async (req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-  if (req.method === 'OPTIONS') return res.status(200).end();
+export default async function handler(req, res) {
+  const { action } = req.query;
 
   try {
-    // Retorna dashboard completo
-    if (req.method === 'GET' && req.query.action === 'dashboard') {
-      const usuarios = await db.query(`SELECT * FROM usuarios ORDER BY id DESC`);
-      const provas = await db.query(`SELECT * FROM provas_submetidas ORDER BY submetido_em DESC`);
-      const questoes = await db.query(`SELECT * FROM questoes ORDER BY id ASC`);
+    if (req.method === 'GET' && action === 'dashboard') {
+      const usuarios = await sql`SELECT id, nome, nick_policial, role FROM usuarios ORDER BY id DESC`;
+      const questoes = await sql`SELECT id, categoria, titulo, enunciado FROM questoes ORDER BY id DESC`;
+      const relatorios = await sql`
+        SELECT p.id, p.candidato_nick, p.avaliador_nick, p.nota, p.status, p.corrigido_em
+        FROM provas p ORDER BY p.criado_em DESC
+      `;
 
-      return res.status(200).json({
-        usuarios: usuarios.rows,
-        provas: provas.rows,
-        questoes: questoes.rows
-      });
+      return res.status(200).json({ usuarios, questoes, relatorios });
     }
 
-    // Cadastrar Usuário (Avaliador ou Candidato)
-    if (req.method === 'POST' && req.query.action === 'cadastrarUsuario') {
-      const { nome, nick, role } = req.body;
-      await db.query(
-        `INSERT INTO usuarios (nome, nick_policial, role) VALUES ($1, $2, $3)
-         ON CONFLICT (nick_policial) DO UPDATE SET role = $3`,
-        [nome, nick, role]
-      );
+    if (req.method === 'POST' && action === 'cadastrarUsuario') {
+      const { nome, nick, senha, role } = req.body;
+      await sql`
+        INSERT INTO usuarios (nome, nick_policial, senha, role)
+        VALUES (${nome}, ${nick}, ${senha}, ${role})
+      `;
       return res.status(200).json({ success: true });
     }
 
-    // Remover Usuário
-    if (req.method === 'DELETE' && req.query.action === 'removerUsuario') {
-      const { id } = req.query;
-      await db.query(`DELETE FROM usuarios WHERE id = $1`, [id]);
+    if (req.method === 'DELETE' && action === 'removerUsuario') {
+      const { id } = req.body;
+      await sql`DELETE FROM usuarios WHERE id = ${id}`;
       return res.status(200).json({ success: true });
     }
 
-    // Cadastrar Questão
-    if (req.method === 'POST' && req.query.action === 'cadastrarQuestao') {
-      const { categoria, titulo, enunciado, gabarito_esperado } = req.body;
-      await db.query(
-        `INSERT INTO questoes (categoria, titulo, enunciado, gabarito_esperado) VALUES ($1, $2, $3, $4)`,
-        [categoria, titulo, enunciado, gabarito_esperado]
-      );
+    if (req.method === 'POST' && action === 'cadastrarQuestao') {
+      const { categoria, titulo, enunciado, gabarito } = req.body;
+      await sql`
+        INSERT INTO questoes (categoria, titulo, enunciado, gabarito_esperado)
+        VALUES (${categoria}, ${titulo}, ${enunciado}, ${gabarito})
+      `;
       return res.status(200).json({ success: true });
     }
 
-    // Excluir Questão
-    if (req.method === 'DELETE' && req.query.action === 'excluirQuestao') {
-      const { id } = req.query;
-      await db.query(`DELETE FROM questoes WHERE id = $1`, [id]);
+    if (req.method === 'DELETE' && action === 'excluirQuestao') {
+      const { id } = req.body;
+      await sql`DELETE FROM questoes WHERE id = ${id}`;
       return res.status(200).json({ success: true });
     }
 
-    return res.status(400).json({ error: "Ação não permitida." });
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
+    return res.status(400).json({ error: 'Ação não permitida' });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
   }
-};
+}

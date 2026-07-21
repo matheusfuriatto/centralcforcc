@@ -1,101 +1,174 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="dark">
+<html lang="pt-BR" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Central do CFO - Avaliadores</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <link rel="stylesheet" href="/assets/css/style.css">
-  <script src="/assets/js/auth-guard.js"></script>
-  <script>const currentUser = checkAuth('avaliador');</script>
+  <title>Painel do Avaliador - CFO</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    [data-theme="dark"] { background-color: #121212; color: #e0e0e0; }
+    [data-theme="dark"] .card { background-color: #1e1e1e; color: #fff; border-color: #333; }
+    [data-theme="light"] { background-color: #f8f9fa; color: #212529; }
+  </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between">
+<body class="p-3 p-md-4">
+  <div class="container">
+    <header class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+      <h2>Painel do Avaliador (<span id="userNick"></span>)</h2>
+      <div>
+        <button class="btn btn-outline-secondary btn-sm me-2" onclick="toggleTheme()">🌙 / ☀️ Tema</button>
+        <button class="btn btn-danger btn-sm" onclick="logout()">Sair</button>
+      </div>
+    </header>
 
-  <header class="border-b border-gray-800 bg-gray-950/90 backdrop-blur-md sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-      <div class="flex items-center space-x-3">
-        <img src="/assets/images/logo-cfo.png" class="w-10 h-10" alt="Logo CFO">
-        <div>
-          <h1 class="font-extrabold text-base text-blue-400">PAINEL DE AVALIAÇÃO</h1>
-          <p id="user-role-badge" class="text-[10px] text-gray-400 uppercase tracking-widest"></p>
+    <ul class="nav nav-pills mb-4 gap-2">
+      <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#gerarTokenTab">Cadastrar Avaliado</a></li>
+      <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#provasTab" onclick="carregarProvas()">Avaliações / Tokens</a></li>
+      <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#duvidasTab" onclick="carregarDuvidas()">Central de Dúvidas</a></li>
+    </ul>
+
+    <div class="tab-content">
+      <!-- Gerar Token -->
+      <div class="tab-pane fade show active" id="gerarTokenTab">
+        <div class="card p-3 col-md-6 mx-auto">
+          <h4>Gerar Novo Token de Avaliação</h4>
+          <form onsubmit="gerarToken(event)">
+            <div class="mb-3">
+              <label class="form-label">Nick Policial do Candidato</label>
+              <input type="text" id="candNick" class="form-control" placeholder="ex: aluno1" required>
+            </div>
+            <button type="submit" class="btn btn-success w-100">Gerar Token</button>
+          </form>
+          <div id="tokenResultado" class="mt-3"></div>
         </div>
       </div>
-      <div class="flex items-center space-x-4">
-        <span id="user-display-name" class="text-xs font-bold text-gray-300"></span>
-        <button onclick="logout()" class="px-3 py-1.5 bg-rose-500/10 border border-rose-500/30 text-rose-400 hover:bg-rose-500/20 rounded-lg text-xs font-semibold">Sair</button>
-      </div>
-    </div>
-  </header>
 
-  <main class="max-w-7xl mx-auto px-6 py-6 flex-grow w-full space-y-6">
-    <div class="rounded-2xl overflow-hidden border border-gray-800 shadow-xl">
-      <img src="/assets/images/banner-cfo.png" alt="Banner CFO" class="w-full h-auto object-cover">
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div class="glass-card p-6 rounded-2xl space-y-4">
-        <h3 class="text-base font-bold text-blue-400">Emissão de Token</h3>
-        <input type="text" id="cand-nick" placeholder="Nick do Policial Candidato" class="w-full bg-gray-950 border border-gray-800 rounded-xl p-3 text-xs">
-        <button onclick="gerarToken()" class="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-xs">GERAR TOKEN EXCLUSIVO</button>
-        <div id="out-token" class="hidden p-3 bg-blue-950/50 border border-blue-800 text-center rounded-xl font-mono text-sm text-blue-300"></div>
+      <!-- Avaliações / Tokens -->
+      <div class="tab-pane fade" id="provasTab">
+        <div id="listaProvas" class="vstack gap-3"></div>
       </div>
 
-      <div class="md:col-span-2 glass-card p-6 rounded-2xl space-y-4">
-        <div class="flex justify-between items-center border-b border-gray-800 pb-2">
-          <h3 class="text-base font-bold text-white">Provas Pendentes de Correção</h3>
-          <button onclick="carregarProvasPendentes()" class="text-xs text-blue-400">Atualizar</button>
-        </div>
-        <div id="lista-pendentes" class="space-y-4"></div>
+      <!-- Dúvidas -->
+      <div class="tab-pane fade" id="duvidasTab">
+        <div id="listaDuvidas" class="vstack gap-3"></div>
       </div>
     </div>
-  </main>
+  </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    lucide.createIcons();
+    const user = JSON.parse(sessionStorage.getItem('cfo_user') || '{}');
+    if (!user.nick) window.location.href = '/index.html';
+    document.getElementById('userNick').innerText = user.nick;
 
-    async function gerarToken() {
-      const nickCandidato = document.getElementById('cand-nick').value;
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme');
+      document.documentElement.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
+    }
+
+    function logout() { sessionStorage.clear(); window.location.href = '/index.html'; }
+
+    async function gerarToken(e) {
+      e.preventDefault();
+      const nickCandidato = document.getElementById('candNick').value;
       const res = await fetch('/api/avaliador?action=gerarToken', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nickAvaliador: currentUser.nick, nickCandidato })
+        body: JSON.stringify({ nickAvaliador: user.nick, nickCandidato })
       });
       const data = await res.json();
-      if (data.error) return alert(data.error);
-
-      const out = document.getElementById('out-token');
-      out.innerText = `TOKEN: ${data.token}`;
-      out.classList.remove('hidden');
+      if (res.ok) {
+        document.getElementById('tokenResultado').innerHTML = `<div class="alert alert-success">Token Gerado: <strong>${data.token}</strong></div>`;
+      } else {
+        alert(data.error);
+      }
     }
 
-    async function carregarProvasPendentes() {
-      const res = await fetch('/api/avaliador?action=listarPendentes');
-      const { provas, bancoQuestoes } = await res.json();
-
-      document.getElementById('lista-pendentes').innerHTML = provas.map(p => {
-        const resp = JSON.parse(p.respostas_json || '{}');
-        return `
-          <div class="bg-gray-950 p-4 rounded-xl border border-gray-800 space-y-3">
-            <div class="flex justify-between text-xs font-bold"><span class="text-blue-400">Aluno: ${p.candidato_nick}</span><span>${p.token_utilizado}</span></div>
-            ${bancoQuestoes.map(q => `
-              <div class="p-2 bg-gray-900 rounded text-xs space-y-1">
-                <p class="font-bold text-gray-300">${q.titulo}</p>
-                <p class="text-emerald-400">Gabarito: ${q.gabarito_esperado}</p>
-                <p class="text-amber-200">Resposta: ${resp[q.id] || 'Sem Resposta'}</p>
-              </div>
-            `).join('')}
-            <div class="grid grid-cols-3 gap-2">
-              <input type="number" id="nota-${p.id}" placeholder="Nota (0-10)" class="bg-gray-900 border border-gray-800 rounded p-2 text-xs">
-              <input type="text" id="fb-${p.id}" placeholder="Feedback" class="col-span-2 bg-gray-900 border border-gray-800 rounded p-2 text-xs">
+    async function carregarProvas() {
+      const res = await fetch(`/api/avaliador?action=listarProvas&nick=${user.nick}`);
+      const data = await res.json();
+      const div = document.getElementById('listaProvas');
+      div.innerHTML = data.provas.map(p => `
+        <div class="card p-3">
+          <div class="d-flex justify-content-between align-items-center flex-wrap">
+            <div>
+              <h5>Aluno: ${p.candidato_nick} | Token: ${p.token_utilizado}</h5>
+              <span class="badge ${p.status === 'Corrigido' ? 'bg-success' : p.status === 'Submetido' ? 'bg-danger' : 'bg-secondary'}">${p.status}</span>
             </div>
-            <button onclick="enviarCorrecao(${p.id})" class="w-full py-2 bg-emerald-600 font-bold rounded-lg text-xs">SALVAR</button>
           </div>
-        `;
-      }).join('');
+          ${p.status === 'Submetido' ? `
+            <div class="mt-3 border-top pt-2">
+              <h6>Enviar Correção</h6>
+              <div class="row g-2">
+                <div class="col-md-3">
+                  <input type="number" step="0.1" max="10" min="0" id="nota-${p.id}" class="form-control" placeholder="Nota (0-10)">
+                </div>
+                <div class="col-md-7">
+                  <input type="text" id="fb-${p.id}" class="form-control" placeholder="Feedback da avaliação">
+                </div>
+                <div class="col-md-2">
+                  <button class="btn btn-primary w-100" onclick="corrigir(${p.id})">Finalizar</button>
+                </div>
+              </div>
+            </div>
+          ` : p.status === 'Corrigido' ? `<p class="mt-2 mb-0 text-success"><strong>Nota:</strong> ${p.nota} - <strong>Feedback:</strong> ${p.feedback_avaliador}</p>` : ''}
+        </div>
+      `).join('') || '<p>Nenhuma avaliação pendente.</p>';
     }
 
-    carregarProvasPendentes();
+    async function corrigir(id) {
+      const nota = document.getElementById(`nota-${id}`).value;
+      const feedback = document.getElementById(`fb-${id}`).value;
+      await fetch('/api/avaliador?action=corrigir', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ provaId: id, nota, feedback })
+      });
+      alert('Correção salva!');
+      carregarProvas();
+    }
+
+    async function carregarDuvidas() {
+      const res = await fetch('/api/avaliador?action=listarDuvidas');
+      const data = await res.json();
+      const div = document.getElementById('listaDuvidas');
+      div.innerHTML = data.duvidas.map(d => `
+        <div class="card p-3">
+          <div class="d-flex justify-content-between">
+            <h5>${d.titulo} <small class="text-muted">(${d.aluno_nick})</small></h5>
+            <span class="badge bg-info">${d.status}</span>
+          </div>
+          <p class="my-2">${d.pergunta}</p>
+          ${d.status === 'Pendente' ? `
+            <button class="btn btn-sm btn-outline-warning w-auto" onclick="assumirDuvida(${d.id})">Assumir Dúvida</button>
+          ` : d.status === 'Em Andamento' && d.avaliador_nick === user.nick ? `
+            <div class="mt-2">
+              <input type="text" id="resp-${d.id}" class="form-control mb-2" placeholder="Digite a resposta...">
+              <button class="btn btn-sm btn-success" onclick="responderDuvida(${d.id})">Enviar Resposta</button>
+            </div>
+          ` : `<p class="mb-0 text-muted">Atribuído a: ${d.avaliador_nick} ${d.resposta ? '| Resposta: ' + d.resposta : ''}</p>`}
+        </div>
+      `).join('');
+    }
+
+    async function assumirDuvida(id) {
+      await fetch('/api/avaliador?action=assumirDuvida', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, nickAvaliador: user.nick })
+      });
+      carregarDuvidas();
+    }
+
+    async function responderDuvida(id) {
+      const resposta = document.getElementById(`resp-${id}`).value;
+      await fetch('/api/avaliador?action=responderDuvida', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, resposta })
+      });
+      carregarDuvidas();
+    }
   </script>
 </body>
 </html>

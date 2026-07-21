@@ -1,64 +1,70 @@
-const db = require('./db');
+import { sql } from './_db.js';
 
-module.exports = async (req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-  if (req.method === 'OPTIONS') return res.status(200).end();
+export default async function handler(req, res) {
+  const { action } = req.query;
 
   try {
-    if (req.method === 'POST' && req.query.action === 'gerarToken') {
+    // 1. Gerar Token / Cadastrar Avaliado
+    if (req.method === 'POST' && action === 'gerarToken') {
       const { nickAvaliador, nickCandidato } = req.body;
+      const cand = await sql`SELECT id FROM usuarios WHERE nick_policial = ${nickCandidato} AND role = 'candidato'`;
+      if (cand.length === 0) return res.status(404).json({ error: 'Candidato não encontrado.' });
 
-      const avaliador = await db.query(
-        `SELECT id FROM usuarios WHERE LOWER(nick_policial) = LOWER($1) AND role IN ('avaliador', 'gestor')`,
-        [nickAvaliador]
-      );
-
-      if (avaliador.rows.length === 0) {
-        return res.status(403).json({ error: "Credencial de Avaliador inválida ou não autorizada." });
-      }
-
-      const tokenGerado = "CFO-" + Math.random().toString(36).substring(2, 8).toUpperCase();
-
-      await db.query(
-        `INSERT INTO tokens_prova (token, candidato_nick, avaliador_id) VALUES ($1, $2, $3)`,
-        [tokenGerado, nickCandidato, avaliador.rows[0].id]
-      );
-
-      return res.status(200).json({ token: tokenGerado, candidato: nickCandidato });
+      const token = 'CFO-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+      await sql`
+        INSERT INTO provas (token_utilizado, candidato_nick, avaliador_nick, status)
+        VALUES (${token}, ${nickCandidato}, ${nickAvaliador}, 'Pendente')
+      `;
+      return res.status(200).json({ token });
     }
 
-    if (req.method === 'GET' && req.query.action === 'listarPendentes') {
-      const result = await db.query(`
-        SELECT p.id, p.candidato_nick, p.token_utilizado, p.respostas_json, p.submetido_em
-        FROM provas_submetidas p
-        WHERE p.status = 'Pendente'
-        ORDER BY p.submetido_em ASC
-      `);
-
-      const questoes = await db.query(`SELECT id, titulo, enunciado, gabarito_esperado FROM questoes`);
-
-      return res.status(200).json({ provas: result.rows, bancoQuestoes: questoes.rows });
+    // 2. Ver Tokens Gerados e Avaliações Enviadas
+    if (req.method === 'GET' && action === 'listarProvas') {
+      const { nick } = req.query;
+      const provas = await sql`
+        SELECT * FROM provas WHERE avaliador_nick = ${nick} ORDER BY criado_em DESC
+      `;
+      const questoes = await sql`SELECT * FROM questoes ORDER BY id ASC`;
+      return res.status(200).json({ provas, questoes });
     }
 
-    if (req.method === 'POST' && req.query.action === 'corrigir') {
-      const { provaId, nota, feedback, nickAvaliador } = req.body;
-
-      const avaliador = await db.query(`SELECT id FROM usuarios WHERE LOWER(nick_policial) = LOWER($1)`, [nickAvaliador]);
-
-      await db.query(`
-        UPDATE provas_submetidas
-        SET nota = $1, feedback_avaliador = $2, status = 'Corrigido', avaliador_id = $3, corrigido_em = CURRENT_TIMESTAMP
-        WHERE id = $4
-      `, [nota, feedback, avaliador.rows[0]?.id || null, provaId]);
-
-      return res.status(200).json({ success: true, message: "Avaliação registrada!" });
+    // 3. Submeter Correção (Nota e Feedback)
+    if (req.method === 'POST' && action === 'corrigir') {
+      const { provaId, nota, feedback } = req.body;
+      await sql`
+        UPDATE provas
+        SET nota = ${nota}, feedback_avaliador = ${feedback}, status = 'Corrigido', corrigido_em = NOW()
+        WHERE id = ${provaId}
+      `;
+      return res.status(200).json({ success: true, message: 'Avaliação corrigida com sucesso!' });
     }
 
-    return res.status(400).json({ error: "Ação inválida." });
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
+    // 4. Listar Todas as Dúvidas
+    if (req.method === 'GET' && action === 'listarDuvidas') {
+      const duvidas = await sql`SELECT * FROM duvidas ORDER BY criado_em DESC`;
+      return res.status(200).json({ duvidas });
+    }
+
+    // 5. Assumir Dúvida
+    if (req.method === 'POST' && action === 'assumirDuvida') {
+      const { id, nickAvaliador } = req.body;
+      await sql`
+        UPDATE duvidas SET avaliador_nick = ${nickAvaliador}, status = 'Em Andamento' WHERE id = ${id}
+      `;
+      return res.status(200).json({ success: true });
+    }
+
+    // 6. Responder Dúvida
+    if (req.method === 'POST' && action === 'responderDuvida') {
+      const { id, resposta } = req.body;
+      await sql`
+        UPDATE duvidas SET resposta = ${resposta}, status = 'Respondida', respondido_em = NOW() WHERE id = ${id}
+      `;
+      return res.status(200).json({ success: true });
+    }
+
+    return res.status(400).json({ error: 'Ação inválida' });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
   }
-};
+}
