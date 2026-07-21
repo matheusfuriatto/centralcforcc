@@ -14,9 +14,9 @@ export default async function handler(req, res) {
 
       const nickLimpo = nickCandidato.trim();
 
-      // Verificar se o candidato já está cadastrado
+      // Busca direta do usuário tratada no JS
       const cand = await sql`
-        SELECT id FROM usuarios WHERE LOWER(nick_policial) = LOWER(${nickLimpo})
+        SELECT id FROM usuarios WHERE nick_policial = ${nickLimpo}
       `;
 
       let senhaGerada = null;
@@ -30,7 +30,7 @@ export default async function handler(req, res) {
         `;
       } else {
         await sql`
-          UPDATE usuarios SET role = 'candidato' WHERE LOWER(nick_policial) = LOWER(${nickLimpo})
+          UPDATE usuarios SET role = 'candidato' WHERE nick_policial = ${nickLimpo}
         `;
       }
 
