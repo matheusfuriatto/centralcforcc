@@ -9,14 +9,42 @@
     [data-theme="dark"] { background-color: #121212; color: #e0e0e0; }
     [data-theme="dark"] .card { background-color: #1e1e1e; color: #fff; border-color: #333; }
     [data-theme="light"] { background-color: #f8f9fa; color: #212529; }
+
+    /* Estilo do Avatar Habbo */
+    .avatar-container {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.1);
+      border: 2px solid #198754;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .avatar-container img {
+      width: 54px;
+      height: auto;
+      margin-top: -10px;
+    }
   </style>
 </head>
 <body class="p-3 p-md-4">
   <div class="container">
-    <header class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-      <h2>Painel do Avaliador (<span id="userNick"></span>)</h2>
-      <div>
-        <button class="btn btn-outline-secondary btn-sm me-2" onclick="toggleTheme()">🌙 / ☀️ Tema</button>
+    <!-- Cabeçalho com Avatar Habbo e Usuário -->
+    <header class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2 pb-3 border-bottom">
+      <div class="d-flex align-items-center gap-3">
+        <div class="avatar-container shadow-sm">
+          <img id="habboAvatar" src="" alt="Avatar Habbo" onerror="this.src='https://www.habbo.com.br/habbo-imaging/avatarimage?user=Habbo&headonly=1'">
+        </div>
+        <div>
+          <h4 class="mb-0">Painel do Avaliador</h4>
+          <small class="text-muted"><span id="userNick"></span> (<span id="userNome"></span>)</small>
+        </div>
+      </div>
+
+      <div class="d-flex align-items-center gap-2">
+        <button class="btn btn-outline-secondary btn-sm" onclick="toggleTheme()">🌙 / ☀️ Tema</button>
         <button class="btn btn-danger btn-sm" onclick="logout()">Sair</button>
       </div>
     </header>
@@ -59,7 +87,11 @@
   <script>
     const user = JSON.parse(sessionStorage.getItem('cfo_user') || '{}');
     if (!user.nick) window.location.href = '/index.html';
+
+    // Carregar Informações do Usuário e Avatar do Habbo
     document.getElementById('userNick').innerText = user.nick;
+    document.getElementById('userNome').innerText = user.nome || 'Avaliador';
+    document.getElementById('habboAvatar').src = `https://www.habbo.com.br/habbo-imaging/avatarimage?user=${encodeURIComponent(user.nick)}&action=std&direction=2&head_direction=2&gesture=sml&size=m`;
 
     function toggleTheme() {
       const current = document.documentElement.getAttribute('data-theme');
@@ -88,7 +120,7 @@
       const res = await fetch(`/api/avaliador?action=listarProvas&nick=${user.nick}`);
       const data = await res.json();
       const div = document.getElementById('listaProvas');
-      div.innerHTML = data.provas.map(p => `
+      div.innerHTML = (data.provas || []).map(p => `
         <div class="card p-3">
           <div class="d-flex justify-content-between align-items-center flex-wrap">
             <div>
@@ -132,7 +164,7 @@
       const res = await fetch('/api/avaliador?action=listarDuvidas');
       const data = await res.json();
       const div = document.getElementById('listaDuvidas');
-      div.innerHTML = data.duvidas.map(d => `
+      div.innerHTML = (data.duvidas || []).map(d => `
         <div class="card p-3">
           <div class="d-flex justify-content-between">
             <h5>${d.titulo} <small class="text-muted">(${d.aluno_nick})</small></h5>
