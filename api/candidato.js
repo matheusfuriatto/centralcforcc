@@ -1,3 +1,4 @@
+const { sql } = require('@vercel/postgres');
 const db = require('./db.js');
 
 export default async function handler(req, res) {
