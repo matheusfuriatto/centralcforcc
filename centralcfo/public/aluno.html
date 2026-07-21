@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Central do CFO - Área do Aluno</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="/assets/css/style.css">
+  <script src="/assets/js/auth-guard.js"></script>
+  <script>const currentUser = checkAuth('candidato');</script>
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+  <!-- HEADER HEADER -->
+  <header class="border-b border-gray-800 bg-gray-950/90 backdrop-blur-md sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <img src="/assets/images/logo-cfo.png" class="w-10 h-10" alt="Logo CFO">
+        <div>
+          <h1 class="font-extrabold text-base text-amber-400">CENTRAL DO CFO</h1>
+          <p id="user-role-badge" class="text-[10px] text-gray-400 uppercase tracking-widest"></p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-4">
+        <span id="user-display-name" class="text-xs font-bold text-gray-300"></span>
+        <button onclick="logout()" class="px-3 py-1.5 bg-rose-500/10 border border-rose-500/30 text-rose-400 hover:bg-rose-500/20 rounded-lg text-xs font-semibold">Sair</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-6 py-6 flex-grow w-full space-y-6">
+    <div class="rounded-2xl overflow-hidden border border-gray-800 shadow-xl">
+      <img src="/assets/images/banner-cfo.png" alt="Banner CFO" class="w-full h-auto object-cover">
+    </div>
+
+    <div class="glass-card p-6 rounded-2xl space-y-4">
+      <h2 class="text-xl font-bold text-amber-400">Iniciar Avaliação Oficial</h2>
+      <p class="text-xs text-gray-300">Digite o Token gerado pelo seu Avaliador para desbloquear as questões.</p>
+
+      <div class="flex gap-3 max-w-md">
+        <input type="text" id="cand-token" placeholder="Token Ex: CFO-XXXX" class="flex-1 bg-gray-950 border border-gray-800 rounded-xl p-3 text-xs focus:outline-none">
+        <button onclick="iniciarProva()" class="px-5 bg-amber-500 hover:bg-amber-400 text-black font-bold rounded-xl text-xs">INICIAR</button>
+      </div>
+    </div>
+
+    <div id="area-simulado" class="hidden glass-card p-6 rounded-2xl space-y-6">
+      <h3 class="text-lg font-bold text-amber-400">Avaliação em Andamento</h3>
+      <div id="container-questoes-prova" class="space-y-6"></div>
+      <button onclick="submeterProva()" class="w-full py-4 bg-emerald-500 text-black font-extrabold rounded-xl text-sm">SUBMETER RESPOSTAS</button>
+    </div>
+  </main>
+
+  <script>
+    lucide.createIcons();
+    let respostasCandidato = {};
+
+    async function iniciarProva() {
+      const token = document.getElementById('cand-token').value;
+      if (!token) return alert('Informe o Token da prova.');
+
+      const res = await fetch('/api/candidato?action=iniciar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nick: currentUser.nick, token })
+      });
+      const data = await res.json();
+      if (data.error) return alert(data.error);
+
+      document.getElementById('container-questoes-prova').innerHTML = data.questoes.map((q, idx) => `
+        <div class="bg-gray-950 p-4 rounded-xl border border-gray-800 space-y-2">
+          <span class="text-[10px] font-mono text-amber-400 uppercase">${q.categoria}</span>
+          <h4 class="font-bold text-sm text-white">${idx + 1}. ${q.titulo}</h4>
+          <p class="text-xs text-gray-300">${q.enunciado}</p>
+          <textarea onchange="respostasCandidato['${q.id}'] = this.value" rows="3" placeholder="Sua resposta..." class="w-full bg-gray-900 border border-gray-800 rounded-lg p-2 text-xs text-white"></textarea>
+        </div>
+      `).join('');
+
+      document.getElementById('area-simulado').classList.remove('hidden');
+    }
+
+    async function submeterProva() {
+      const token = document.getElementById('cand-token').value;
+      const res = await fetch('/api/candidato?action=submeter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nick: currentUser.nick, token, respostas: respostasCandidato })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert(data.message);
+        location.reload();
+      }
+    }
+  </script>
+</body>
+</html>
