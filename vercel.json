@@ -1,7 +1,11 @@
 {
   "version": 2,
-  "cleanUrls": true,
   "rewrites": [
-    { "source": "/", "destination": "/index.html" }
+    { "source": "/api/(.*)", "destination": "/api/$1" },
+    { "source": "/assets/(.*)", "destination": "/public/assets/$1" },
+    { "source": "/aluno", "destination": "/public/aluno.html" },
+    { "source": "/avaliador", "destination": "/public/avaliador.html" },
+    { "source": "/gestao", "destination": "/public/gestao.html" },
+    { "source": "/(.*)", "destination": "/public/$1" }
   ]
 }
