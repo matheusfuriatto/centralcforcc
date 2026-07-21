@@ -1,4 +1,4 @@
-import { sql } from './_db.js';
+const db = require('./db.js');
 
 export default async function handler(req, res) {
   const { action } = req.query;
