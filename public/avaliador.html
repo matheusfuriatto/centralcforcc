@@ -10,7 +10,6 @@
     [data-theme="dark"] .card { background-color: #1e1e1e; color: #fff; border-color: #333; }
     [data-theme="light"] { background-color: #f8f9fa; color: #212529; }
 
-    /* Estilo do Avatar Habbo */
     .avatar-container {
       width: 48px;
       height: 48px;
@@ -31,7 +30,6 @@
 </head>
 <body class="p-3 p-md-4">
   <div class="container">
-    <!-- Cabeçalho com Avatar Habbo e Usuário -->
     <header class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2 pb-3 border-bottom">
       <div class="d-flex align-items-center gap-3">
         <div class="avatar-container shadow-sm">
@@ -56,27 +54,24 @@
     </ul>
 
     <div class="tab-content">
-      <!-- Gerar Token -->
       <div class="tab-pane fade show active" id="gerarTokenTab">
         <div class="card p-3 col-md-6 mx-auto">
           <h4>Gerar Novo Token de Avaliação</h4>
           <form onsubmit="gerarToken(event)">
             <div class="mb-3">
               <label class="form-label">Nick Policial do Candidato</label>
-              <input type="text" id="candNick" class="form-control" placeholder="ex: aluno1" required>
+              <input type="text" id="candNick" class="form-control" placeholder="ex: Popricard88" required>
             </div>
-            <button type="submit" class="btn btn-success w-100">Gerar Token</button>
+            <button type="submit" class="btn btn-success w-100">Gerar Token e Liberar Acesso</button>
           </form>
           <div id="tokenResultado" class="mt-3"></div>
         </div>
       </div>
 
-      <!-- Avaliações / Tokens -->
       <div class="tab-pane fade" id="provasTab">
         <div id="listaProvas" class="vstack gap-3"></div>
       </div>
 
-      <!-- Dúvidas -->
       <div class="tab-pane fade" id="duvidasTab">
         <div id="listaDuvidas" class="vstack gap-3"></div>
       </div>
@@ -88,7 +83,6 @@
     const user = JSON.parse(sessionStorage.getItem('cfo_user') || '{}');
     if (!user.nick) window.location.href = '/index.html';
 
-    // Carregar Informações do Usuário e Avatar do Habbo
     document.getElementById('userNick').innerText = user.nick;
     document.getElementById('userNome').innerText = user.nome || 'Avaliador';
     document.getElementById('habboAvatar').src = `https://www.habbo.com.br/habbo-imaging/avatarimage?user=${encodeURIComponent(user.nick)}&action=std&direction=2&head_direction=2&gesture=sml&size=m`;
@@ -110,7 +104,14 @@
       });
       const data = await res.json();
       if (res.ok) {
-        document.getElementById('tokenResultado').innerHTML = `<div class="alert alert-success">Token Gerado: <strong>${data.token}</strong></div>`;
+        document.getElementById('tokenResultado').innerHTML = `
+          <div class="alert alert-success">
+            <h6>${data.message}</h6>
+            <p class="mb-1"><strong>Token:</strong> <code>${data.token}</code></p>
+            ${data.senhaGerada ? `<p class="mb-0"><strong>Senha Inicial:</strong> <code>${data.senhaGerada}</code></p>` : ''}
+          </div>
+        `;
+        document.getElementById('candNick').value = '';
       } else {
         alert(data.error);
       }
@@ -132,15 +133,9 @@
             <div class="mt-3 border-top pt-2">
               <h6>Enviar Correção</h6>
               <div class="row g-2">
-                <div class="col-md-3">
-                  <input type="number" step="0.1" max="10" min="0" id="nota-${p.id}" class="form-control" placeholder="Nota (0-10)">
-                </div>
-                <div class="col-md-7">
-                  <input type="text" id="fb-${p.id}" class="form-control" placeholder="Feedback da avaliação">
-                </div>
-                <div class="col-md-2">
-                  <button class="btn btn-primary w-100" onclick="corrigir(${p.id})">Finalizar</button>
-                </div>
+                <div class="col-md-3"><input type="number" step="0.1" max="10" min="0" id="nota-${p.id}" class="form-control" placeholder="Nota"></div>
+                <div class="col-md-7"><input type="text" id="fb-${p.id}" class="form-control" placeholder="Feedback"></div>
+                <div class="col-md-2"><button class="btn btn-primary w-100" onclick="corrigir(${p.id})">Enviar</button></div>
               </div>
             </div>
           ` : p.status === 'Corrigido' ? `<p class="mt-2 mb-0 text-success"><strong>Nota:</strong> ${p.nota} - <strong>Feedback:</strong> ${p.feedback_avaliador}</p>` : ''}

@@ -7,18 +7,53 @@ export default async function handler(req, res) {
     // 1. Gerar Token / Cadastrar Avaliado
     if (req.method === 'POST' && action === 'gerarToken') {
       const { nickAvaliador, nickCandidato } = req.body;
-      const cand = await sql`SELECT id FROM usuarios WHERE nick_policial = ${nickCandidato} AND role = 'candidato'`;
-      if (cand.length === 0) return res.status(404).json({ error: 'Candidato não encontrado.' });
 
+      if (!nickCandidato || !nickCandidato.trim()) {
+        return res.status(400).json({ error: 'Informe o nick do candidato.' });
+      }
+
+      const nickLimpo = nickCandidato.trim();
+
+      // Verificar se o candidato já está cadastrado
+      const cand = await sql`
+        SELECT id FROM usuarios WHERE LOWER(nick_policial) = LOWER(${nickLimpo})
+      `;
+
+      let senhaGerada = null;
+
+      // Se o usuário não existir, cria a conta como aluno automaticamente
+      if (cand.length === 0) {
+        senhaGerada = 'cfo123';
+        await sql`
+          INSERT INTO usuarios (nome, nick_policial, senha, role)
+          VALUES (${nickLimpo}, ${nickLimpo}, ${senhaGerada}, 'candidato')
+        `;
+      } else {
+        await sql`
+          UPDATE usuarios SET role = 'candidato' WHERE LOWER(nick_policial) = LOWER(${nickLimpo})
+        `;
+      }
+
+      // Gerar Token Único
       const token = 'CFO-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+
+      // Cadastrar a prova
       await sql`
         INSERT INTO provas (token_utilizado, candidato_nick, avaliador_nick, status)
-        VALUES (${token}, ${nickCandidato}, ${nickAvaliador}, 'Pendente')
+        VALUES (${token}, ${nickLimpo}, ${nickAvaliador}, 'Pendente')
       `;
-      return res.status(200).json({ token });
+
+      return res.status(200).json({
+        token,
+        nick: nickLimpo,
+        senhaGerada,
+        message: senhaGerada
+          ? `Conta criada com sucesso para ${nickLimpo}! Senha inicial: ${senhaGerada}`
+          : `Token gerado para o candidato ${nickLimpo}.`
+      });
     }
 
-    // 2. Ver Tokens Gerados e Avaliações Enviadas
+    // 2. Ver Tokens Gerados e Avaliações
     if (req.method === 'GET' && action === 'listarProvas') {
       const { nick } = req.query;
       const provas = await sql`
@@ -39,7 +74,7 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true, message: 'Avaliação corrigida com sucesso!' });
     }
 
-    // 4. Listar Todas as Dúvidas
+    // 4. Listar Dúvidas
     if (req.method === 'GET' && action === 'listarDuvidas') {
       const duvidas = await sql`SELECT * FROM duvidas ORDER BY criado_em DESC`;
       return res.status(200).json({ duvidas });
