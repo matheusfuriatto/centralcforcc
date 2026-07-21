@@ -1,4 +1,4 @@
-const db = require('./_db.js');
+const db = require('./db.js');
 
 module.exports = async function handler(req, res) {
   res.setHeader('Content-Type', 'application/json');
