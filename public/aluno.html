@@ -1,165 +1,266 @@
 <!DOCTYPE html>
-<html lang="pt-BR" data-theme="dark">
+<html lang="pt-BR" class="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Painel do Aluno - CFO</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    [data-theme="dark"] { background-color: #121212; color: #e0e0e0; }
-    [data-theme="dark"] .card, [data-theme="dark"] .modal-content { background-color: #1e1e1e; color: #fff; border-color: #333; }
-    [data-theme="light"] { background-color: #f8f9fa; color: #212529; }
-    .nav-pills .nav-link.active { background-color: #0d6efd; }
-    .avatar-container {
-      width: 48px; height: 48px; border-radius: 50%;
-      background-color: rgba(255, 255, 255, 0.1); border: 2px solid #0d6efd;
-      overflow: hidden; display: flex; align-items: center; justify-content: center;
+  <title>Central CFO - Portal do Aluno</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: { 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' }
+          }
+        }
+      }
     }
-    .avatar-container img { width: 54px; height: auto; margin-top: -10px; }
-  </style>
+  </script>
 </head>
-<body class="p-3 p-md-4">
-  <div class="container">
-    <header class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2 pb-3 border-bottom">
-      <div class="d-flex align-items-center gap-3">
-        <div class="avatar-container shadow-sm">
-          <img id="habboAvatar" src="" alt="Avatar Habbo" onerror="this.src='https://www.habbo.com.br/habbo-imaging/avatarimage?user=Habbo&headonly=1'">
+<body class="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-colors duration-200">
+
+  <div class="max-w-7xl mx-auto px-4 py-6 space-y-6">
+
+    <!-- CABEÇALHO DO ALUNO -->
+    <header class="flex flex-wrap justify-between items-center gap-4 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
+      <div class="flex items-center gap-4">
+        <div class="relative w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-800 border-2 border-brand-500 overflow-hidden flex items-center justify-center shrink-0">
+          <img id="habboAvatar" src="/assets/images/default-avatar.png" alt="Avatar Habbo" class="w-16 h-auto mt-[-10px]" onerror="this.src='https://www.habbo.com.br/habbo-imaging/avatarimage?user=Habbo&headonly=1'">
         </div>
         <div>
-          <h4 class="mb-0">Painel do Aluno</h4>
-          <small class="text-muted"><span id="userNick"></span> (<span id="userNome"></span>)</small>
+          <div class="flex items-center gap-2">
+            <h1 class="text-xl font-black text-slate-900 dark:text-white">Painel do Aluno</h1>
+            <span id="habboStatusBadge" class="px-2 py-0.5 text-xs rounded-full bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-semibold">Verificando...</span>
+          </div>
+          <p class="text-xs text-slate-500 dark:text-slate-400">
+            Nick: <strong id="userNick" class="text-brand-500"></strong> | Visto por último: <span id="habboLastAccess">-</span>
+          </p>
         </div>
       </div>
-      <div class="d-flex align-items-center gap-2">
-        <button class="btn btn-outline-secondary btn-sm" onclick="toggleTheme()">🌙 / ☀️ Tema</button>
-        <button class="btn btn-danger btn-sm" onclick="logout()">Sair</button>
+
+      <div class="flex items-center gap-3">
+        <button onclick="toggleTheme()" class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition">
+          <i data-lucide="sun" class="w-5 h-5 hidden dark:block text-amber-400"></i>
+          <i data-lucide="moon" class="w-5 h-5 block dark:hidden text-slate-600"></i>
+        </button>
+        <button onclick="logout()" class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 font-bold text-sm transition">
+          <i data-lucide="log-out" class="w-4 h-4"></i> Sair
+        </button>
       </div>
     </header>
 
-    <ul class="nav nav-pills mb-4 gap-2" id="menuTabs">
-      <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#provaTab">Realizar Avaliação</a></li>
-      <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#avaliacoesTab" onclick="carregarMinhasAvaliacoes()">Minhas Avaliações</a></li>
-      <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#enviarDuvidaTab">Enviar Dúvida</a></li>
-      <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#minhasDuvidasTab" onclick="carregarMinhasDuvidas()">Minhas Dúvidas</a></li>
-    </ul>
+    <!-- MENU DE NAVEGAÇÃO -->
+    <nav class="flex gap-2 overflow-x-auto pb-2 border-b border-slate-200 dark:border-slate-800">
+      <button onclick="mudarAba('realizar')" id="tab-realizar" class="tab-btn px-5 py-2.5 rounded-xl text-sm font-bold bg-brand-500 text-white">
+        <i data-lucide="file-text" class="w-4 h-4 inline mr-1.5"></i> Realizar Prova
+      </button>
+      <button onclick="mudarAba('avaliacoes')" id="tab-avaliacoes" class="tab-btn px-5 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white">
+        <i data-lucide="award" class="w-4 h-4 inline mr-1.5"></i> Minhas Avaliações
+      </button>
+      <button onclick="mudarAba('enviarDuvida')" id="tab-enviarDuvida" class="tab-btn px-5 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white">
+        <i data-lucide="send" class="w-4 h-4 inline mr-1.5"></i> Enviar Dúvida
+      </button>
+      <button onclick="mudarAba('minhasDuvidas')" id="tab-minhasDuvidas" class="tab-btn px-5 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white">
+        <i data-lucide="message-square" class="w-4 h-4 inline mr-1.5"></i> Minhas Dúvidas
+      </button>
+    </nav>
 
-    <div class="tab-content">
-      <!-- Realizar Avaliação -->
-      <div class="tab-pane fade show active" id="provaTab">
-        <div id="buscaTokenBox" class="card p-3 col-md-6 mx-auto">
-          <h4>Iniciar Avaliação</h4>
-          <p class="text-muted small">Digite o token fornecido pelo seu avaliador.</p>
-          <form onsubmit="buscarProva(event)">
-            <input type="text" id="tokenInput" class="form-control mb-3" placeholder="Ex: CFO-AB12CD" required>
-            <button type="submit" class="btn btn-primary w-100">Acessar Prova</button>
-          </form>
-          <p id="tokenErro" class="text-danger small mt-2 mb-0"></p>
+    <!-- ABA 1: REALIZAR AVALIAÇÃO -->
+    <section id="content-realizar" class="space-y-6">
+      <div id="boxBuscaToken" class="max-w-md mx-auto p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+        <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <i data-lucide="key-round" class="w-5 h-5 text-brand-500"></i> Iniciar Avaliação
+        </h2>
+        <p class="text-xs text-slate-500">Digite o token fornecido pelo seu avaliador para abrir a prova.</p>
+        <form onsubmit="buscarProva(event)" class="space-y-4">
+          <input type="text" id="tokenInput" required placeholder="Ex: CFO-AB12CD" class="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-sm focus:outline-none focus:border-brand-500 font-mono">
+          <button type="submit" class="w-full py-3 bg-brand-500 hover:bg-brand-600 text-white font-extrabold rounded-xl text-sm transition">
+            Acessar Prova
+          </button>
+        </form>
+        <p id="tokenErro" class="text-xs text-red-500 hidden"></p>
+      </div>
+
+      <div id="boxProva" class="hidden space-y-6">
+        <div class="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs flex justify-between items-center">
+          <span>Token: <strong id="provaToken" class="font-mono text-sm"></strong></span>
+          <span class="font-bold">Atenção: A prova só pode ser submetida uma única vez!</span>
         </div>
+        <form onsubmit="submeterProva(event)" id="formProva" class="space-y-4"></form>
+      </div>
 
-        <div id="provaBox" class="d-none">
-          <div class="alert alert-info d-flex justify-content-between align-items-center">
-            <span>Token: <strong id="provaToken"></strong></span>
-            <span class="badge bg-warning">Responda com atenção — só é possível enviar uma vez</span>
+      <div id="boxFinalizada" class="hidden p-6 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-center space-y-2">
+        <i data-lucide="check-circle-2" class="w-12 h-12 mx-auto"></i>
+        <h3 class="font-black text-lg">Avaliação Enviada com Sucesso!</h3>
+        <p class="text-xs">Sua prova foi entregue e já está aguardando a correção do avaliador.</p>
+      </div>
+    </section>
+
+    <!-- ABA 2: MINHAS AVALIAÇÕES -->
+    <section id="content-avaliacoes" class="hidden space-y-4">
+      <div class="flex justify-between items-center">
+        <h2 class="text-lg font-bold text-slate-900 dark:text-white">Minhas Avaliações</h2>
+        <button onclick="carregarMinhasAvaliacoes()" class="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5 inline"></i> Atualizar
+        </button>
+      </div>
+      <div id="listaAvaliacoes" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+    </section>
+
+    <!-- ABA 3: ENVIAR DÚVIDA -->
+    <section id="content-enviarDuvida" class="hidden space-y-4">
+      <div class="max-w-xl mx-auto p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+        <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <i data-lucide="help-circle" class="w-5 h-5 text-brand-500"></i> Nova Dúvida
+        </h2>
+        <form onsubmit="enviarDuvida(event)" class="space-y-4">
+          <div>
+            <label class="text-xs font-bold text-slate-600 dark:text-slate-400">Título</label>
+            <input type="text" id="duvidaTitulo" required placeholder="Assunto ou módulo da dúvida" class="mt-1 w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-sm focus:outline-none focus:border-brand-500">
           </div>
-          <form onsubmit="submeterProva(event)" id="formProva" class="vstack gap-3"></form>
-        </div>
-
-        <div id="provaFinalizadaBox" class="d-none alert alert-success">
-          Avaliação enviada com sucesso! Acompanhe o resultado em "Minhas Avaliações".
-        </div>
+          <div>
+            <label class="text-xs font-bold text-slate-600 dark:text-slate-400">Pergunta / Descrição</label>
+            <textarea id="duvidaPergunta" rows="4" required placeholder="Escreva detalhadamente a sua dúvida..." class="mt-1 w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-sm focus:outline-none focus:border-brand-500"></textarea>
+          </div>
+          <button type="submit" class="w-full py-3 bg-brand-500 hover:bg-brand-600 text-white font-extrabold rounded-xl text-sm transition">
+            Enviar Dúvida
+          </button>
+        </form>
       </div>
+    </section>
 
-      <!-- Minhas Avaliações -->
-      <div class="tab-pane fade" id="avaliacoesTab">
-        <div id="listaAvaliacoes" class="row g-3"></div>
+    <!-- ABA 4: MINHAS DÚVIDAS -->
+    <section id="content-minhasDuvidas" class="hidden space-y-4">
+      <div class="flex justify-between items-center">
+        <h2 class="text-lg font-bold text-slate-900 dark:text-white">Minhas Dúvidas Cadastradas</h2>
+        <button onclick="carregarMinhasDuvidas()" class="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5 inline"></i> Atualizar
+        </button>
       </div>
+      <div id="listaDuvidas" class="grid grid-cols-1 gap-4"></div>
+    </section>
 
-      <!-- Enviar Dúvida -->
-      <div class="tab-pane fade" id="enviarDuvidaTab">
-        <div class="card p-3 col-md-8 mx-auto">
-          <h4>Nova Dúvida</h4>
-          <form onsubmit="enviarDuvida(event)">
-            <div class="mb-3">
-              <label class="form-label">Título</label>
-              <input type="text" id="duvidaTitulo" class="form-control" required>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Pergunta</label>
-              <textarea id="duvidaPergunta" class="form-control" rows="4" required></textarea>
-            </div>
-            <button type="submit" class="btn btn-primary w-100">Enviar Dúvida</button>
-          </form>
-        </div>
-      </div>
-
-      <!-- Minhas Dúvidas -->
-      <div class="tab-pane fade" id="minhasDuvidasTab">
-        <div id="listaDuvidas" class="vstack gap-3"></div>
-      </div>
-    </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="/assets/js/auth-guard.js"></script>
   <script>
+    // Gerenciamento do Tema Claro/Escuro Persistente
+    function initTheme() {
+      const savedTheme = localStorage.getItem('cfo_theme') || 'dark';
+      if (savedTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('cfo_theme', isDark ? 'dark' : 'light');
+    }
+    initTheme();
+
     const user = checkAuth('candidato');
+    let provaAtual = null;
 
     document.getElementById('userNick').innerText = user.nick;
-    document.getElementById('userNome').innerText = user.nome || 'Aluno';
-    document.getElementById('habboAvatar').src = habboAvatarUrl(user.nick);
+    lucide.createIcons();
 
-    function toggleTheme() {
-      const current = document.documentElement.getAttribute('data-theme');
-      document.documentElement.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
+    // Consulta perfil do Habbo (avatar, status online, última conexão)
+    async function carregarHabboProfile() {
+      try {
+        const res = await fetch(`/api/avaliador?action=habboProfile&nick=${encodeURIComponent(user.nick)}`);
+        const data = await res.json();
+
+        document.getElementById('habboAvatar').src = `https://www.habbo.com.br/habbo-imaging/avatarimage?user=${encodeURIComponent(user.nick)}&headonly=0&direction=2&head_direction=2&action=std&size=m`;
+
+        const badge = document.getElementById('habboStatusBadge');
+        if (data.online) {
+          badge.className = "px-2 py-0.5 text-xs rounded-full bg-emerald-500/10 text-emerald-500 font-bold border border-emerald-500/20";
+          badge.innerText = "ONLINE NO HABBO";
+        } else {
+          badge.className = "px-2 py-0.5 text-xs rounded-full bg-slate-500/10 text-slate-400 font-bold border border-slate-500/20";
+          badge.innerText = "OFFLINE";
+        }
+        document.getElementById('habboLastAccess').innerText = data.lastAccess;
+      } catch (e) {
+        document.getElementById('habboStatusBadge').innerText = "Status Indisponível";
+      }
     }
+    carregarHabboProfile();
 
-    let provaAtual = null;
+    function mudarAba(aba) {
+      document.querySelectorAll('.tab-btn').forEach(b => {
+        b.className = "tab-btn px-5 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white";
+      });
+      document.getElementById(`tab-${aba}`).className = "tab-btn px-5 py-2.5 rounded-xl text-sm font-bold bg-brand-500 text-white";
+
+      ['realizar', 'avaliacoes', 'enviarDuvida', 'minhasDuvidas'].forEach(a => {
+        document.getElementById(`content-${a}`).classList.add('hidden');
+      });
+      document.getElementById(`content-${aba}`).classList.remove('hidden');
+
+      if (aba === 'avaliacoes') carregarMinhasAvaliacoes();
+      if (aba === 'minhasDuvidas') carregarMinhasDuvidas();
+    }
 
     async function buscarProva(e) {
       e.preventDefault();
       const token = document.getElementById('tokenInput').value.trim();
       const erroEl = document.getElementById('tokenErro');
-      erroEl.innerText = '';
+      erroEl.classList.add('hidden');
 
       try {
         const res = await fetch(`/api/aluno?action=buscarProva&token=${encodeURIComponent(token)}`);
         const data = await res.json();
 
-        if (!res.ok) { erroEl.innerText = data.error || 'Erro ao buscar prova.'; return; }
+        if (!res.ok) {
+          erroEl.innerText = data.error || 'Erro ao buscar prova.';
+          erroEl.classList.remove('hidden');
+          return;
+        }
 
         provaAtual = data.prova;
 
         if (provaAtual.status === 'Corrigido' || provaAtual.status === 'Submetido') {
-          erroEl.innerText = 'Esta avaliação já foi enviada anteriormente.';
+          erroEl.innerText = 'Esta avaliação já foi entregue anteriormente.';
+          erroEl.classList.remove('hidden');
           return;
         }
 
         montarFormularioProva(provaAtual);
       } catch (err) {
         erroEl.innerText = 'Falha de conexão com o servidor.';
+        erroEl.classList.remove('hidden');
       }
     }
 
     function montarFormularioProva(prova) {
-      document.getElementById('buscaTokenBox').classList.add('d-none');
-      document.getElementById('provaBox').classList.remove('d-none');
+      document.getElementById('boxBuscaToken').classList.add('hidden');
+      document.getElementById('boxProva').classList.remove('hidden');
       document.getElementById('provaToken').innerText = prova.token_utilizado;
 
       const questoes = prova.questoes_json || [];
       const form = document.getElementById('formProva');
 
       form.innerHTML = questoes.map((q, i) => `
-        <div class="card p-3">
-          <h6>${i + 1}. [${q.categoria || 'Geral'}] ${q.titulo || ''}</h6>
-          <p>${q.enunciado}</p>
-          <textarea class="form-control" data-questao-id="${q.id}" rows="4" placeholder="Digite sua resposta..." required></textarea>
+        <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3">
+          <span class="text-xs font-bold text-brand-500 uppercase">Questão ${i + 1} - ${q.categoria || 'Geral'}</span>
+          <h4 class="font-bold text-slate-900 dark:text-white text-sm">${q.enunciado || q.titulo}</h4>
+          <textarea class="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-sm focus:outline-none focus:border-brand-500" data-questao-id="${q.id}" rows="4" placeholder="Digite sua resposta detalhada..." required></textarea>
         </div>
-      `).join('') + `<button type="submit" class="btn btn-success w-100">Enviar Avaliação</button>`;
+      `).join('') + `
+        <button type="submit" class="w-full py-3.5 bg-emerald-500 hover:bg-emerald-600 text-white font-black rounded-xl text-sm transition">
+          Finalizar e Submeter Prova
+        </button>
+      `;
+      lucide.createIcons();
     }
 
     async function submeterProva(e) {
       e.preventDefault();
-      if (!confirm('Depois de enviar não será possível alterar as respostas. Confirma o envio?')) return;
+      if (!confirm('Tem certeza que deseja enviar sua prova? Você não poderá alterar as respostas.')) return;
 
       const respostas = {};
       document.querySelectorAll('[data-questao-id]').forEach(el => {
@@ -172,59 +273,83 @@
         body: JSON.stringify({ token: provaAtual.token_utilizado, respostas })
       });
 
-      const data = await res.json();
-      if (!res.ok) { alert(data.error || 'Erro ao enviar avaliação.'); return; }
+      if (!res.ok) {
+        alert('Erro ao enviar avaliação.');
+        return;
+      }
 
-      document.getElementById('provaBox').classList.add('d-none');
-      document.getElementById('provaFinalizadaBox').classList.remove('d-none');
+      document.getElementById('boxProva').classList.add('hidden');
+      document.getElementById('boxFinalizada').classList.remove('hidden');
     }
 
     async function carregarMinhasAvaliacoes() {
       const res = await fetch(`/api/aluno?action=minhasAvaliacoes&nick=${encodeURIComponent(user.nick)}`);
       const data = await res.json();
-      const div = document.getElementById('listaAvaliacoes');
-      div.innerHTML = (data.provas || []).map(p => `
-        <div class="col-md-6">
-          <div class="card p-3">
-            <div class="d-flex justify-content-between">
-              <h5>Token: ${p.token_utilizado}</h5>
-              <span class="badge ${p.status === 'Corrigido' ? 'bg-success' : p.status === 'Submetido' ? 'bg-warning' : 'bg-secondary'}">${p.status}</span>
-            </div>
-            <p class="mb-1"><strong>Pontuação:</strong> ${p.nota !== null ? p.nota + ' / 10' : 'Em Avaliação'}</p>
-            <p class="mb-1"><strong>Feedback:</strong> ${p.feedback_avaliador || 'Aguardando correção...'}</p>
+      const container = document.getElementById('listaAvaliacoes');
+
+      if (!data.provas || data.provas.length === 0) {
+        container.innerHTML = `<p class="text-sm text-slate-500 text-center col-span-2 py-8">Nenhuma avaliação encontrada.</p>`;
+        return;
+      }
+
+      container.innerHTML = data.provas.map(p => `
+        <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3">
+          <div class="flex justify-between items-center">
+            <span class="font-mono text-xs font-bold text-slate-500">Token: ${p.token_utilizado}</span>
+            <span class="px-2.5 py-1 text-xs font-bold rounded-full ${p.status === 'Corrigido' ? 'bg-emerald-500/10 text-emerald-500' : p.status === 'Submetido' ? 'bg-amber-500/10 text-amber-500' : 'bg-slate-500/10 text-slate-400'}">${p.status}</span>
           </div>
+          <p class="text-sm"><strong>Nota:</strong> ${p.nota !== null ? `<span class="text-lg font-black text-brand-500">${p.nota} / 10</span>` : 'Aguardando Correção'}</p>
+          ${p.feedback_avaliador ? `
+            <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs">
+              <strong class="text-slate-400 block mb-1">Feedback do Avaliador:</strong>
+              <p class="text-slate-700 dark:text-slate-300">${p.feedback_avaliador}</p>
+            </div>
+          ` : ''}
         </div>
-      `).join('') || '<p>Nenhuma avaliação encontrada.</p>';
+      `).join('');
     }
 
     async function enviarDuvida(e) {
       e.preventDefault();
       const titulo = document.getElementById('duvidaTitulo').value;
       const pergunta = document.getElementById('duvidaPergunta').value;
+
       await fetch('/api/aluno?action=enviarDuvida', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nick: user.nick, titulo, pergunta })
       });
-      alert('Dúvida enviada!');
+
+      alert('Dúvida enviada com sucesso!');
       e.target.reset();
+      mudarAba('minhasDuvidas');
     }
 
     async function carregarMinhasDuvidas() {
       const res = await fetch(`/api/aluno?action=minhasDuvidas&nick=${encodeURIComponent(user.nick)}`);
       const data = await res.json();
-      const div = document.getElementById('listaDuvidas');
-      div.innerHTML = (data.duvidas || []).map(d => `
-        <div class="card p-3">
-          <div class="d-flex justify-content-between">
-            <h5>${d.titulo}</h5>
-            <span class="badge bg-info">${d.status}</span>
+      const container = document.getElementById('listaDuvidas');
+
+      if (!data.duvidas || data.duvidas.length === 0) {
+        container.innerHTML = `<p class="text-sm text-slate-500 text-center py-8">Você ainda não possui dúvidas cadastradas.</p>`;
+        return;
+      }
+
+      container.innerHTML = data.duvidas.map(d => `
+        <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3">
+          <div class="flex justify-between items-center">
+            <h4 class="font-bold text-slate-900 dark:text-white">${d.titulo}</h4>
+            <span class="px-2.5 py-1 text-xs font-bold rounded-full bg-slate-100 dark:bg-slate-800 text-brand-500">${d.status}</span>
           </div>
-          <p class="my-2"><strong>Pergunta:</strong> ${d.pergunta}</p>
-          <p class="mb-0 text-muted"><strong>Atribuído a:</strong> ${d.avaliador_nick || 'Aguardando avaliador'}</p>
-          ${d.resposta ? `<div class="alert alert-success mt-2 mb-0"><strong>Resposta:</strong> ${d.resposta}</div>` : ''}
+          <p class="text-xs text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-800">${d.pergunta}</p>
+          ${d.resposta ? `
+            <div class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs">
+              <strong class="block mb-1">Resposta (${d.avaliador_nick || 'Avaliador'}):</strong>
+              <p>${d.resposta}</p>
+            </div>
+          ` : `<p class="text-xs text-slate-500">Aguardando atendimento de um avaliador.</p>`}
         </div>
-      `).join('') || '<p>Nenhuma dúvida cadastrada.</p>';
+      `).join('');
     }
   </script>
 </body>

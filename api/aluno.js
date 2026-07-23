@@ -7,8 +7,8 @@ function mapProva(p) {
     status: p.status,
     nota: p.nota !== undefined ? p.nota : null,
     feedback_avaliador: p.feedbackAvaliador || null,
-    respostas_json: p.respostasJson || null,
-    questoes_json: p.questoesJson || null
+    respostas_json: p.respostasJson || {},
+    questoes_json: p.questoesJson || []
   };
 }
 
@@ -30,7 +30,7 @@ module.exports = async function handler(req, res) {
     let body = req.body || {};
     if (typeof body === 'string') { try { body = JSON.parse(body); } catch (e) { body = {}; } }
 
-    // 1. Cadastrar Nova Dúvida do Aluno
+    // 1. Cadastrar Nova Dúvida
     if (req.method === 'POST' && (action === 'criarDuvida' || action === 'enviarDuvida')) {
       const alunoNick = body.alunoNick || body.nick;
       const { titulo, pergunta } = body;
@@ -51,35 +51,33 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ success: true, message: 'Dúvida enviada!', id: doc.id });
     }
 
-    // 2. Listar Dúvidas de um Aluno Específico
+    // 2. Listar Minhas Dúvidas
     if (req.method === 'GET' && action === 'minhasDuvidas') {
       const alunoNick = req.query.alunoNick || req.query.nick;
-      if (!alunoNick) return res.status(400).json({ error: 'Nick do aluno não informado.' });
+      if (!alunoNick) return res.status(400).json({ error: 'Nick não informado.' });
 
       const snap = await db.collection('duvidas')
         .where('alunoNickBusca', '==', String(alunoNick).trim().toLowerCase())
-        .orderBy('criadoEm', 'desc')
         .get();
 
       const duvidas = snap.docs.map(d => ({ id: d.id, ...mapDuvida(d.data()) }));
       return res.status(200).json({ duvidas });
     }
 
-    // 3. Minhas Avaliações (Em Andamento / Corrigidas)
+    // 3. Listar Minhas Avaliações
     if (req.method === 'GET' && action === 'minhasAvaliacoes') {
       const nick = req.query.nick || req.query.alunoNick;
       if (!nick) return res.status(400).json({ error: 'Nick não informado.' });
 
       const snap = await db.collection('provas')
         .where('candidatoNickBusca', '==', String(nick).trim().toLowerCase())
-        .orderBy('criadoEm', 'desc')
         .get();
 
       const provas = snap.docs.map(d => ({ id: d.id, ...mapProva(d.data()) }));
       return res.status(200).json({ provas });
     }
 
-    // 4. Buscar Avaliação pelo Token e Selecionar Questões Randômicas
+    // 4. Buscar Avaliação pelo Token e Sortear Questões (se primeiro acesso)
     if (req.method === 'GET' && action === 'buscarProva') {
       const token = req.query.token;
       if (!token) return res.status(400).json({ error: 'Informe o Token da Avaliação.' });
@@ -90,17 +88,15 @@ module.exports = async function handler(req, res) {
       const docRef = snap.docs[0].ref;
       const dadosProva = snap.docs[0].data();
 
-      // Se a prova já possui questões sorteadas salvas, retorna elas
-      if (dadosProva.questoesJson) {
+      if (dadosProva.questoesJson && dadosProva.questoesJson.length > 0) {
         return res.status(200).json({ prova: { id: snap.docs[0].id, ...mapProva(dadosProva) } });
       }
 
-      // Primeiro acesso: sorteia 10 questões do banco
       const todasSnap = await db.collection('questoes').get();
       const todas = todasSnap.docs.map(d => ({ id: d.id, ...d.data() }));
 
       if (todas.length === 0) {
-        return res.status(400).json({ error: 'O banco de questões está vazio. Peça ao gestor para povoar as questões.' });
+        return res.status(400).json({ error: 'O banco de questões está vazio. Avise o gestor do sistema.' });
       }
 
       const sorteadas = todas.sort(() => Math.random() - 0.5).slice(0, 10);
@@ -113,7 +109,7 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ prova: { id: snap.docs[0].id, ...mapProva(dadosProva) } });
     }
 
-    // 5. Submeter Respostas da Avaliação pelo Aluno
+    // 5. Submeter Respostas
     if (req.method === 'POST' && action === 'submeterProva') {
       const { token, respostas } = body;
       if (!token || !respostas) {
@@ -123,15 +119,14 @@ module.exports = async function handler(req, res) {
       const snap = await db.collection('provas').where('tokenUtilizado', '==', token.trim()).limit(1).get();
       if (snap.empty) return res.status(404).json({ error: 'Token não encontrado.' });
 
-      // Status "Submetido" -- é o que o painel do avaliador espera para liberar a correção
       await snap.docs[0].ref.update({ respostasJson: respostas, status: 'Submetido' });
 
       return res.status(200).json({ success: true, message: 'Avaliação entregue com sucesso!' });
     }
 
-    return res.status(400).json({ error: 'Ação não reconhecida para Alunos.' });
+    return res.status(400).json({ error: 'Ação não reconhecida.' });
   } catch (err) {
-    console.error('Erro no api/aluno.js:', err);
-    return res.status(500).json({ error: 'Erro no servidor', message: err.message });
+    console.error('Erro na API do Aluno:', err);
+    return res.status(500).json({ error: 'Erro interno', message: err.message });
   }
 };

@@ -13,8 +13,8 @@ function mapProva(p) {
     status: p.status,
     nota: p.nota !== undefined ? p.nota : null,
     feedback_avaliador: p.feedbackAvaliador || null,
-    respostas_json: p.respostasJson || null,
-    questoes_json: p.questoesJson || null
+    respostas_json: p.respostasJson || {},
+    questoes_json: p.questoesJson || []
   };
 }
 
@@ -37,7 +37,34 @@ module.exports = async function handler(req, res) {
     let body = req.body || {};
     if (typeof body === 'string') { try { body = JSON.parse(body); } catch (e) { body = {}; } }
 
-    // 1. Gerar Token de Avaliação (cria também o acesso do candidato, se ainda não existir)
+    // 1. Consulta Dados do Habbo (Online/Offline, Última Acesso e Avatar)
+    if (req.method === 'GET' && action === 'habboProfile') {
+      const nick = req.query.nick;
+      if (!nick) return res.status(400).json({ error: 'Nick não informado' });
+
+      try {
+        const response = await fetch(`https://www.habbo.com.br/api/public/users?name=${encodeURIComponent(nick)}`);
+        if (!response.ok) {
+          return res.status(200).json({
+            online: false,
+            lastAccess: 'Não encontrado',
+            figureString: '',
+            motto: ''
+          });
+        }
+        const data = await response.json();
+        return res.status(200).json({
+          online: data.online || false,
+          lastAccess: data.lastAccessTime ? new Date(data.lastAccessTime).toLocaleString('pt-BR') : 'Privado/Indisponível',
+          figureString: data.figureString || '',
+          motto: data.motto || ''
+        });
+      } catch (e) {
+        return res.status(200).json({ online: false, lastAccess: 'Indisponível' });
+      }
+    }
+
+    // 2. Gerar Token de Avaliação
     if (req.method === 'POST' && action === 'gerarToken') {
       const { nickAvaliador, nickCandidato } = body;
 
@@ -85,20 +112,20 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    // 2. Listar Avaliações do Avaliador
+    // 3. Listar Avaliações do Avaliador ou Gestor
     if (req.method === 'GET' && action === 'listarProvas') {
       const nickAvaliador = (req.query.nick || '').trim().toLowerCase();
       const snap = await db.collection('provas').orderBy('criadoEm', 'desc').get();
       let provas = snap.docs.map(d => ({ id: d.id, ...mapProva(d.data()) }));
 
-      if (nickAvaliador) {
+      if (nickAvaliador && req.query.filtrarMeuNick === 'true') {
         provas = provas.filter(p => (p.avaliador_nick || '').toLowerCase() === nickAvaliador);
       }
 
       return res.status(200).json({ provas });
     }
 
-    // 3. Corrigir Avaliação
+    // 4. Corrigir Avaliação
     if (req.method === 'POST' && action === 'corrigir') {
       const { provaId, nota, feedback } = body;
       if (!provaId || nota === undefined || nota === '') {
@@ -115,14 +142,14 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ success: true, message: 'Avaliação corrigida com sucesso!' });
     }
 
-    // 4. Listar Todas as Dúvidas
+    // 5. Listar Dúvidas
     if (req.method === 'GET' && action === 'listarDuvidas') {
       const snap = await db.collection('duvidas').orderBy('criadoEm', 'desc').get();
       const duvidas = snap.docs.map(d => ({ id: d.id, ...mapDuvida(d.data()) }));
       return res.status(200).json({ duvidas });
     }
 
-    // 5. Assumir Dúvida
+    // 6. Assumir Dúvida
     if (req.method === 'POST' && action === 'assumirDuvida') {
       const { id, nickAvaliador } = body;
       if (!id) return res.status(400).json({ error: 'ID da dúvida ausente.' });
@@ -135,7 +162,7 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ success: true });
     }
 
-    // 6. Responder Dúvida
+    // 7. Responder Dúvida
     if (req.method === 'POST' && action === 'responderDuvida') {
       const { id, resposta, nickAvaliador } = body;
       if (!id || !resposta) {
