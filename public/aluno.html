@@ -10,29 +10,16 @@
     [data-theme="dark"] .card, [data-theme="dark"] .modal-content { background-color: #1e1e1e; color: #fff; border-color: #333; }
     [data-theme="light"] { background-color: #f8f9fa; color: #212529; }
     .nav-pills .nav-link.active { background-color: #0d6efd; }
-
-    /* Estilo do Avatar Habbo */
     .avatar-container {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      background-color: rgba(255, 255, 255, 0.1);
-      border: 2px solid #0d6efd;
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      width: 48px; height: 48px; border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.1); border: 2px solid #0d6efd;
+      overflow: hidden; display: flex; align-items: center; justify-content: center;
     }
-    .avatar-container img {
-      width: 54px;
-      height: auto;
-      margin-top: -10px; /* Ajuste para centralizar o rosto do Habbo */
-    }
+    .avatar-container img { width: 54px; height: auto; margin-top: -10px; }
   </style>
 </head>
 <body class="p-3 p-md-4">
   <div class="container">
-    <!-- Cabeçalho com Avatar Habbo e Usuário -->
     <header class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2 pb-3 border-bottom">
       <div class="d-flex align-items-center gap-3">
         <div class="avatar-container shadow-sm">
@@ -43,7 +30,6 @@
           <small class="text-muted"><span id="userNick"></span> (<span id="userNome"></span>)</small>
         </div>
       </div>
-
       <div class="d-flex align-items-center gap-2">
         <button class="btn btn-outline-secondary btn-sm" onclick="toggleTheme()">🌙 / ☀️ Tema</button>
         <button class="btn btn-danger btn-sm" onclick="logout()">Sair</button>
@@ -51,14 +37,40 @@
     </header>
 
     <ul class="nav nav-pills mb-4 gap-2" id="menuTabs">
-      <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#avaliacoesTab" onclick="carregarMinhasAvaliacoes()">Minhas Avaliações</a></li>
+      <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#provaTab">Realizar Avaliação</a></li>
+      <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#avaliacoesTab" onclick="carregarMinhasAvaliacoes()">Minhas Avaliações</a></li>
       <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#enviarDuvidaTab">Enviar Dúvida</a></li>
       <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#minhasDuvidasTab" onclick="carregarMinhasDuvidas()">Minhas Dúvidas</a></li>
     </ul>
 
     <div class="tab-content">
+      <!-- Realizar Avaliação -->
+      <div class="tab-pane fade show active" id="provaTab">
+        <div id="buscaTokenBox" class="card p-3 col-md-6 mx-auto">
+          <h4>Iniciar Avaliação</h4>
+          <p class="text-muted small">Digite o token fornecido pelo seu avaliador.</p>
+          <form onsubmit="buscarProva(event)">
+            <input type="text" id="tokenInput" class="form-control mb-3" placeholder="Ex: CFO-AB12CD" required>
+            <button type="submit" class="btn btn-primary w-100">Acessar Prova</button>
+          </form>
+          <p id="tokenErro" class="text-danger small mt-2 mb-0"></p>
+        </div>
+
+        <div id="provaBox" class="d-none">
+          <div class="alert alert-info d-flex justify-content-between align-items-center">
+            <span>Token: <strong id="provaToken"></strong></span>
+            <span class="badge bg-warning">Responda com atenção — só é possível enviar uma vez</span>
+          </div>
+          <form onsubmit="submeterProva(event)" id="formProva" class="vstack gap-3"></form>
+        </div>
+
+        <div id="provaFinalizadaBox" class="d-none alert alert-success">
+          Avaliação enviada com sucesso! Acompanhe o resultado em "Minhas Avaliações".
+        </div>
+      </div>
+
       <!-- Minhas Avaliações -->
-      <div class="tab-pane fade show active" id="avaliacoesTab">
+      <div class="tab-pane fade" id="avaliacoesTab">
         <div id="listaAvaliacoes" class="row g-3"></div>
       </div>
 
@@ -88,24 +100,87 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/assets/js/auth-guard.js"></script>
   <script>
-    const user = JSON.parse(sessionStorage.getItem('cfo_user') || '{}');
-    if (!user.nick) window.location.href = '/index.html';
+    const user = checkAuth('candidato');
 
-    // Carregar Informações do Usuário e Avatar do Habbo
     document.getElementById('userNick').innerText = user.nick;
     document.getElementById('userNome').innerText = user.nome || 'Aluno';
-    document.getElementById('habboAvatar').src = `https://www.habbo.com.br/habbo-imaging/avatarimage?user=${encodeURIComponent(user.nick)}&action=std&direction=2&head_direction=2&gesture=sml&size=m`;
+    document.getElementById('habboAvatar').src = habboAvatarUrl(user.nick);
 
     function toggleTheme() {
       const current = document.documentElement.getAttribute('data-theme');
       document.documentElement.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
     }
 
-    function logout() { sessionStorage.clear(); window.location.href = '/index.html'; }
+    let provaAtual = null;
+
+    async function buscarProva(e) {
+      e.preventDefault();
+      const token = document.getElementById('tokenInput').value.trim();
+      const erroEl = document.getElementById('tokenErro');
+      erroEl.innerText = '';
+
+      try {
+        const res = await fetch(`/api/aluno?action=buscarProva&token=${encodeURIComponent(token)}`);
+        const data = await res.json();
+
+        if (!res.ok) { erroEl.innerText = data.error || 'Erro ao buscar prova.'; return; }
+
+        provaAtual = data.prova;
+
+        if (provaAtual.status === 'Corrigido' || provaAtual.status === 'Submetido') {
+          erroEl.innerText = 'Esta avaliação já foi enviada anteriormente.';
+          return;
+        }
+
+        montarFormularioProva(provaAtual);
+      } catch (err) {
+        erroEl.innerText = 'Falha de conexão com o servidor.';
+      }
+    }
+
+    function montarFormularioProva(prova) {
+      document.getElementById('buscaTokenBox').classList.add('d-none');
+      document.getElementById('provaBox').classList.remove('d-none');
+      document.getElementById('provaToken').innerText = prova.token_utilizado;
+
+      const questoes = prova.questoes_json || [];
+      const form = document.getElementById('formProva');
+
+      form.innerHTML = questoes.map((q, i) => `
+        <div class="card p-3">
+          <h6>${i + 1}. [${q.categoria || 'Geral'}] ${q.titulo || ''}</h6>
+          <p>${q.enunciado}</p>
+          <textarea class="form-control" data-questao-id="${q.id}" rows="4" placeholder="Digite sua resposta..." required></textarea>
+        </div>
+      `).join('') + `<button type="submit" class="btn btn-success w-100">Enviar Avaliação</button>`;
+    }
+
+    async function submeterProva(e) {
+      e.preventDefault();
+      if (!confirm('Depois de enviar não será possível alterar as respostas. Confirma o envio?')) return;
+
+      const respostas = {};
+      document.querySelectorAll('[data-questao-id]').forEach(el => {
+        respostas[el.getAttribute('data-questao-id')] = el.value.trim();
+      });
+
+      const res = await fetch('/api/aluno?action=submeterProva', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: provaAtual.token_utilizado, respostas })
+      });
+
+      const data = await res.json();
+      if (!res.ok) { alert(data.error || 'Erro ao enviar avaliação.'); return; }
+
+      document.getElementById('provaBox').classList.add('d-none');
+      document.getElementById('provaFinalizadaBox').classList.remove('d-none');
+    }
 
     async function carregarMinhasAvaliacoes() {
-      const res = await fetch(`/api/candidato?action=minhasAvaliacoes&nick=${user.nick}`);
+      const res = await fetch(`/api/aluno?action=minhasAvaliacoes&nick=${encodeURIComponent(user.nick)}`);
       const data = await res.json();
       const div = document.getElementById('listaAvaliacoes');
       div.innerHTML = (data.provas || []).map(p => `
@@ -113,7 +188,7 @@
           <div class="card p-3">
             <div class="d-flex justify-content-between">
               <h5>Token: ${p.token_utilizado}</h5>
-              <span class="badge ${p.status === 'Corrigido' ? 'bg-success' : 'bg-warning'}">${p.status}</span>
+              <span class="badge ${p.status === 'Corrigido' ? 'bg-success' : p.status === 'Submetido' ? 'bg-warning' : 'bg-secondary'}">${p.status}</span>
             </div>
             <p class="mb-1"><strong>Pontuação:</strong> ${p.nota !== null ? p.nota + ' / 10' : 'Em Avaliação'}</p>
             <p class="mb-1"><strong>Feedback:</strong> ${p.feedback_avaliador || 'Aguardando correção...'}</p>
@@ -126,7 +201,7 @@
       e.preventDefault();
       const titulo = document.getElementById('duvidaTitulo').value;
       const pergunta = document.getElementById('duvidaPergunta').value;
-      await fetch('/api/candidato?action=enviarDuvida', {
+      await fetch('/api/aluno?action=enviarDuvida', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nick: user.nick, titulo, pergunta })
@@ -136,7 +211,7 @@
     }
 
     async function carregarMinhasDuvidas() {
-      const res = await fetch(`/api/candidato?action=minhasDuvidas&nick=${user.nick}`);
+      const res = await fetch(`/api/aluno?action=minhasDuvidas&nick=${encodeURIComponent(user.nick)}`);
       const data = await res.json();
       const div = document.getElementById('listaDuvidas');
       div.innerHTML = (data.duvidas || []).map(d => `
@@ -151,8 +226,6 @@
         </div>
       `).join('') || '<p>Nenhuma dúvida cadastrada.</p>';
     }
-
-    carregarMinhasAvaliacoes();
   </script>
 </body>
 </html>

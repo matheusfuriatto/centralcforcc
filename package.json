@@ -1,6 +1,11 @@
 {
+  "name": "centralcfo",
+  "version": "2.0.0",
   "dependencies": {
-    "@vercel/postgres": "^0.10.0",
-    "pg": "^8.11.3"
+    "bcryptjs": "^2.4.3",
+    "firebase-admin": "^12.6.0"
+  },
+  "devDependencies": {
+    "dotenv": "^16.6.1"
   }
 }

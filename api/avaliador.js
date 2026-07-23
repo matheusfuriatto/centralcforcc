@@ -1,17 +1,43 @@
-const db = require('./db.js');
+const { db, FieldValue } = require('./db.js');
+const bcrypt = require('bcryptjs');
+
+function gerarSenhaAleatoria() {
+  return Math.random().toString(36).slice(-8);
+}
+
+function mapProva(p) {
+  return {
+    token_utilizado: p.tokenUtilizado,
+    candidato_nick: p.candidatoNick,
+    avaliador_nick: p.avaliadorNick,
+    status: p.status,
+    nota: p.nota !== undefined ? p.nota : null,
+    feedback_avaliador: p.feedbackAvaliador || null,
+    respostas_json: p.respostasJson || null,
+    questoes_json: p.questoesJson || null
+  };
+}
+
+function mapDuvida(d) {
+  return {
+    aluno_nick: d.alunoNick,
+    titulo: d.titulo,
+    pergunta: d.pergunta,
+    status: d.status,
+    avaliador_nick: d.avaliadorNick || null,
+    resposta: d.resposta || null
+  };
+}
 
 module.exports = async function handler(req, res) {
   res.setHeader('Content-Type', 'application/json');
 
   try {
     const action = req.query ? req.query.action : null;
-
     let body = req.body || {};
-    if (typeof body === 'string') {
-      try { body = JSON.parse(body); } catch (e) { body = {}; }
-    }
+    if (typeof body === 'string') { try { body = JSON.parse(body); } catch (e) { body = {}; } }
 
-    // 1. Gerar Token de Avaliação Randômica
+    // 1. Gerar Token de Avaliação (cria também o acesso do candidato, se ainda não existir)
     if (req.method === 'POST' && action === 'gerarToken') {
       const { nickAvaliador, nickCandidato } = body;
 
@@ -20,69 +46,108 @@ module.exports = async function handler(req, res) {
       }
 
       const nickLimpo = String(nickCandidato).trim();
+      const nickBusca = nickLimpo.toLowerCase();
       const avaliadorLimpo = nickAvaliador ? String(nickAvaliador).trim() : 'Avaliador';
-
-      // Gerar Token
       const token = 'CFO-' + Math.random().toString(36).substring(2, 8).toUpperCase();
 
-      await db.query(
-        'INSERT INTO provas (token_utilizado, candidato_nick, avaliador_nick, status) VALUES ($1, $2, $3, $4)',
-        [token, nickLimpo, avaliadorLimpo, 'Pendente']
-      );
+      let senhaGerada = null;
+      const usuarioExistente = await db.collection('usuarios').where('nickBusca', '==', nickBusca).limit(1).get();
+
+      if (usuarioExistente.empty) {
+        senhaGerada = gerarSenhaAleatoria();
+        const senhaHash = await bcrypt.hash(senhaGerada, 10);
+        await db.collection('usuarios').add({
+          nome: nickLimpo,
+          nickPolicial: nickLimpo,
+          nickBusca,
+          senhaHash,
+          role: 'candidato',
+          criadoEm: FieldValue.serverTimestamp()
+        });
+      }
+
+      await db.collection('provas').add({
+        tokenUtilizado: token,
+        candidatoNick: nickLimpo,
+        candidatoNickBusca: nickBusca,
+        avaliadorNick: avaliadorLimpo,
+        status: 'Pendente',
+        criadoEm: FieldValue.serverTimestamp()
+      });
 
       return res.status(200).json({
         token,
         nick: nickLimpo,
-        message: `Token gerado para o candidato ${nickLimpo}!`
+        senhaGerada,
+        message: senhaGerada
+          ? `Token gerado! Conta criada para ${nickLimpo}.`
+          : `Token gerado para o candidato ${nickLimpo} (usuário já existente).`
       });
     }
 
-    // 2. Listar Avaliações para o Avaliador
+    // 2. Listar Avaliações do Avaliador
     if (req.method === 'GET' && action === 'listarProvas') {
-      const nickAvaliador = req.query.nick || '';
+      const nickAvaliador = (req.query.nick || '').trim().toLowerCase();
+      const snap = await db.collection('provas').orderBy('criadoEm', 'desc').get();
+      let provas = snap.docs.map(d => ({ id: d.id, ...mapProva(d.data()) }));
 
-      const provas = await db.query(
-        'SELECT * FROM provas WHERE LOWER(avaliador_nick) = LOWER($1) OR $1 = \'\' ORDER BY id DESC',
-        [nickAvaliador.trim()]
-      );
+      if (nickAvaliador) {
+        provas = provas.filter(p => (p.avaliador_nick || '').toLowerCase() === nickAvaliador);
+      }
 
-      return res.status(200).json({ provas: provas.rows || [] });
+      return res.status(200).json({ provas });
     }
 
-    // 3. Atribuir Correção, Nota e Feedback à Avaliação
+    // 3. Corrigir Avaliação
     if (req.method === 'POST' && action === 'corrigir') {
       const { provaId, nota, feedback } = body;
-
-      if (!provaId || nota === undefined) {
+      if (!provaId || nota === undefined || nota === '') {
         return res.status(400).json({ error: 'ID da prova e nota são obrigatórios.' });
       }
 
-      await db.query(
-        'UPDATE provas SET nota = $1, feedback_avaliador = $2, status = $3, corrigido_em = NOW() WHERE id = $4',
-        [parseFloat(nota), feedback || '', 'Corrigido', provaId]
-      );
+      await db.collection('provas').doc(provaId).update({
+        nota: parseFloat(nota),
+        feedbackAvaliador: feedback || '',
+        status: 'Corrigido',
+        corrigidoEm: FieldValue.serverTimestamp()
+      });
 
       return res.status(200).json({ success: true, message: 'Avaliação corrigida com sucesso!' });
     }
 
     // 4. Listar Todas as Dúvidas
     if (req.method === 'GET' && action === 'listarDuvidas') {
-      const duvidas = await db.query('SELECT * FROM duvidas ORDER BY id DESC');
-      return res.status(200).json({ duvidas: duvidas.rows || [] });
+      const snap = await db.collection('duvidas').orderBy('criadoEm', 'desc').get();
+      const duvidas = snap.docs.map(d => ({ id: d.id, ...mapDuvida(d.data()) }));
+      return res.status(200).json({ duvidas });
     }
 
-    // 5. Responder Dúvida do Aluno
+    // 5. Assumir Dúvida
+    if (req.method === 'POST' && action === 'assumirDuvida') {
+      const { id, nickAvaliador } = body;
+      if (!id) return res.status(400).json({ error: 'ID da dúvida ausente.' });
+
+      await db.collection('duvidas').doc(id).update({
+        avaliadorNick: nickAvaliador || 'Avaliador',
+        status: 'Em Andamento'
+      });
+
+      return res.status(200).json({ success: true });
+    }
+
+    // 6. Responder Dúvida
     if (req.method === 'POST' && action === 'responderDuvida') {
       const { id, resposta, nickAvaliador } = body;
-
       if (!id || !resposta) {
         return res.status(400).json({ error: 'ID da dúvida e resposta são necessários.' });
       }
 
-      await db.query(
-        'UPDATE duvidas SET resposta = $1, avaliador_nick = $2, status = $3, respondido_em = NOW() WHERE id = $4',
-        [resposta.trim(), nickAvaliador || 'Avaliador', 'Respondida', id]
-      );
+      await db.collection('duvidas').doc(id).update({
+        resposta: resposta.trim(),
+        avaliadorNick: nickAvaliador || 'Avaliador',
+        status: 'Respondida',
+        respondidoEm: FieldValue.serverTimestamp()
+      });
 
       return res.status(200).json({ success: true });
     }

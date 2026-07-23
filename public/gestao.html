@@ -8,39 +8,80 @@
   <script>
     tailwind.config = {
       darkMode: 'class',
-      theme: {
-        extend: {
-          colors: { brand: { 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca' } }
-        }
-      }
+      theme: { extend: { colors: { brand: { 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca' } } } }
     }
   </script>
   <style>
     body { background-color: #0f172a; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; }
     .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); }
+    .avatar-container {
+      width: 44px; height: 44px; border-radius: 9999px; background: rgba(255,255,255,0.08);
+      border: 2px solid #a855f7; overflow: hidden; display: flex; align-items: center; justify-content: center;
+    }
+    .avatar-container img { width: 50px; height: auto; margin-top: -9px; }
   </style>
 </head>
 <body class="p-4 md:p-8 min-h-screen flex flex-col items-center">
 
   <div class="max-w-6xl w-full space-y-8">
 
-    <header class="text-center space-y-2">
-      <h1 class="text-4xl font-extrabold text-white">Central CFO - <span class="text-purple-400">Painel do Gestor</span></h1>
-      <p class="text-slate-400">Gerenciamento de Banco de Questões, Tokens e Relatórios Gerais</p>
+    <header class="flex justify-between items-center flex-wrap gap-4">
+      <div class="flex items-center gap-3">
+        <div class="avatar-container">
+          <img id="habboAvatar" src="" alt="Avatar" onerror="this.src='https://www.habbo.com.br/habbo-imaging/avatarimage?user=Habbo&headonly=1'">
+        </div>
+        <div>
+          <h1 class="text-2xl font-extrabold text-white">Central CFO <span class="text-purple-400">· Gestor</span></h1>
+          <p class="text-slate-400 text-sm"><span id="userNick"></span> (<span id="userNome"></span>)</p>
+        </div>
+      </div>
+      <button onclick="logout()" class="bg-red-600 hover:bg-red-700 text-white text-sm font-semibold px-4 py-2 rounded-xl transition">Sair</button>
     </header>
 
-    <!-- NAVEGAÇÃO INTERNA GESTOR -->
-    <div class="flex justify-center border-b border-slate-800 pb-4 gap-4">
-      <button onclick="mudarAbaGestor('questoes')" id="btnQuestoes" class="px-5 py-2 rounded-xl font-semibold bg-purple-600 text-white transition">Banco de Questões</button>
+    <div class="flex justify-center border-b border-slate-800 pb-4 gap-4 flex-wrap">
+      <button onclick="mudarAbaGestor('usuarios')" id="btnUsuarios" class="px-5 py-2 rounded-xl font-semibold bg-purple-600 text-white transition">Usuários</button>
+      <button onclick="mudarAbaGestor('questoes')" id="btnQuestoes" class="px-5 py-2 rounded-xl font-semibold bg-slate-800 text-slate-400 hover:text-white transition">Banco de Questões</button>
       <button onclick="mudarAbaGestor('tokens')" id="btnTokens" class="px-5 py-2 rounded-xl font-semibold bg-slate-800 text-slate-400 hover:text-white transition">Tokens Ativos</button>
       <button onclick="mudarAbaGestor('relatorios')" id="btnRelatorios" class="px-5 py-2 rounded-xl font-semibold bg-slate-800 text-slate-400 hover:text-white transition">Relatório Geral</button>
     </div>
 
-    <!-- ABA 1: BANCO DE QUESTÕES -->
-    <div id="abaQuestoes" class="space-y-6">
+    <!-- ABA USUÁRIOS -->
+    <div id="abaUsuarios" class="space-y-6">
+      <section class="glass p-6 rounded-2xl space-y-4">
+        <h2 class="text-xl font-bold text-purple-400">Cadastrar Novo Usuário</h2>
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
+          <input type="text" id="usrNome" placeholder="Nome completo" class="bg-slate-800 border border-slate-700 rounded-xl p-3 text-white md:col-span-2">
+          <input type="text" id="usrNick" placeholder="Nick policial" class="bg-slate-800 border border-slate-700 rounded-xl p-3 text-white">
+          <input type="password" id="usrSenha" placeholder="Senha" class="bg-slate-800 border border-slate-700 rounded-xl p-3 text-white">
+          <select id="usrRole" class="bg-slate-800 border border-slate-700 rounded-xl p-3 text-white">
+            <option value="candidato">Candidato / Aluno</option>
+            <option value="avaliador">Avaliador</option>
+            <option value="gestor">Gestor</option>
+          </select>
+        </div>
+        <button onclick="cadastrarUsuario()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-6 py-2.5 rounded-xl transition">Cadastrar</button>
+      </section>
+
+      <section class="glass p-6 rounded-2xl space-y-4">
+        <div class="flex justify-between items-center">
+          <h2 class="text-xl font-bold text-white">Usuários Cadastrados</h2>
+          <button onclick="carregarUsuarios()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-xl text-sm">Atualizar</button>
+        </div>
+        <div id="listaUsuarios" class="space-y-2">
+          <p class="text-slate-500 text-center py-4">Carregando usuários...</p>
+        </div>
+      </section>
+    </div>
+
+    <!-- ABA QUESTÕES -->
+    <div id="abaQuestoes" class="hidden space-y-6">
       <section class="glass p-6 rounded-2xl space-y-4">
         <h2 class="text-xl font-bold text-purple-400">Cadastrar Nova Questão</h2>
         <div class="space-y-3">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <input type="text" id="questCategoria" placeholder="Categoria (ex: Direito Penal)" class="bg-slate-800 border border-slate-700 rounded-xl p-3 text-white">
+            <input type="text" id="questTitulo" placeholder="Título da questão" class="bg-slate-800 border border-slate-700 rounded-xl p-3 text-white">
+          </div>
           <textarea id="questEnunciado" rows="3" placeholder="Enunciado da pergunta..." class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white focus:ring-2 focus:ring-purple-500"></textarea>
           <textarea id="questGabarito" rows="2" placeholder="Gabarito esperado para a correção..." class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white focus:ring-2 focus:ring-purple-500"></textarea>
           <button onclick="cadastrarQuestao()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-6 py-2.5 rounded-xl transition">Salvar Questão</button>
@@ -58,7 +99,7 @@
       </section>
     </div>
 
-    <!-- ABA 2: TOKENS ATIVOS -->
+    <!-- ABA TOKENS -->
     <div id="abaTokens" class="hidden space-y-6">
       <section class="glass p-6 rounded-2xl space-y-4">
         <div class="flex justify-between items-center">
@@ -66,16 +107,16 @@
           <button onclick="carregarTokensGestor()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-xl text-sm">Atualizar Tokens</button>
         </div>
         <div id="listaTokensGestor" class="space-y-3">
-          <p class="text-slate-500 text-center py-4">Clique em "Atualizar Tokens" para carregar.</p>
+          <p class="text-slate-500 text-center py-4">Carregando tokens...</p>
         </div>
       </section>
     </div>
 
-    <!-- ABA 3: RELATÓRIOS GERAIS -->
+    <!-- ABA RELATÓRIOS -->
     <div id="abaRelatorios" class="hidden space-y-6">
       <section class="glass p-6 rounded-2xl space-y-4">
         <h2 class="text-xl font-bold text-white">Métricas da Plataforma</h2>
-        <div id="metricasBox" class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div class="bg-slate-800/80 p-4 rounded-xl text-center border border-slate-700">
             <p class="text-slate-400 text-sm">Total de Provas</p>
             <p id="totalProvas" class="text-3xl font-extrabold text-brand-500">-</p>
@@ -94,46 +135,106 @@
 
   </div>
 
+  <script src="/assets/js/auth-guard.js"></script>
   <script>
+    const user = checkAuth('gestor');
+    document.getElementById('userNick').innerText = user.nick;
+    document.getElementById('userNome').innerText = user.nome || 'Gestor';
+    document.getElementById('habboAvatar').src = habboAvatarUrl(user.nick);
+
     function mudarAbaGestor(aba) {
-      document.getElementById('abaQuestoes').classList.add('hidden');
-      document.getElementById('abaTokens').classList.add('hidden');
-      document.getElementById('abaRelatorios').classList.add('hidden');
+      ['Usuarios', 'Questoes', 'Tokens', 'Relatorios'].forEach(a => {
+        document.getElementById('aba' + a).classList.add('hidden');
+        document.getElementById('btn' + a).className = "px-5 py-2 rounded-xl font-semibold bg-slate-800 text-slate-400 hover:text-white transition";
+      });
 
-      document.getElementById('btnQuestoes').className = "px-5 py-2 rounded-xl font-semibold bg-slate-800 text-slate-400 hover:text-white transition";
-      document.getElementById('btnTokens').className = "px-5 py-2 rounded-xl font-semibold bg-slate-800 text-slate-400 hover:text-white transition";
-      document.getElementById('btnRelatorios').className = "px-5 py-2 rounded-xl font-semibold bg-slate-800 text-slate-400 hover:text-white transition";
+      const nomeAba = aba.charAt(0).toUpperCase() + aba.slice(1);
+      document.getElementById('aba' + nomeAba).classList.remove('hidden');
+      document.getElementById('btn' + nomeAba).className = "px-5 py-2 rounded-xl font-semibold bg-purple-600 text-white transition";
 
-      if (aba === 'questoes') {
-        document.getElementById('abaQuestoes').classList.remove('hidden');
-        document.getElementById('btnQuestoes').className = "px-5 py-2 rounded-xl font-semibold bg-purple-600 text-white transition";
-        carregarQuestoes();
-      } else if (aba === 'tokens') {
-        document.getElementById('abaTokens').classList.remove('hidden');
-        document.getElementById('btnTokens').className = "px-5 py-2 rounded-xl font-semibold bg-purple-600 text-white transition";
-        carregarTokensGestor();
-      } else if (aba === 'relatorios') {
-        document.getElementById('abaRelatorios').classList.remove('hidden');
-        document.getElementById('btnRelatorios').className = "px-5 py-2 rounded-xl font-semibold bg-purple-600 text-white transition";
-        carregarRelatorios();
+      if (aba === 'usuarios') carregarUsuarios();
+      else if (aba === 'questoes') carregarQuestoes();
+      else if (aba === 'tokens') carregarTokensGestor();
+      else if (aba === 'relatorios') carregarRelatorios();
+    }
+
+    // Usuários
+    async function cadastrarUsuario() {
+      const nome = document.getElementById('usrNome').value.trim();
+      const nick = document.getElementById('usrNick').value.trim();
+      const senha = document.getElementById('usrSenha').value;
+      const role = document.getElementById('usrRole').value;
+
+      if (!nome || !nick || !senha) return alert('Preencha todos os campos.');
+
+      const res = await fetch('/api/gestor?action=cadastrarUsuario', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nome, nick, senha, role })
+      });
+      const data = await res.json();
+      if (!res.ok) return alert(data.error || 'Erro ao cadastrar.');
+
+      alert('Usuário cadastrado!');
+      document.getElementById('usrNome').value = '';
+      document.getElementById('usrNick').value = '';
+      document.getElementById('usrSenha').value = '';
+      carregarUsuarios();
+    }
+
+    async function carregarUsuarios() {
+      const container = document.getElementById('listaUsuarios');
+      const res = await fetch('/api/gestor?action=listarUsuarios');
+      const data = await res.json();
+
+      if (!data.usuarios || data.usuarios.length === 0) {
+        container.innerHTML = '<p class="text-slate-500 text-center py-4">Nenhum usuário cadastrado.</p>';
+        return;
       }
+
+      container.innerHTML = data.usuarios.map(u => `
+        <div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700 flex justify-between items-center flex-wrap gap-2">
+          <div class="flex items-center gap-3">
+            <img src="https://www.habbo.com.br/habbo-imaging/avatarimage?user=${encodeURIComponent(u.nick_policial)}&headonly=1&size=s" class="rounded-full bg-slate-700">
+            <div>
+              <p class="font-bold text-white">${u.nome} <span class="text-slate-400 font-normal">(${u.nick_policial})</span></p>
+              <span class="text-xs px-2 py-0.5 rounded-full bg-slate-700 text-slate-300">${u.role}</span>
+            </div>
+          </div>
+          <button onclick="removerUsuario('${u.id}')" class="text-red-400 hover:text-red-300 text-sm font-semibold">Excluir</button>
+        </div>
+      `).join('');
+    }
+
+    async function removerUsuario(id) {
+      if (!confirm('Excluir este usuário? Essa ação não pode ser desfeita.')) return;
+      await fetch('/api/gestor?action=removerUsuario', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id })
+      });
+      carregarUsuarios();
     }
 
     // Questões
     async function cadastrarQuestao() {
+      const categoria = document.getElementById('questCategoria').value.trim();
+      const titulo = document.getElementById('questTitulo').value.trim();
       const enunciado = document.getElementById('questEnunciado').value.trim();
       const gabarito = document.getElementById('questGabarito').value.trim();
 
-      if (!enunciado || !gabarito) return alert('Preencha o enunciado e o gabarito esperados.');
+      if (!enunciado || !gabarito) return alert('Preencha o enunciado e o gabarito.');
 
       const res = await fetch('/api/gestor?action=cadastrarQuestao', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ enunciado, gabarito })
+        body: JSON.stringify({ categoria, titulo, enunciado, gabarito })
       });
       const data = await res.json();
       if (data.success) {
         alert('Questão adicionada ao banco!');
+        document.getElementById('questCategoria').value = '';
+        document.getElementById('questTitulo').value = '';
         document.getElementById('questEnunciado').value = '';
         document.getElementById('questGabarito').value = '';
         carregarQuestoes();
@@ -150,16 +251,25 @@
         return;
       }
 
-      let html = '';
-      data.questoes.forEach(q => {
-        html += `
-          <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700 space-y-2">
-            <p class="font-bold text-white">ID #${q.id}: ${q.enunciado}</p>
-            <p class="text-emerald-400 text-sm"><strong>Gabarito:</strong> ${q.gabarito_esperado}</p>
+      container.innerHTML = data.questoes.map(q => `
+        <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700 space-y-2">
+          <div class="flex justify-between items-start gap-3">
+            <p class="font-bold text-white">[${q.categoria || 'Geral'}] ${q.titulo ? q.titulo + ' — ' : ''}${q.enunciado}</p>
+            <button onclick="excluirQuestao('${q.id}')" class="text-red-400 hover:text-red-300 text-sm shrink-0">Excluir</button>
           </div>
-        `;
+          <p class="text-emerald-400 text-sm"><strong>Gabarito:</strong> ${q.gabarito_esperado}</p>
+        </div>
+      `).join('');
+    }
+
+    async function excluirQuestao(id) {
+      if (!confirm('Excluir esta questão?')) return;
+      await fetch('/api/gestor?action=excluirQuestao', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id })
       });
-      container.innerHTML = html;
+      carregarQuestoes();
     }
 
     // Tokens
@@ -173,33 +283,27 @@
         return;
       }
 
-      let html = '';
-      data.tokens.forEach(t => {
-        html += `
-          <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700 flex justify-between items-center">
-            <div>
-              <p class="font-bold text-amber-400 font-mono">${t.token_utilizado}</p>
-              <p class="text-xs text-slate-400">Candidato: ${t.candidato_nick} | Avaliador: ${t.avaliador_gerador || 'N/A'}</p>
-            </div>
-            <span class="text-xs px-3 py-1 rounded-full bg-slate-700 text-slate-300">${t.status}</span>
+      container.innerHTML = data.tokens.map(t => `
+        <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700 flex justify-between items-center">
+          <div>
+            <p class="font-bold text-amber-400 font-mono">${t.token_utilizado}</p>
+            <p class="text-xs text-slate-400">Candidato: ${t.candidato_nick} | Avaliador: ${t.avaliador_gerador || 'N/A'}</p>
           </div>
-        `;
-      });
-      container.innerHTML = html;
+          <span class="text-xs px-3 py-1 rounded-full bg-slate-700 text-slate-300">${t.status}</span>
+        </div>
+      `).join('');
     }
 
     // Relatórios
     async function carregarRelatorios() {
       const res = await fetch('/api/gestor?action=metricas');
       const data = await res.json();
-
       document.getElementById('totalProvas').innerText = data.totalProvas || 0;
       document.getElementById('totalPendentes').innerText = data.totalPendentes || 0;
       document.getElementById('mediaNotas').innerText = data.mediaNotas ? Number(data.mediaNotas).toFixed(1) : '0.0';
     }
 
-    // Iniciar na aba de questões
-    carregarQuestoes();
+    carregarUsuarios();
   </script>
 </body>
 </html>

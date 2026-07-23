@@ -9,23 +9,12 @@
     [data-theme="dark"] { background-color: #121212; color: #e0e0e0; }
     [data-theme="dark"] .card { background-color: #1e1e1e; color: #fff; border-color: #333; }
     [data-theme="light"] { background-color: #f8f9fa; color: #212529; }
-
     .avatar-container {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      background-color: rgba(255, 255, 255, 0.1);
-      border: 2px solid #198754;
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      width: 48px; height: 48px; border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.1); border: 2px solid #198754;
+      overflow: hidden; display: flex; align-items: center; justify-content: center;
     }
-    .avatar-container img {
-      width: 54px;
-      height: auto;
-      margin-top: -10px;
-    }
+    .avatar-container img { width: 54px; height: auto; margin-top: -10px; }
   </style>
 </head>
 <body class="p-3 p-md-4">
@@ -40,7 +29,6 @@
           <small class="text-muted"><span id="userNick"></span> (<span id="userNome"></span>)</small>
         </div>
       </div>
-
       <div class="d-flex align-items-center gap-2">
         <button class="btn btn-outline-secondary btn-sm" onclick="toggleTheme()">🌙 / ☀️ Tema</button>
         <button class="btn btn-danger btn-sm" onclick="logout()">Sair</button>
@@ -79,20 +67,18 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/assets/js/auth-guard.js"></script>
   <script>
-    const user = JSON.parse(sessionStorage.getItem('cfo_user') || '{}');
-    if (!user.nick) window.location.href = '/index.html';
+    const user = checkAuth('avaliador');
 
     document.getElementById('userNick').innerText = user.nick;
     document.getElementById('userNome').innerText = user.nome || 'Avaliador';
-    document.getElementById('habboAvatar').src = `https://www.habbo.com.br/habbo-imaging/avatarimage?user=${encodeURIComponent(user.nick)}&action=std&direction=2&head_direction=2&gesture=sml&size=m`;
+    document.getElementById('habboAvatar').src = habboAvatarUrl(user.nick);
 
     function toggleTheme() {
       const current = document.documentElement.getAttribute('data-theme');
       document.documentElement.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
     }
-
-    function logout() { sessionStorage.clear(); window.location.href = '/index.html'; }
 
     async function gerarToken(e) {
       e.preventDefault();
@@ -108,7 +94,7 @@
           <div class="alert alert-success">
             <h6>${data.message}</h6>
             <p class="mb-1"><strong>Token:</strong> <code>${data.token}</code></p>
-            ${data.senhaGerada ? `<p class="mb-0"><strong>Senha Inicial:</strong> <code>${data.senhaGerada}</code></p>` : ''}
+            ${data.senhaGerada ? `<p class="mb-0"><strong>Senha inicial do candidato:</strong> <code>${data.senhaGerada}</code> (anote agora, não será mostrada novamente)</p>` : '<p class="mb-0 text-muted">Candidato já possuía conta — use a senha existente.</p>'}
           </div>
         `;
         document.getElementById('candNick').value = '';
@@ -118,7 +104,7 @@
     }
 
     async function carregarProvas() {
-      const res = await fetch(`/api/avaliador?action=listarProvas&nick=${user.nick}`);
+      const res = await fetch(`/api/avaliador?action=listarProvas&nick=${encodeURIComponent(user.nick)}`);
       const data = await res.json();
       const div = document.getElementById('listaProvas');
       div.innerHTML = (data.provas || []).map(p => `
@@ -135,7 +121,7 @@
               <div class="row g-2">
                 <div class="col-md-3"><input type="number" step="0.1" max="10" min="0" id="nota-${p.id}" class="form-control" placeholder="Nota"></div>
                 <div class="col-md-7"><input type="text" id="fb-${p.id}" class="form-control" placeholder="Feedback"></div>
-                <div class="col-md-2"><button class="btn btn-primary w-100" onclick="corrigir(${p.id})">Enviar</button></div>
+                <div class="col-md-2"><button class="btn btn-primary w-100" onclick="corrigir('${p.id}')">Enviar</button></div>
               </div>
             </div>
           ` : p.status === 'Corrigido' ? `<p class="mt-2 mb-0 text-success"><strong>Nota:</strong> ${p.nota} - <strong>Feedback:</strong> ${p.feedback_avaliador}</p>` : ''}
@@ -146,6 +132,7 @@
     async function corrigir(id) {
       const nota = document.getElementById(`nota-${id}`).value;
       const feedback = document.getElementById(`fb-${id}`).value;
+      if (nota === '') { alert('Informe a nota.'); return; }
       await fetch('/api/avaliador?action=corrigir', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -167,15 +154,15 @@
           </div>
           <p class="my-2">${d.pergunta}</p>
           ${d.status === 'Pendente' ? `
-            <button class="btn btn-sm btn-outline-warning w-auto" onclick="assumirDuvida(${d.id})">Assumir Dúvida</button>
+            <button class="btn btn-sm btn-outline-warning w-auto" onclick="assumirDuvida('${d.id}')">Assumir Dúvida</button>
           ` : d.status === 'Em Andamento' && d.avaliador_nick === user.nick ? `
             <div class="mt-2">
               <input type="text" id="resp-${d.id}" class="form-control mb-2" placeholder="Digite a resposta...">
-              <button class="btn btn-sm btn-success" onclick="responderDuvida(${d.id})">Enviar Resposta</button>
+              <button class="btn btn-sm btn-success" onclick="responderDuvida('${d.id}')">Enviar Resposta</button>
             </div>
           ` : `<p class="mb-0 text-muted">Atribuído a: ${d.avaliador_nick} ${d.resposta ? '| Resposta: ' + d.resposta : ''}</p>`}
         </div>
-      `).join('');
+      `).join('') || '<p>Nenhuma dúvida cadastrada.</p>';
     }
 
     async function assumirDuvida(id) {
@@ -189,10 +176,11 @@
 
     async function responderDuvida(id) {
       const resposta = document.getElementById(`resp-${id}`).value;
+      if (!resposta.trim()) { alert('Digite uma resposta.'); return; }
       await fetch('/api/avaliador?action=responderDuvida', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, resposta })
+        body: JSON.stringify({ id, resposta, nickAvaliador: user.nick })
       });
       carregarDuvidas();
     }

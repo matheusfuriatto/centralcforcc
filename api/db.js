@@ -1,20 +1,22 @@
-const { Pool } = require('pg');
+const admin = require('firebase-admin');
 
-let pool;
+if (!admin.apps.length) {
+  const privateKey = (process.env.FIREBASE_PRIVATE_KEY || '').replace(/\\n/g, '\n');
 
-function getPool() {
-  if (!pool) {
-    const connectionString = process.env.DATABASE_URL || "postgresql://neondb_owner:npg_ThY3g6wUrQKP@ep-small-breeze-acsmcqv0.sa-east-1.aws.neon.tech/neondb?sslmode=require";
-
-    pool = new Pool({
-      connectionString,
-      ssl: { rejectUnauthorized: false },
-      connectionTimeoutMillis: 5000, // Evita que a Vercel trave por timeout de conexão
-    });
+  if (!process.env.FIREBASE_PROJECT_ID || !process.env.FIREBASE_CLIENT_EMAIL || !privateKey) {
+    console.error('Variáveis de ambiente do Firebase ausentes. Configure FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL e FIREBASE_PRIVATE_KEY na Vercel.');
   }
-  return pool;
+
+  admin.initializeApp({
+    credential: admin.credential.cert({
+      projectId: process.env.FIREBASE_PROJECT_ID,
+      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+      privateKey,
+    }),
+  });
 }
 
-module.exports = {
-  query: (text, params) => getPool().query(text, params)
-};
+const db = admin.firestore();
+const FieldValue = admin.firestore.FieldValue;
+
+module.exports = { db, admin, FieldValue };
