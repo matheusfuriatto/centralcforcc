@@ -41,7 +41,7 @@ module.exports = async function handler(req, res) {
       }
     }
 
-    // 2. Gerar Avaliação
+    // 2. Gerar Avaliação (Senha preservada para existentes)
     if (req.method === 'POST' && (action === 'gerarAvaliacao' || action === 'gerarToken')) {
       const { nickAvaliador, nickCandidato } = body;
       if (!nickCandidato || !String(nickCandidato).trim()) {
@@ -89,7 +89,7 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    // 3. Listar e Revogar Avaliações
+    // 3. Listar e Revogar
     if (req.method === 'GET' && action === 'listarTokens') {
       const snap = await db.collection('provas').orderBy('criadoEm', 'desc').get();
       const tokens = snap.docs.map(d => ({
@@ -106,7 +106,7 @@ module.exports = async function handler(req, res) {
     if (req.method === 'DELETE' && action === 'revogarToken') {
       const { id } = body;
       await db.collection('provas').doc(id).delete();
-      return res.status(200).json({ success: true, message: 'Avaliação revogada com sucesso!' });
+      return res.status(200).json({ success: true, message: 'Avaliação revogada!' });
     }
 
     // 4. Solicitações de Acesso
@@ -128,18 +128,16 @@ module.exports = async function handler(req, res) {
 
     // 5. Cancelar ou Excluir Prova
     if (req.method === 'POST' && action === 'cancelarProva') {
-      const { id } = body;
-      await db.collection('provas').doc(id).update({ status: 'Cancelada', canceladoEm: FieldValue.serverTimestamp() });
+      await db.collection('provas').doc(body.id).update({ status: 'Cancelada', canceladoEm: FieldValue.serverTimestamp() });
       return res.status(200).json({ success: true });
     }
 
     if (req.method === 'DELETE' && action === 'excluirProva') {
-      const { id } = body;
-      await db.collection('provas').doc(id).delete();
+      await db.collection('provas').doc(body.id).delete();
       return res.status(200).json({ success: true });
     }
 
-    // 6. Provas e Correção
+    // 6. Provas e Correção Detalhada por Questão
     if (req.method === 'GET' && action === 'listarProvas') {
       const snap = await db.collection('provas').orderBy('criadoEm', 'desc').get();
       return res.status(200).json({
@@ -155,6 +153,7 @@ module.exports = async function handler(req, res) {
             nota: data.nota !== undefined ? data.nota : null,
             feedbackAvaliador: data.feedbackAvaliador || null,
             feedbacksQuestoes: data.feedbacksQuestoes || {},
+            notasQuestoes: data.notasQuestoes || {},
             respostasJson: data.respostasJson || {},
             questoesJson: qRaw.map(normalizarQuestao)
           };
@@ -162,25 +161,23 @@ module.exports = async function handler(req, res) {
       });
     }
 
+    // SALVAR CORREÇÃO COM NOTAS POR QUESTÃO E FEEDBACK GERAL
     if (req.method === 'POST' && action === 'corrigir') {
-      const { provaId, nota, feedbackGeral, feedbacksQuestoes } = body;
+      const { provaId, nota, feedbackGeral, feedbacksQuestoes, notasQuestoes } = body;
       await db.collection('provas').doc(provaId).update({
         nota: parseFloat(nota),
         feedbackAvaliador: feedbackGeral || '',
         feedbacksQuestoes: feedbacksQuestoes || {},
+        notasQuestoes: notasQuestoes || {},
         status: 'Corrigido',
         corrigidoEm: FieldValue.serverTimestamp()
       });
-      return res.status(200).json({ success: true });
+      return res.status(200).json({ success: true, message: 'Correção registrada!' });
     }
 
-    // 7. Sugestão de Questões
+    // 7. Sugestões de Questão
     if (req.method === 'POST' && action === 'sugerirQuestao') {
       const { avaliadorNick, categoria, titulo, enunciado, gabarito_esperado } = body;
-      if (!enunciado || !gabarito_esperado) {
-        return res.status(400).json({ error: 'Preencha enunciado e gabarito.' });
-      }
-
       await db.collection('sugestoes_questoes').add({
         avaliadorNick: avaliadorNick || 'Avaliador',
         categoria: categoria || 'Geral',
@@ -191,7 +188,6 @@ module.exports = async function handler(req, res) {
         observacaoGestor: '',
         criadoEm: FieldValue.serverTimestamp()
       });
-
       return res.status(200).json({ success: true, message: 'Sugestão enviada à gestão!' });
     }
 
@@ -201,7 +197,7 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ sugestoes: snap.docs.map(d => ({ id: d.id, ...d.data() })) });
     }
 
-    // 8. Central de Dúvidas
+    // 8. Dúvidas
     if (req.method === 'GET' && action === 'listarDuvidas') {
       const snap = await db.collection('duvidas').orderBy('criadoEm', 'desc').get();
       return res.status(200).json({
@@ -227,11 +223,10 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ success: true });
     }
 
-    // 9. Central de Documentos (Garante retorno mesmo se a coleção ainda estiver vazia)
+    // 9. Documentos
     if (req.method === 'GET' && action === 'listarDocumentos') {
       const snap = await db.collection('documentos').get();
-      const documentos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      return res.status(200).json({ documentos });
+      return res.status(200).json({ documentos: snap.docs.map(d => ({ id: d.id, ...d.data() })) });
     }
 
     return res.status(400).json({ error: 'Ação não encontrada' });

@@ -20,7 +20,7 @@
     <!-- BANNER SUPERIOR -->
     <div class="w-full h-32 rounded-2xl bg-cover bg-center border border-slate-200 dark:border-slate-800 shadow-sm" style="background-image: url('/assets/images/banner-cfo.png');"></div>
 
-    <!-- CABEÇALHO DA CONTA DO ALUNO -->
+    <!-- CABEÇALHO -->
     <header class="flex flex-wrap justify-between items-center gap-4 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
       <div class="flex items-center gap-4">
         <img id="habboAvatar" src="/assets/images/default-avatar.png" class="w-14 h-14 rounded-2xl border-2 border-brand-500 bg-slate-800">
@@ -49,7 +49,7 @@
       <button onclick="mudarAba('documentos')" id="tab-documentos" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Documentos</button>
     </nav>
 
-    <!-- ABA 1: REALIZAR AVALIAÇÃO -->
+    <!-- REALIZAR AVALIAÇÃO -->
     <section id="content-realizar" class="space-y-6">
       <div id="areaProvasPendentes" class="space-y-4">
         <h2 class="text-lg font-bold">Avaliação Liberada para Você</h2>
@@ -67,7 +67,7 @@
       </div>
     </section>
 
-    <!-- ABA 2: MINHAS AVALIAÇÕES E RESULTADOS (COM ANDAMENTO DETALHADO) -->
+    <!-- MINHAS AVALIAÇÕES E RESULTADOS COM NOTAS POR QUESTÃO -->
     <section id="content-avaliacoes" class="hidden space-y-4">
       <div class="flex justify-between items-center">
         <h2 class="text-lg font-bold">Minhas Avaliações & Status de Andamento</h2>
@@ -78,9 +78,8 @@
       <div id="listaAvaliacoes" class="grid grid-cols-1 gap-4"></div>
     </section>
 
-    <!-- ABA 3: ENVIAR DÚVIDA -->
+    <!-- ENVIAR DÚVIDA -->
     <section id="content-enviarDuvida" class="hidden space-y-4">
-      <!-- BANNER DE AVISO -->
       <div class="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400 text-xs flex items-start gap-3">
         <i data-lucide="alert-triangle" class="w-5 h-5 shrink-0 mt-0.5"></i>
         <div>
@@ -99,9 +98,8 @@
       </div>
     </section>
 
-    <!-- ABA 4: COMUNIDADE DE DÚVIDAS -->
+    <!-- COMUNIDADE DE DÚVIDAS -->
     <section id="content-comunidadeDuvidas" class="hidden space-y-4">
-      <!-- BANNER DE AVISO -->
       <div class="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400 text-xs flex items-start gap-3">
         <i data-lucide="alert-triangle" class="w-5 h-5 shrink-0 mt-0.5"></i>
         <div>
@@ -114,7 +112,7 @@
       <div id="listaComunidadeDuvidas" class="grid grid-cols-1 gap-4"></div>
     </section>
 
-    <!-- ABA 5: DOCUMENTOS -->
+    <!-- DOCUMENTOS -->
     <section id="content-documentos" class="hidden space-y-4">
       <h2 class="text-lg font-bold">Documentos e Regimentos Oficiais</h2>
       <div id="listaDocumentos" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
@@ -252,7 +250,7 @@
       }
     }
 
-    // LISTAR MINHAS AVALIAÇÕES E ANDAMENTO
+    // CARREGAR AVALIAÇÕES COM NOTAS E FEEDBACKS POR QUESTÃO
     async function carregarMinhasAvaliacoes() {
       const container = document.getElementById('listaAvaliacoes');
       try {
@@ -287,6 +285,9 @@
             andamentoTexto = "Avaliação Cancelada";
           }
 
+          const notasQuestoes = p.notasQuestoes || {};
+          const feedbacksQuestoes = p.feedbacks_questoes || {};
+
           return `
             <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-4 shadow-sm">
               <div class="flex justify-between items-center flex-wrap gap-2">
@@ -297,7 +298,6 @@
                 <span class="px-3 py-1 text-xs font-bold rounded-full border ${badgeColor}">${statusText}</span>
               </div>
 
-              <!-- BARRA DE ANDAMENTO -->
               <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-1">
                 <span class="text-[11px] font-bold text-slate-400 block">Situação do Andamento:</span>
                 <p class="text-xs font-bold text-slate-800 dark:text-slate-200">${andamentoTexto}</p>
@@ -317,16 +317,24 @@
                 </div>
               ` : ''}
 
+              <!-- DETALHAMENTO DAS NOTAS POR QUESTÃO -->
               ${(p.questoes_json || []).length > 0 && p.status === 'Corrigido' ? `
-                <div class="space-y-2 pt-2 border-t border-slate-200 dark:border-slate-800">
-                  <h5 class="text-xs font-bold text-slate-400">Observações por Questão:</h5>
-                  ${(p.questoes_json || []).map((q, i) => `
-                    <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border text-xs space-y-1">
-                      <p class="font-bold text-slate-800 dark:text-slate-200">Q${i+1}: ${q.enunciado}</p>
-                      <p class="text-slate-400"><strong>Sua Resposta:</strong> ${p.respostas_json[q.id] || 'Sem resposta'}</p>
-                      ${(p.feedbacks_questoes || {})[q.id] ? `<p class="text-amber-500 font-semibold"><strong>Obs do Avaliador:</strong> ${(p.feedbacks_questoes || {})[q.id]}</p>` : ''}
-                    </div>
-                  `).join('')}
+                <div class="space-y-3 pt-2 border-t border-slate-200 dark:border-slate-800">
+                  <h5 class="text-xs font-bold text-slate-400">Detalhamento por Questão:</h5>
+                  ${(p.questoes_json || []).map((q, i) => {
+                    const notaItem = notasQuestoes[q.id] !== undefined ? notasQuestoes[q.id] : '-';
+                    const obsItem = feedbacksQuestoes[q.id] || '';
+                    return `
+                      <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs space-y-2">
+                        <div class="flex justify-between items-center">
+                          <p class="font-bold text-slate-800 dark:text-slate-200">Q${i+1}: ${q.enunciado}</p>
+                          <span class="px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 font-bold text-xs">Nota: ${notaItem} / 10</span>
+                        </div>
+                        <p class="text-slate-400"><strong>Sua Resposta:</strong> ${p.respostas_json[q.id] || 'Sem resposta'}</p>
+                        ${obsItem ? `<p class="text-amber-500 font-semibold"><strong>Observação do Avaliador:</strong> ${obsItem}</p>` : ''}
+                      </div>
+                    `;
+                  }).join('')}
                 </div>
               ` : ''}
             </div>
@@ -344,7 +352,7 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nick: user.nick, titulo: document.getElementById('duvidaTitulo').value, pergunta: document.getElementById('duvidaPergunta').value })
       });
-      alert('Dúvida enviada!');
+      alert('Dúvida enviada com sucesso!');
       e.target.reset();
       mudarAba('comunidadeDuvidas');
     }
