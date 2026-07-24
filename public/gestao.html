@@ -11,7 +11,6 @@
 
   <div class="max-w-6xl w-full space-y-6">
 
-    <!-- BANNER SUPERIOR -->
     <div class="w-full h-32 rounded-2xl bg-cover bg-center border border-slate-800 shadow-sm" style="background-image: url('/assets/images/banner-cfo.png');"></div>
 
     <header class="flex justify-between items-center flex-wrap gap-4">
@@ -26,24 +25,25 @@
     </header>
 
     <!-- NAVEGAÇÃO -->
-    <div class="flex justify-center border-b border-slate-800 pb-4 gap-3 flex-wrap">
-      <button onclick="mudarAbaGestor('usuarios')" id="btnUsuarios" class="px-4 py-2 rounded-xl font-semibold bg-purple-600 text-white text-sm">Usuários & Senhas</button>
-      <button onclick="mudarAbaGestor('questoes')" id="btnQuestoes" class="px-4 py-2 rounded-xl font-semibold bg-slate-800 text-slate-400 hover:text-white text-sm">Banco de Questões</button>
-      <button onclick="mudarAbaGestor('tokens')" id="btnTokens" class="px-4 py-2 rounded-xl font-semibold bg-slate-800 text-slate-400 hover:text-white text-sm">Tokens Emitidos</button>
-      <button onclick="mudarAbaGestor('relatorios')" id="btnRelatorios" class="px-4 py-2 rounded-xl font-semibold bg-slate-800 text-slate-400 hover:text-white text-sm">Métricas & Relatórios</button>
-      <button onclick="mudarAbaGestor('documentos')" id="btnDocumentos" class="px-4 py-2 rounded-xl font-semibold bg-slate-800 text-slate-400 hover:text-white text-sm">Central de Documentos</button>
+    <div class="flex justify-center border-b border-slate-800 pb-4 gap-2 flex-wrap">
+      <button onclick="mudarAbaGestor('usuarios')" id="btnUsuarios" class="px-4 py-2 rounded-xl font-semibold bg-purple-600 text-white text-xs">Usuários & Senhas</button>
+      <button onclick="mudarAbaGestor('questoes')" id="btnQuestoes" class="px-4 py-2 rounded-xl font-semibold bg-slate-800 text-slate-400 text-xs">Banco de Questões</button>
+      <button onclick="mudarAbaGestor('sugestoes')" id="btnSugestoes" class="px-4 py-2 rounded-xl font-semibold bg-slate-800 text-slate-400 text-xs">Aprovar Sugestões</button>
+      <button onclick="mudarAbaGestor('indiceErros')" id="btnIndiceErros" class="px-4 py-2 rounded-xl font-semibold bg-slate-800 text-slate-400 text-xs">Índice de Erros</button>
+      <button onclick="mudarAbaGestor('tokens')" id="btnTokens" class="px-4 py-2 rounded-xl font-semibold bg-slate-800 text-slate-400 text-xs">Tokens Emitidos</button>
+      <button onclick="mudarAbaGestor('documentos')" id="btnDocumentos" class="px-4 py-2 rounded-xl font-semibold bg-slate-800 text-slate-400 text-xs">Documentos</button>
     </div>
 
-    <!-- ABA USUÁRIOS -->
+    <!-- USUÁRIOS -->
     <div id="abaUsuarios" class="space-y-6">
       <section class="bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-4">
-        <h2 class="text-xl font-bold text-purple-400">Cadastrar Novo Usuário Manualmente</h2>
+        <h2 class="text-xl font-bold text-purple-400">Cadastrar Usuário Manualmente</h2>
         <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
-          <input type="text" id="usrNome" placeholder="Nome completo" class="bg-slate-800 border border-slate-700 rounded-xl p-3 text-white md:col-span-2 text-sm">
+          <input type="text" id="usrNome" placeholder="Nome completo" class="bg-slate-800 border border-slate-700 rounded-xl p-3 text-white text-sm md:col-span-2">
           <input type="text" id="usrNick" placeholder="Nick policial" class="bg-slate-800 border border-slate-700 rounded-xl p-3 text-white text-sm">
           <input type="password" id="usrSenha" placeholder="Senha" class="bg-slate-800 border border-slate-700 rounded-xl p-3 text-white text-sm">
           <select id="usrRole" class="bg-slate-800 border border-slate-700 rounded-xl p-3 text-white text-sm">
-            <option value="candidato">Candidato / Aluno</option>
+            <option value="candidato">Aluno / Candidato</option>
             <option value="avaliador">Avaliador</option>
             <option value="gestor">Gestor</option>
           </select>
@@ -52,22 +52,22 @@
       </section>
 
       <section class="bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-4">
-        <h2 class="text-xl font-bold text-white">Gestão de Níveis de Acesso e Redefinição de Senhas</h2>
+        <h2 class="text-xl font-bold text-white">Níveis de Acesso & Redefinição de Senhas</h2>
         <div id="listaUsuariosGestao" class="space-y-3"></div>
       </section>
     </div>
 
-    <!-- ABA QUESTÕES -->
+    <!-- QUESTÕES -->
     <div id="abaQuestoes" class="hidden space-y-6">
       <section class="bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-4">
-        <h2 class="text-xl font-bold text-purple-400">Cadastrar Nova Questão no Banco</h2>
+        <h2 class="text-xl font-bold text-purple-400">Cadastrar Nova Questão</h2>
         <div class="space-y-3">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <input type="text" id="questCategoria" placeholder="Categoria (ex: Penal)" class="bg-slate-800 border border-slate-700 rounded-xl p-3 text-white text-sm">
+            <input type="text" id="questCategoria" placeholder="Categoria" class="bg-slate-800 border border-slate-700 rounded-xl p-3 text-white text-sm">
             <input type="text" id="questTitulo" placeholder="Título" class="bg-slate-800 border border-slate-700 rounded-xl p-3 text-white text-sm">
           </div>
-          <textarea id="questEnunciado" rows="3" placeholder="Enunciado da pergunta..." class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white text-sm"></textarea>
-          <textarea id="questGabarito" rows="2" placeholder="Gabarito oficial esperado para correção..." class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white text-sm"></textarea>
+          <textarea id="questEnunciado" rows="3" placeholder="Enunciado..." class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white text-sm"></textarea>
+          <textarea id="questGabarito" rows="2" placeholder="Gabarito oficial..." class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white text-sm"></textarea>
           <button onclick="cadastrarQuestao()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-6 py-2.5 rounded-xl text-sm">Salvar Questão</button>
         </div>
       </section>
@@ -78,52 +78,44 @@
       </section>
     </div>
 
-    <!-- ABA TOKENS EMITIDOS -->
+    <!-- APROVAR SUGESTÕES DE QUESTÕES -->
+    <div id="abaSugestoes" class="hidden space-y-6">
+      <section class="bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-4">
+        <h2 class="text-xl font-bold text-purple-400">Sugestões de Questões dos Avaliadores</h2>
+        <div id="listaSugestoesGestor" class="space-y-4"></div>
+      </section>
+    </div>
+
+    <!-- ÍNDICE DE ERROS -->
+    <div id="abaIndiceErros" class="hidden space-y-6">
+      <section class="bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-4">
+        <h2 class="text-xl font-bold text-purple-400">Índice de Erros e Feedback por Questão</h2>
+        <div id="listaIndiceErros" class="space-y-3"></div>
+      </section>
+    </div>
+
+    <!-- TOKENS EMITIDOS -->
     <div id="abaTokens" class="hidden space-y-6">
       <section class="bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-4">
-        <h2 class="text-xl font-bold text-white">Registro de Todos os Tokens Emitidos</h2>
+        <h2 class="text-xl font-bold text-white">Todos os Tokens Emitidos</h2>
         <div id="listaTokensGestor" class="space-y-2"></div>
       </section>
     </div>
 
-    <!-- ABA RELATÓRIOS -->
-    <div id="abaRelatorios" class="hidden space-y-6">
-      <section class="bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-4">
-        <h2 class="text-xl font-bold text-white">Relatório Geral da Plataforma</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div class="bg-slate-800 p-4 rounded-xl text-center border border-slate-700">
-            <p class="text-slate-400 text-xs">Total de Provas Criadas</p>
-            <p id="totalProvas" class="text-3xl font-extrabold text-indigo-400">-</p>
-          </div>
-          <div class="bg-slate-800 p-4 rounded-xl text-center border border-slate-700">
-            <p class="text-slate-400 text-xs">Aguardando Correção</p>
-            <p id="totalPendentes" class="text-3xl font-extrabold text-amber-400">-</p>
-          </div>
-          <div class="bg-slate-800 p-4 rounded-xl text-center border border-slate-700">
-            <p class="text-slate-400 text-xs">Média Geral de Notas</p>
-            <p id="mediaNotas" class="text-3xl font-extrabold text-emerald-400">-</p>
-          </div>
-        </div>
-      </section>
-    </div>
-
-    <!-- ABA DOCUMENTOS -->
+    <!-- DOCUMENTOS -->
     <div id="abaDocumentos" class="hidden space-y-6">
       <section class="bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-4">
-        <div class="flex justify-between items-center">
-          <h2 class="text-xl font-bold text-purple-400">Gerenciar Central de Documentos</h2>
-          <button onclick="inicializarDocumentos()" class="bg-slate-800 hover:bg-slate-700 text-xs px-3 py-1.5 rounded-lg text-purple-300">Carregar Documentos Padrão RCC</button>
-        </div>
+        <h2 class="text-xl font-bold text-purple-400">Gerenciar Documentos</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
           <input type="text" id="docTitulo" placeholder="Título do Documento" class="bg-slate-800 border border-slate-700 rounded-xl p-3 text-white text-sm">
           <input type="url" id="docUrl" placeholder="Link Completo (https://...)" class="bg-slate-800 border border-slate-700 rounded-xl p-3 text-white text-sm">
-          <input type="text" id="docCategoria" placeholder="Categoria (ex: Penal)" class="bg-slate-800 border border-slate-700 rounded-xl p-3 text-white text-sm">
+          <input type="text" id="docCategoria" placeholder="Categoria" class="bg-slate-800 border border-slate-700 rounded-xl p-3 text-white text-sm">
         </div>
         <button onclick="cadastrarDocumento()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-6 py-2.5 rounded-xl text-sm">Adicionar Documento</button>
       </section>
 
       <section class="bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-4">
-        <h2 class="text-xl font-bold text-white">Links Ativos para Alunos e Avaliadores</h2>
+        <h2 class="text-xl font-bold text-white">Links Ativos</h2>
         <div id="listaDocumentosGestor" class="space-y-2"></div>
       </section>
     </div>
@@ -139,19 +131,20 @@
     lucide.createIcons();
 
     function mudarAbaGestor(aba) {
-      ['Usuarios', 'Questoes', 'Tokens', 'Relatorios', 'Documentos'].forEach(a => {
+      ['Usuarios', 'Questoes', 'Sugestoes', 'IndiceErros', 'Tokens', 'Documentos'].forEach(a => {
         document.getElementById('aba' + a).classList.add('hidden');
-        document.getElementById('btn' + a).className = "px-4 py-2 rounded-xl font-semibold bg-slate-800 text-slate-400 hover:text-white text-sm";
+        document.getElementById('btn' + a).className = "px-4 py-2 rounded-xl font-semibold bg-slate-800 text-slate-400 hover:text-white text-xs";
       });
 
       const nomeAba = aba.charAt(0).toUpperCase() + aba.slice(1);
       document.getElementById('aba' + nomeAba).classList.remove('hidden');
-      document.getElementById('btn' + nomeAba).className = "px-4 py-2 rounded-xl font-semibold bg-purple-600 text-white text-sm";
+      document.getElementById('btn' + nomeAba).className = "px-4 py-2 rounded-xl font-semibold bg-purple-600 text-white text-xs";
 
       if (aba === 'usuarios') carregarUsuariosGestao();
       if (aba === 'questoes') carregarQuestoes();
+      if (aba === 'sugestoes') carregarSugestoesGestor();
+      if (aba === 'indiceErros') carregarIndiceErros();
       if (aba === 'tokens') carregarTokensGestor();
-      if (aba === 'relatorios') carregarRelatorios();
       if (aba === 'documentos') carregarDocumentosGestor();
     }
 
@@ -205,7 +198,7 @@
     }
 
     async function redefinirSenhaUsuario(nick) {
-      const novaSenha = prompt(`Digite a nova senha para o usuário ${nick}:`);
+      const novaSenha = prompt(`Digite a nova senha para ${nick}:`);
       if (!novaSenha) return;
       const res = await fetch('/api/auth?action=alterarMinhaSenha', {
         method: 'POST',
@@ -256,6 +249,58 @@
       carregarQuestoes();
     }
 
+    async function carregarSugestoesGestor() {
+      const res = await fetch('/api/gestor?action=listarSugestoes');
+      const data = await res.json();
+      document.getElementById('listaSugestoesGestor').innerHTML = (data.sugestoes || []).map(s => `
+        <div class="bg-slate-800 p-4 rounded-xl space-y-3 border border-slate-700">
+          <div class="flex justify-between items-center">
+            <p class="font-bold text-sm text-purple-300">Sugerida por: ${s.avaliadorNick} [${s.categoria}]</p>
+            <span class="text-xs px-2.5 py-0.5 rounded-full font-bold bg-slate-700">${s.status}</span>
+          </div>
+          <p class="text-xs text-white"><strong>Enunciado:</strong> ${s.enunciado}</p>
+          <p class="text-xs text-emerald-400"><strong>Gabarito Sugerido:</strong> ${s.gabarito_esperado}</p>
+
+          ${s.status === 'Pendente' ? `
+            <div class="space-y-2 pt-2 border-t border-slate-700">
+              <input type="text" id="obs-sug-${s.id}" placeholder="Observação para o avaliador..." class="w-full p-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white">
+              <div class="flex gap-2">
+                <button onclick="avaliarSugestao('${s.id}', 'aprovar')" class="px-4 py-2 bg-emerald-500 text-white font-bold text-xs rounded-lg">Aprovar & Injetar no Banco</button>
+                <button onclick="avaliarSugestao('${s.id}', 'reprovar')" class="px-4 py-2 bg-red-600 text-white font-bold text-xs rounded-lg">Reprovar</button>
+              </div>
+            </div>
+          ` : `<p class="text-xs text-slate-400"><strong>Retorno:</strong> ${s.observacaoGestor || '-'}</p>`}
+        </div>
+      `).join('') || '<p class="text-xs text-slate-500 py-4">Nenhuma sugestão enviada.</p>';
+    }
+
+    async function avaliarSugestao(id, acao) {
+      const obs = document.getElementById(`obs-sug-${id}`).value;
+      await fetch('/api/gestor?action=avaliarSugestao', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, acao, observacao: obs })
+      });
+      alert(`Sugestão ${acao === 'aprovar' ? 'Aprovada' : 'Reprovada'}!`);
+      carregarSugestoesGestor();
+    }
+
+    async function carregarIndiceErros() {
+      const res = await fetch('/api/gestor?action=analiseQuestoes');
+      const data = await res.json();
+      document.getElementById('listaIndiceErros').innerHTML = (data.estatisticas || []).map(e => `
+        <div class="bg-slate-800 p-4 rounded-xl flex justify-between items-center border border-slate-700">
+          <div>
+            <p class="font-bold text-sm text-white">[${e.categoria}] ${e.enunciado}</p>
+            <p class="text-xs text-slate-400">Respostas totais em provas: ${e.totalRespostas}</p>
+          </div>
+          <span class="text-xs font-bold px-3 py-1.5 rounded-full ${e.errosObs > 0 ? 'bg-red-500/20 text-red-400' : 'bg-emerald-500/20 text-emerald-400'}">
+            ${e.errosObs} observações de erro
+          </span>
+        </div>
+      `).join('') || '<p class="text-xs text-slate-500 py-4">Sem dados estatísticos ainda.</p>';
+    }
+
     async function carregarTokensGestor() {
       const res = await fetch('/api/avaliador?action=listarTokens');
       const data = await res.json();
@@ -265,27 +310,18 @@
             <p class="font-mono font-bold text-amber-400 text-sm">${t.token_utilizado}</p>
             <p class="text-xs text-slate-400">Aluno: ${t.candidato_nick} | Avaliador: ${t.avaliador_nick || 'Sistema'}</p>
           </div>
-          <span class="text-xs px-2.5 py-1 rounded-full bg-slate-700 text-slate-300 font-bold">${t.status}</span>
+          <div class="flex items-center gap-2">
+            <span class="text-xs px-2.5 py-1 rounded-full bg-slate-700 text-slate-300 font-bold">${t.status}</span>
+            <button onclick="revogarTokenGestor('${t.id}')" class="px-2.5 py-1 bg-red-600 text-white text-xs font-bold rounded-lg">Revogar</button>
+          </div>
         </div>
       `).join('');
     }
 
-    async function carregarRelatorios() {
-      const res = await fetch('/api/avaliador?action=listarProvas');
-      const data = await res.json();
-      const provas = data.provas || [];
-      document.getElementById('totalProvas').innerText = provas.length;
-      document.getElementById('totalPendentes').innerText = provas.filter(p => p.status === 'Submetido' || p.status === 'Em Andamento').length;
-
-      const notas = provas.filter(p => p.nota !== null && p.nota !== undefined).map(p => Number(p.nota));
-      const media = notas.length > 0 ? (notas.reduce((a, b) => a + b, 0) / notas.length).toFixed(1) : '0.0';
-      document.getElementById('mediaNotas').innerText = media;
-    }
-
-    async function inicializarDocumentos() {
-      await fetch('/api/gestor?action=inicializarDocumentos');
-      alert('Documentos padrão RCC carregados!');
-      carregarDocumentosGestor();
+    async function revogarTokenGestor(id) {
+      if (!confirm('Revogar este token?')) return;
+      await fetch('/api/avaliador?action=revogarToken', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+      carregarTokensGestor();
     }
 
     async function cadastrarDocumento() {

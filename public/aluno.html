@@ -40,22 +40,29 @@
       </div>
     </header>
 
-    <!-- MENU DE NAVEGAÇÃO COMPLETO -->
+    <!-- MENU DE NAVEGAÇÃO -->
     <nav class="flex gap-2 overflow-x-auto pb-2 border-b border-slate-200 dark:border-slate-800">
       <button onclick="mudarAba('realizar')" id="tab-realizar" class="tab-btn px-5 py-2.5 rounded-xl text-sm font-bold bg-brand-500 text-white">Realizar Prova</button>
       <button onclick="mudarAba('avaliacoes')" id="tab-avaliacoes" class="tab-btn px-5 py-2.5 rounded-xl text-sm font-bold text-slate-500">Minhas Avaliações</button>
       <button onclick="mudarAba('enviarDuvida')" id="tab-enviarDuvida" class="tab-btn px-5 py-2.5 rounded-xl text-sm font-bold text-slate-500">Enviar Dúvida</button>
-      <button onclick="mudarAba('minhasDuvidas')" id="tab-minhasDuvidas" class="tab-btn px-5 py-2.5 rounded-xl text-sm font-bold text-slate-500">Minhas Dúvidas</button>
+      <button onclick="mudarAba('comunidadeDuvidas')" id="tab-comunidadeDuvidas" class="tab-btn px-5 py-2.5 rounded-xl text-sm font-bold text-slate-500">Central de Dúvidas (Todos)</button>
       <button onclick="mudarAba('documentos')" id="tab-documentos" class="tab-btn px-5 py-2.5 rounded-xl text-sm font-bold text-slate-500">Documentos Oficiais</button>
     </nav>
 
-    <!-- ABA 1: REALIZAR AVALIAÇÃO -->
+    <!-- ABA 1: REALIZAR AVALIAÇÃO (COM LISTAGEM AUTOMÁTICA DE PROVAS DISPONÍVEIS) -->
     <section id="content-realizar" class="space-y-6">
+      <div class="space-y-4">
+        <h2 class="text-lg font-bold">Avaliações Disponíveis para Você</h2>
+        <div id="listaProvasDisponiveis" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <p class="text-xs text-slate-500 py-4 col-span-2">Procurando avaliações pendentes...</p>
+        </div>
+      </div>
+
       <div id="boxBuscaToken" class="max-w-md mx-auto p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-4 shadow-sm">
-        <h2 class="text-lg font-bold">Iniciar Avaliação</h2>
-        <form onsubmit="buscarProva(event)" class="space-y-4">
+        <h3 class="text-sm font-bold">Ou insira o Token Manualmente</h3>
+        <form onsubmit="buscarProva(event)" class="space-y-3">
           <input type="text" id="tokenInput" required placeholder="Ex: CFO-AB12CD" class="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border text-sm font-mono">
-          <button type="submit" class="w-full py-3 bg-brand-500 text-white font-extrabold rounded-xl text-sm">Acessar Prova</button>
+          <button type="submit" class="w-full py-2.5 bg-slate-800 text-white font-bold rounded-xl text-xs">Buscar Token</button>
         </form>
         <p id="tokenErro" class="text-xs text-red-500 hidden"></p>
       </div>
@@ -63,15 +70,15 @@
       <div id="boxProva" class="hidden space-y-6">
         <div class="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-500 text-xs flex justify-between items-center">
           <span>Token: <strong id="provaToken" class="font-mono text-sm"></strong></span>
-          <span class="font-bold">Sua prova só pode ser enviada uma única vez!</span>
+          <span class="font-bold">Atenção: A prova só pode ser submetida uma única vez!</span>
         </div>
         <form onsubmit="submeterProva(event)" id="formProva" class="space-y-4"></form>
       </div>
     </section>
 
-    <!-- ABA 2: MINHAS AVALIAÇÕES COM FEEDBACK DETALHADO -->
+    <!-- ABA 2: MINHAS AVALIAÇÕES COM FEEDBACK -->
     <section id="content-avaliacoes" class="hidden space-y-4">
-      <h2 class="text-lg font-bold">Minhas Avaliações e Notas</h2>
+      <h2 class="text-lg font-bold">Minhas Avaliações e Resultados</h2>
       <div id="listaAvaliacoes" class="grid grid-cols-1 gap-4"></div>
     </section>
 
@@ -81,27 +88,27 @@
         <h2 class="text-lg font-bold">Nova Dúvida para os Avaliadores</h2>
         <form onsubmit="enviarDuvida(event)" class="space-y-4">
           <input type="text" id="duvidaTitulo" required placeholder="Título da Dúvida" class="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border text-sm">
-          <textarea id="duvidaPergunta" rows="4" required placeholder="Escreva detalhadamente sua pergunta..." class="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border text-sm"></textarea>
+          <textarea id="duvidaPergunta" rows="4" required placeholder="Descreva sua pergunta..." class="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border text-sm"></textarea>
           <button type="submit" class="w-full py-3 bg-brand-500 text-white font-extrabold rounded-xl text-sm">Enviar Dúvida</button>
         </form>
       </div>
     </section>
 
-    <!-- ABA 4: MINHAS DÚVIDAS COM AVATAR DO HABBO -->
-    <section id="content-minhasDuvidas" class="hidden space-y-4">
-      <h2 class="text-lg font-bold">Minhas Dúvidas Enviadas</h2>
-      <div id="listaDuvidas" class="grid grid-cols-1 gap-4"></div>
+    <!-- ABA 4: COMUNIDADE DE DÚVIDAS (TODOS OS ALUNOS) -->
+    <section id="content-comunidadeDuvidas" class="hidden space-y-4">
+      <h2 class="text-lg font-bold">Central de Dúvidas da Comunidade CFO</h2>
+      <div id="listaComunidadeDuvidas" class="grid grid-cols-1 gap-4"></div>
     </section>
 
     <!-- ABA 5: CENTRAL DE DOCUMENTOS -->
     <section id="content-documentos" class="hidden space-y-4">
-      <h2 class="text-lg font-bold">Central de Documentos da RCC</h2>
+      <h2 class="text-lg font-bold">Documentos e Regimentos Oficiais</h2>
       <div id="listaDocumentos" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
     </section>
 
   </div>
 
-  <!-- MODAL PARA TROCAR A PRÓPRIA SENHA -->
+  <!-- MODAL TROCA DE SENHA -->
   <div id="modalTrocarSenha" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white dark:bg-slate-900 border max-w-md w-full p-6 rounded-2xl space-y-4 shadow-2xl">
       <h3 class="font-bold text-sm">Alterar Minha Senha</h3>
@@ -148,23 +155,59 @@
     function mudarAba(aba) {
       document.querySelectorAll('.tab-btn').forEach(b => b.className = "tab-btn px-5 py-2.5 rounded-xl text-sm font-bold text-slate-500");
       document.getElementById(`tab-${aba}`).className = "tab-btn px-5 py-2.5 rounded-xl text-sm font-bold bg-brand-500 text-white";
-      ['realizar', 'avaliacoes', 'enviarDuvida', 'minhasDuvidas', 'documentos'].forEach(a => document.getElementById(`content-${a}`).classList.add('hidden'));
+      ['realizar', 'avaliacoes', 'enviarDuvida', 'comunidadeDuvidas', 'documentos'].forEach(a => document.getElementById(`content-${a}`).classList.add('hidden'));
       document.getElementById(`content-${aba}`).classList.remove('hidden');
 
+      if (aba === 'realizar') carregarAvaliacoesDisponiveis();
       if (aba === 'avaliacoes') carregarMinhasAvaliacoes();
-      if (aba === 'minhasDuvidas') carregarMinhasDuvidas();
+      if (aba === 'comunidadeDuvidas') carregarComunidadeDuvidas();
       if (aba === 'documentos') carregarDocumentos();
     }
 
+    async function carregarAvaliacoesDisponiveis() {
+      const res = await fetch(`/api/aluno?action=avaliacoesDisponiveis&nick=${encodeURIComponent(user.nick)}`);
+      const data = await res.json();
+      const container = document.getElementById('listaProvasDisponiveis');
+
+      if (!data.disponiveis || data.disponiveis.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-500 py-4 col-span-2">Você não possui avaliações pendentes no momento.</p>`;
+        return;
+      }
+
+      container.innerHTML = data.disponiveis.map(p => `
+        <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-brand-500/30 shadow-md flex justify-between items-center">
+          <div>
+            <span class="px-2.5 py-1 text-xs font-bold rounded-full bg-brand-500/10 text-brand-500">${p.status}</span>
+            <p class="font-mono text-sm font-bold text-slate-900 dark:text-white mt-2">Token: ${p.token_utilizado}</p>
+            <p class="text-xs text-slate-500">Avaliador Responsável: ${p.avaliador_nick || 'CFO'}</p>
+          </div>
+          <button onclick="abrirProvaPorToken('${p.token_utilizado}')" class="px-4 py-2.5 bg-brand-500 hover:bg-brand-600 text-white font-extrabold rounded-xl text-xs">
+            Iniciar Avaliação →
+          </button>
+        </div>
+      `).join('');
+    }
+
+    async function abrirProvaPorToken(token) {
+      document.getElementById('tokenInput').value = token;
+      buscarProva(new Event('submit'));
+    }
+
     async function buscarProva(e) {
-      e.preventDefault();
+      if (e) e.preventDefault();
       const token = document.getElementById('tokenInput').value.trim();
       const res = await fetch(`/api/aluno?action=buscarProva&token=${encodeURIComponent(token)}`);
       const data = await res.json();
-      if (!res.ok) { document.getElementById('tokenErro').innerText = data.error; document.getElementById('tokenErro').classList.remove('hidden'); return; }
+
+      if (!res.ok) {
+        document.getElementById('tokenErro').innerText = data.error;
+        document.getElementById('tokenErro').classList.remove('hidden');
+        return;
+      }
 
       provaAtual = data.prova;
       document.getElementById('boxBuscaToken').classList.add('hidden');
+      document.getElementById('listaProvasDisponiveis').parentElement.classList.add('hidden');
       document.getElementById('boxProva').classList.remove('hidden');
       document.getElementById('provaToken').innerText = provaAtual.token_utilizado;
 
@@ -203,12 +246,12 @@
           ${p.feedback_avaliador ? `<div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border text-xs"><strong>Feedback Geral:</strong> ${p.feedback_avaliador}</div>` : ''}
           ${(p.questoes_json || []).length > 0 && p.status === 'Corrigido' ? `
             <div class="space-y-3 pt-2 border-t border-slate-200 dark:border-slate-800">
-              <h5 class="text-xs font-bold text-slate-400">Feedback por Questão:</h5>
+              <h5 class="text-xs font-bold text-slate-400">Observações por Questão:</h5>
               ${(p.questoes_json || []).map((q, i) => `
-                <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs space-y-1">
+                <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border text-xs space-y-1">
                   <p class="font-bold">Q${i+1}: ${q.enunciado}</p>
                   <p class="text-slate-400"><strong>Sua Resposta:</strong> ${p.respostas_json[q.id] || 'Sem resposta'}</p>
-                  ${(p.feedbacks_questoes || {})[q.id] ? `<p class="text-amber-500 font-semibold"><strong>Observação do Avaliador:</strong> ${(p.feedbacks_questoes || {})[q.id]}</p>` : ''}
+                  ${(p.feedbacks_questoes || {})[q.id] ? `<p class="text-amber-500 font-semibold"><strong>Obs do Avaliador:</strong> ${(p.feedbacks_questoes || {})[q.id]}</p>` : ''}
                 </div>
               `).join('')}
             </div>
@@ -224,21 +267,35 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nick: user.nick, titulo: document.getElementById('duvidaTitulo').value, pergunta: document.getElementById('duvidaPergunta').value })
       });
-      alert('Dúvida enviada com sucesso!');
+      alert('Dúvida enviada!');
       e.target.reset();
-      mudarAba('minhasDuvidas');
+      mudarAba('comunidadeDuvidas');
     }
 
-    async function carregarMinhasDuvidas() {
-      const res = await fetch(`/api/aluno?action=minhasDuvidas&nick=${encodeURIComponent(user.nick)}`);
+    async function carregarComunidadeDuvidas() {
+      const res = await fetch('/api/aluno?action=todasDuvidas');
       const data = await res.json();
-      document.getElementById('listaDuvidas').innerHTML = (data.duvidas || []).map(d => `
+      document.getElementById('listaComunidadeDuvidas').innerHTML = (data.duvidas || []).map(d => `
         <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3">
-          <div class="flex justify-between items-center"><h4 class="font-bold text-sm">${d.titulo}</h4><span class="px-2.5 py-1 text-xs font-bold rounded-full bg-slate-100 dark:bg-slate-800 text-brand-500">${d.status}</span></div>
+          <div class="flex justify-between items-center">
+            <div class="flex items-center gap-2">
+              <img src="https://www.habbo.com.br/habbo-imaging/avatarimage?user=${encodeURIComponent(d.alunoNick || '')}&headonly=1&size=s" class="w-8 h-8 rounded-full bg-slate-800">
+              <h4 class="font-bold text-sm text-slate-900 dark:text-white">${d.titulo} <span class="text-xs font-normal text-slate-500">(${d.alunoNick})</span></h4>
+            </div>
+            <span class="px-2.5 py-1 text-xs font-bold rounded-full bg-slate-100 dark:bg-slate-800 text-brand-500">${d.status}</span>
+          </div>
           <p class="text-xs bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border">${d.pergunta}</p>
-          ${d.resposta ? `<div class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs flex items-start gap-2"><img src="https://www.habbo.com.br/habbo-imaging/avatarimage?user=${encodeURIComponent(d.avaliador_nick || '')}&headonly=1&size=s" class="w-6 h-6 rounded-full bg-slate-800"><div><strong>Resposta (${d.avaliador_nick || 'Avaliador'}):</strong><p>${d.resposta}</p></div></div>` : '<p class="text-xs text-slate-500">Aguardando atendimento do avaliador.</p>'}
+          ${d.resposta ? `
+            <div class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs flex items-start gap-2">
+              <img src="https://www.habbo.com.br/habbo-imaging/avatarimage?user=${encodeURIComponent(d.avaliadorNick || '')}&headonly=1&size=s" class="w-6 h-6 rounded-full bg-slate-800">
+              <div>
+                <strong>Resposta de ${d.avaliadorNick || 'Avaliador'}:</strong>
+                <p class="mt-1">${d.resposta}</p>
+              </div>
+            </div>
+          ` : '<p class="text-xs text-slate-500">Aguardando resposta do corpo docente.</p>'}
         </div>
-      `).join('') || '<p class="text-xs text-slate-500 py-4">Você ainda não enviou nenhuma dúvida.</p>';
+      `).join('') || '<p class="text-xs text-slate-500 py-4">Nenhuma dúvida publicada ainda.</p>';
     }
 
     async function carregarDocumentos() {
@@ -262,8 +319,10 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nick: user.nick, senhaAtual: document.getElementById('senhaAtualAluno').value, novaSenha: document.getElementById('novaSenhaAluno').value })
       });
-      if (res.ok) { alert('Senha alterada!'); fecharModalTrocarSenha(); }
+      if (res.ok) { alert('Senha alterada com sucesso!'); fecharModalTrocarSenha(); }
     }
+
+    carregarAvaliacoesDisponiveis();
   </script>
 </body>
 </html>

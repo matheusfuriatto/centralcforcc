@@ -17,16 +17,14 @@
 
   <div class="max-w-7xl mx-auto px-4 py-6 space-y-6">
 
-    <!-- BANNER SUPERIOR -->
     <div class="w-full h-32 rounded-2xl bg-cover bg-center border border-slate-200 dark:border-slate-800 shadow-sm" style="background-image: url('/assets/images/banner-cfo.png');"></div>
 
-    <!-- CABEÇALHO DA CONTA -->
     <header class="flex flex-wrap justify-between items-center gap-4 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
       <div class="flex items-center gap-4">
         <img id="habboAvatar" src="/assets/images/default-avatar.png" class="w-14 h-14 rounded-2xl border-2 border-brand-500 bg-slate-800">
         <div>
           <div class="flex items-center gap-2">
-            <h1 class="text-xl font-black text-slate-900 dark:text-white">Painel de Avaliação CFO</h1>
+            <h1 class="text-xl font-black text-slate-900 dark:text-white">Painel do Avaliador CFO</h1>
             <span id="habboStatusBadge" class="px-2 py-0.5 text-xs rounded-full bg-slate-200 dark:bg-slate-800 font-semibold">Verificando...</span>
           </div>
           <p class="text-xs text-slate-500">Avaliador: <strong id="userNick" class="text-brand-500"></strong> | Visto por último: <span id="habboLastAccess">-</span></p>
@@ -40,83 +38,94 @@
       </div>
     </header>
 
-    <!-- NAVEGAÇÃO -->
     <nav class="flex gap-2 overflow-x-auto pb-2 border-b border-slate-200 dark:border-slate-800">
-      <button onclick="mudarAba('cadastros')" id="tab-cadastros" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold bg-brand-500 text-black">Cadastrar & Token</button>
+      <button onclick="mudarAba('cadastros')" id="tab-cadastros" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold bg-brand-500 text-black">Gerar Token</button>
       <button onclick="mudarAba('tokensEmitidos')" id="tab-tokensEmitidos" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Tokens Emitidos</button>
       <button onclick="mudarAba('solicitacoes')" id="tab-solicitacoes" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Solicitações de Acesso</button>
       <button onclick="mudarAba('provas')" id="tab-provas" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Provas & Correção</button>
+      <button onclick="mudarAba('sugerir')" id="tab-sugerir" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Sugerir Questão</button>
       <button onclick="mudarAba('duvidas')" id="tab-duvidas" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Central de Dúvidas</button>
-      <button onclick="mudarAba('estatisticas')" id="tab-estatisticas" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Índice de Erros</button>
       <button onclick="mudarAba('documentos')" id="tab-documentos" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Documentos</button>
     </nav>
 
-    <!-- ABA 1: GERAR TOKEN E SENHA -->
+    <!-- GERAR TOKEN -->
     <section id="content-cadastros" class="space-y-4">
       <div class="max-w-xl mx-auto p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-4">
-        <h2 class="text-lg font-bold">Gerar Token de Avaliação & Criar Conta</h2>
+        <h2 class="text-lg font-bold">Gerar Token de Avaliação & Criar Acesso</h2>
         <form onsubmit="gerarToken(event)" class="space-y-4">
-          <input type="text" id="candNick" required placeholder="Nick Policial do Candidato (ex: Popricard88)" class="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-sm">
-          <button type="submit" class="w-full py-3 bg-brand-500 hover:bg-brand-600 text-black font-extrabold rounded-xl text-sm">Gerar Acesso</button>
+          <input type="text" id="candNick" required placeholder="Nick do Candidato (ex: Popricard88)" class="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border text-sm">
+          <button type="submit" class="w-full py-3 bg-brand-500 hover:bg-brand-600 text-black font-extrabold rounded-xl text-sm">Gerar Token</button>
         </form>
         <div id="tokenResultado"></div>
       </div>
     </section>
 
-    <!-- ABA 2: TOKENS EMITIDOS -->
+    <!-- TOKENS EMITIDOS COM BOTAO DE REVOGAR -->
     <section id="content-tokensEmitidos" class="hidden space-y-4">
       <h2 class="text-lg font-bold">Tokens Emitidos no Sistema</h2>
       <div id="listaTokensEmitidos" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
     </section>
 
-    <!-- ABA 3: SOLICITAÇÕES PENDENTES -->
+    <!-- SOLICITAÇÕES PENDENTES -->
     <section id="content-solicitacoes" class="hidden space-y-4">
-      <h2 class="text-lg font-bold">Aprovar Solicitações de Acesso</h2>
+      <h2 class="text-lg font-bold">Solicitações de Acesso</h2>
       <div id="listaSolicitacoes" class="grid grid-cols-1 gap-3"></div>
     </section>
 
-    <!-- ABA 4: PROVAS APLICADAS -->
+    <!-- PROVAS APLICADAS (COM BOTAO DE CANCELAR E EXCLUIR) -->
     <section id="content-provas" class="hidden space-y-4">
-      <h2 class="text-lg font-bold">Provas Aplicadas & Em Correção</h2>
+      <h2 class="text-lg font-bold">Provas Aplicadas e em Correção</h2>
       <div id="listaProvas" class="grid grid-cols-1 gap-4"></div>
     </section>
 
-    <!-- ABA 5: CENTRAL DE DÚVIDAS -->
+    <!-- SUGERIR QUESTÃO -->
+    <section id="content-sugerir" class="space-y-6 hidden">
+      <div class="max-w-2xl mx-auto p-6 rounded-2xl bg-white dark:bg-slate-900 border space-y-4">
+        <h2 class="text-lg font-bold">Enviar Sugestão de Questão para a Gestão</h2>
+        <form onsubmit="enviarSugestaoQuestao(event)" class="space-y-3">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <input type="text" id="sugCategoria" placeholder="Categoria (ex: Penal)" class="p-3 bg-slate-50 dark:bg-slate-950 border rounded-xl text-sm">
+            <input type="text" id="sugTitulo" placeholder="Título" class="p-3 bg-slate-50 dark:bg-slate-950 border rounded-xl text-sm">
+          </div>
+          <textarea id="sugEnunciado" rows="3" placeholder="Enunciado da questão..." required class="w-full p-3 bg-slate-50 dark:bg-slate-950 border rounded-xl text-sm"></textarea>
+          <textarea id="sugGabarito" rows="2" placeholder="Gabarito esperado..." required class="w-full p-3 bg-slate-50 dark:bg-slate-950 border rounded-xl text-sm"></textarea>
+          <button type="submit" class="w-full py-3 bg-brand-500 text-black font-extrabold rounded-xl text-sm">Enviar Sugestão</button>
+        </form>
+      </div>
+
+      <div class="space-y-3">
+        <h3 class="font-bold text-sm">Minhas Sugestões Enviadas e Retornos da Gestão</h3>
+        <div id="listaMinhasSugestoes" class="grid grid-cols-1 gap-3"></div>
+      </div>
+    </section>
+
+    <!-- CENTRAL DE DÚVIDAS -->
     <section id="content-duvidas" class="hidden space-y-4">
-      <h2 class="text-lg font-bold">Central de Dúvidas dos Alunos</h2>
+      <h2 class="text-lg font-bold">Central de Dúvidas</h2>
       <div id="listaDuvidas" class="grid grid-cols-1 gap-4"></div>
     </section>
 
-    <!-- ABA 6: ESTATÍSTICAS / ÍNDICE DE ERROS -->
-    <section id="content-estatisticas" class="hidden space-y-4">
-      <h2 class="text-lg font-bold">Índice de Erros e Observações por Questão</h2>
-      <div id="listaEstatisticas" class="grid grid-cols-1 gap-3"></div>
-    </section>
-
-    <!-- ABA 7: DOCUMENTOS -->
+    <!-- DOCUMENTOS -->
     <section id="content-documentos" class="hidden space-y-4">
-      <h2 class="text-lg font-bold">Documentos Oficiais da RCC</h2>
+      <h2 class="text-lg font-bold">Documentos Oficiais</h2>
       <div id="listaDocumentos" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
     </section>
 
   </div>
 
-  <!-- MODAL DE CORREÇÃO COMPLETA -->
+  <!-- MODAL DE CORREÇÃO -->
   <div id="modalProva" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 max-w-4xl w-full max-h-[90vh] rounded-2xl flex flex-col overflow-hidden shadow-2xl">
-      <div class="p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-950">
-        <div>
-          <h3 id="modalTitulo" class="font-black text-slate-900 dark:text-white">Correção de Avaliação</h3>
-          <p id="modalSubtitulo" class="text-xs text-slate-500"></p>
-        </div>
+    <div class="bg-white dark:bg-slate-900 border max-w-4xl w-full max-h-[90vh] rounded-2xl flex flex-col overflow-hidden shadow-2xl">
+      <div class="p-4 border-b flex justify-between items-center bg-slate-50 dark:bg-slate-950">
+        <div><h3 id="modalTitulo" class="font-black">Correção de Avaliação</h3><p id="modalSubtitulo" class="text-xs text-slate-500"></p></div>
         <button onclick="fecharModal()" class="p-2 text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
 
       <div id="modalCorpo" class="p-6 overflow-y-auto space-y-6 flex-1"></div>
 
-      <div class="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 space-y-3">
+      <div class="p-4 border-t space-y-3 bg-slate-50 dark:bg-slate-950">
         <div class="flex gap-2 items-center">
-          <input type="number" step="0.1" max="10" min="0" id="modalNota" placeholder="Nota (0-10)" class="w-32 p-2.5 rounded-xl bg-white dark:bg-slate-900 border text-sm font-bold">
+          <input type="number" step="0.1" max="10" min="0" id="modalNota" placeholder="Nota" class="w-32 p-2.5 rounded-xl bg-white dark:bg-slate-900 border text-sm font-bold">
           <input type="text" id="modalFeedbackGeral" placeholder="Feedback Geral..." class="flex-1 p-2.5 rounded-xl bg-white dark:bg-slate-900 border text-sm">
           <button onclick="salvarCorrecaoModal()" class="px-6 py-2.5 bg-brand-500 text-black font-extrabold rounded-xl text-sm">Salvar Correção</button>
         </div>
@@ -126,10 +135,10 @@
 
   <!-- MODAL TROCAR SENHA -->
   <div id="modalTrocarSenha" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 max-w-md w-full p-6 rounded-2xl space-y-4">
+    <div class="bg-white dark:bg-slate-900 border max-w-md w-full p-6 rounded-2xl space-y-4">
       <h3 class="font-bold text-sm">Alterar Minha Senha</h3>
-      <input type="password" id="senhaAtualAvaliador" placeholder="Senha Atual" class="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border text-sm">
-      <input type="password" id="novaSenhaAvaliador" placeholder="Nova Senha" class="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border text-sm">
+      <input type="password" id="senhaAtualAvaliador" placeholder="Senha Atual" class="w-full p-3 bg-slate-50 dark:bg-slate-950 border rounded-xl text-sm">
+      <input type="password" id="novaSenhaAvaliador" placeholder="Nova Senha" class="w-full p-3 bg-slate-50 dark:bg-slate-950 border rounded-xl text-sm">
       <div class="flex gap-2">
         <button onclick="salvarNovaSenhaAvaliador()" class="flex-1 py-3 bg-brand-500 text-black font-extrabold rounded-xl text-sm">Salvar</button>
         <button onclick="fecharModalTrocarSenha()" class="px-4 py-3 bg-slate-800 text-white rounded-xl text-sm">Cancelar</button>
@@ -171,14 +180,14 @@
     function mudarAba(aba) {
       document.querySelectorAll('.tab-btn').forEach(b => b.className = "tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500");
       document.getElementById(`tab-${aba}`).className = "tab-btn px-4 py-2.5 rounded-xl text-xs font-bold bg-brand-500 text-black";
-      ['cadastros', 'tokensEmitidos', 'solicitacoes', 'provas', 'duvidas', 'estatisticas', 'documentos'].forEach(a => document.getElementById(`content-${a}`).classList.add('hidden'));
+      ['cadastros', 'tokensEmitidos', 'solicitacoes', 'provas', 'sugerir', 'duvidas', 'documentos'].forEach(a => document.getElementById(`content-${a}`).classList.add('hidden'));
       document.getElementById(`content-${aba}`).classList.remove('hidden');
 
       if (aba === 'tokensEmitidos') carregarTokensEmitidos();
       if (aba === 'solicitacoes') carregarSolicitacoes();
       if (aba === 'provas') carregarProvas();
+      if (aba === 'sugerir') carregarMinhasSugestoes();
       if (aba === 'duvidas') carregarDuvidas();
-      if (aba === 'estatisticas') carregarEstatisticaQuestoes();
       if (aba === 'documentos') carregarDocumentos();
     }
 
@@ -195,7 +204,7 @@
           <div class="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-sm space-y-2">
             <p class="font-bold">${data.message}</p>
             <p>Token: <code class="font-mono font-bold">${data.token}</code></p>
-            <p class="text-base font-bold bg-slate-900 p-2 rounded-lg text-amber-400">Senha Inicial do Candidato: <code>${data.senhaGerada}</code></p>
+            <p class="text-base font-bold bg-slate-900 p-2 rounded-lg text-amber-400">Senha do Candidato: <code>${data.senhaGerada}</code></p>
           </div>
         `;
         document.getElementById('candNick').value = '';
@@ -208,22 +217,35 @@
       document.getElementById('listaTokensEmitidos').innerHTML = (data.tokens || []).map(t => `
         <div class="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex justify-between items-center">
           <div>
-            <p class="font-mono font-bold text-amber-500">${t.token_utilizado}</p>
-            <p class="text-xs text-slate-500">Aluno: <strong>${t.candidato_nick}</strong> | Gerador: ${t.avaliador_nick}</p>
+            <p class="font-mono font-bold text-amber-500 text-sm">${t.token_utilizado}</p>
+            <p class="text-xs text-slate-500">Aluno: <strong>${t.candidato_nick}</strong> | Avaliador: ${t.avaliador_nick}</p>
           </div>
-          <span class="px-2.5 py-1 text-xs font-bold rounded-full bg-slate-100 dark:bg-slate-800 text-brand-500">${t.status}</span>
+          <div class="flex items-center gap-2">
+            <span class="px-2.5 py-1 text-xs font-bold rounded-full bg-slate-100 dark:bg-slate-800 text-brand-500">${t.status}</span>
+            <button onclick="revogarToken('${t.id}')" class="px-2.5 py-1 bg-red-500/10 text-red-500 text-xs font-bold rounded-lg hover:bg-red-500/20">Revogar</button>
+          </div>
         </div>
       `).join('') || '<p class="text-xs text-slate-500 py-4">Nenhum token emitido.</p>';
+    }
+
+    async function revogarToken(id) {
+      if (!confirm('Deseja realmente revogar este token?')) return;
+      await fetch('/api/avaliador?action=revogarToken', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id })
+      });
+      carregarTokensEmitidos();
     }
 
     async function carregarSolicitacoes() {
       const res = await fetch('/api/avaliador?action=listarSolicitacoes');
       const data = await res.json();
       document.getElementById('listaSolicitacoes').innerHTML = (data.solicitacoes || []).map(s => `
-        <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex justify-between items-center">
+        <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border flex justify-between items-center">
           <p class="font-bold text-sm">${s.nickPolicial}</p>
           <div class="flex items-center gap-2">
-            <select id="role-${s.id}" class="p-2 rounded-lg bg-slate-950 border border-slate-800 text-xs">
+            <select id="role-${s.id}" class="p-2 rounded-lg bg-slate-950 border text-xs">
               <option value="candidato">Aluno / Candidato</option>
               <option value="avaliador">Avaliador</option>
               <option value="gestor">Gestor</option>
@@ -259,9 +281,25 @@
               <p class="text-xs text-slate-500">Status: <span class="text-brand-500 font-bold">${p.status}</span> ${p.nota !== undefined && p.nota !== null ? '| Nota: ' + p.nota : ''}</p>
             </div>
           </div>
-          <button onclick="abrirModalProva('${p.id}')" class="px-4 py-2 rounded-xl bg-slate-800 text-xs font-bold">${p.status === 'Submetido' ? 'Corrigir Prova' : 'Visualizar Prova'}</button>
+          <div class="flex gap-2">
+            <button onclick="abrirModalProva('${p.id}')" class="px-3 py-1.5 rounded-xl bg-slate-800 text-xs font-bold">${p.status === 'Submetido' ? 'Corrigir Prova' : 'Visualizar Prova'}</button>
+            <button onclick="cancelarProva('${p.id}')" class="px-3 py-1.5 rounded-xl bg-amber-500/10 text-amber-500 text-xs font-bold">Cancelar</button>
+            <button onclick="excluirProva('${p.id}')" class="px-3 py-1.5 rounded-xl bg-red-500/10 text-red-500 text-xs font-bold">Excluir</button>
+          </div>
         </div>
-      `).join('');
+      `).join('') || '<p class="text-xs text-slate-500 py-4">Nenhuma prova cadastrada.</p>';
+    }
+
+    async function cancelarProva(id) {
+      if (!confirm('Cancelar esta avaliação? O aluno não conseguirá mais responder.')) return;
+      await fetch('/api/avaliador?action=cancelarProva', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+      carregarProvas();
+    }
+
+    async function excluirProva(id) {
+      if (!confirm('Excluir esta avaliação permanentemente?')) return;
+      await fetch('/api/avaliador?action=excluirProva', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+      carregarProvas();
     }
 
     function abrirModalProva(id) {
@@ -306,11 +344,44 @@
       carregarProvas();
     }
 
+    async function enviarSugestaoQuestao(e) {
+      e.preventDefault();
+      await fetch('/api/avaliador?action=sugerirQuestao', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          avaliadorNick: user.nick,
+          categoria: document.getElementById('sugCategoria').value,
+          titulo: document.getElementById('sugTitulo').value,
+          enunciado: document.getElementById('sugEnunciado').value,
+          gabarito_esperado: document.getElementById('sugGabarito').value
+        })
+      });
+      alert('Sugestão enviada!');
+      e.target.reset();
+      carregarMinhasSugestoes();
+    }
+
+    async function carregarMinhasSugestoes() {
+      const res = await fetch(`/api/avaliador?action=minhasSugestoes&nick=${encodeURIComponent(user.nick)}`);
+      const data = await res.json();
+      document.getElementById('listaMinhasSugestoes').innerHTML = (data.sugestoes || []).map(s => `
+        <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border space-y-2">
+          <div class="flex justify-between items-center">
+            <span class="text-xs font-bold text-slate-400">[${s.categoria}] ${s.titulo}</span>
+            <span class="px-2.5 py-0.5 text-xs font-bold rounded-full ${s.status === 'Aprovada' ? 'bg-emerald-500/10 text-emerald-500' : s.status === 'Reprovada' ? 'bg-red-500/10 text-red-500' : 'bg-amber-500/10 text-amber-500'}">${s.status}</span>
+          </div>
+          <p class="text-xs font-bold">${s.enunciado}</p>
+          ${s.observacaoGestor ? `<p class="text-xs text-purple-400 bg-slate-950 p-2 rounded-lg"><strong>Retorno da Gestão:</strong> ${s.observacaoGestor}</p>` : ''}
+        </div>
+      `).join('') || '<p class="text-xs text-slate-500 py-4">Nenhuma sugestão enviada.</p>';
+    }
+
     async function carregarDuvidas() {
       const res = await fetch('/api/avaliador?action=listarDuvidas');
       const data = await res.json();
       document.getElementById('listaDuvidas').innerHTML = (data.duvidas || []).map(d => `
-        <div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-800 space-y-3">
+        <div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border space-y-3">
           <div class="flex justify-between items-center">
             <div class="flex items-center gap-2"><img src="https://www.habbo.com.br/habbo-imaging/avatarimage?user=${encodeURIComponent(d.alunoNick || '')}&headonly=1&size=s" class="w-8 h-8 rounded-full bg-slate-800"><h4 class="font-bold text-sm">${d.titulo} <span class="text-xs text-slate-500">(${d.alunoNick})</span></h4></div>
             <span class="px-2.5 py-1 text-xs font-bold rounded-full bg-slate-800 text-brand-500">${d.status}</span>
@@ -323,24 +394,6 @@
 
     async function assumirDuvida(id) { await fetch('/api/avaliador?action=assumirDuvida', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, nickAvaliador: user.nick }) }); carregarDuvidas(); }
     async function responderDuvida(id) { await fetch('/api/avaliador?action=responderDuvida', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, resposta: document.getElementById(`resp-${id}`).value, nickAvaliador: user.nick }) }); carregarDuvidas(); }
-
-    async function carregarEstatisticaQuestoes() {
-      const res = await fetch('/api/avaliador?action=analiseQuestoes');
-      const data = await res.json();
-      document.getElementById('listaEstatisticas').innerHTML = (data.estatisticas || []).map(e => `
-        <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-800 flex justify-between items-center">
-          <div>
-            <p class="font-bold text-sm text-slate-900 dark:text-white">${e.enunciado}</p>
-            <p class="text-xs text-slate-500">Apareceu em ${e.totalRespostas} avaliações corrigidas</p>
-          </div>
-          <div class="text-right">
-            <span class="text-xs font-bold px-2.5 py-1 rounded-full ${e.errosObs > 0 ? 'bg-red-500/10 text-red-500' : 'bg-emerald-500/10 text-emerald-500'}">
-              ${e.errosObs} observações de erro
-            </span>
-          </div>
-        </div>
-      `).join('') || '<p class="text-xs text-slate-500 py-4">Sem dados estatísticos suficientes.</p>';
-    }
 
     async function carregarDocumentos() {
       const res = await fetch('/api/avaliador?action=listarDocumentos');

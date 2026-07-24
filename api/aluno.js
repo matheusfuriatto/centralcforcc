@@ -4,21 +4,13 @@ function mapProva(p) {
   return {
     token_utilizado: p.tokenUtilizado,
     candidato_nick: p.candidatoNick,
+    avaliador_nick: p.avaliadorNick,
     status: p.status,
     nota: p.nota !== undefined ? p.nota : null,
     feedback_avaliador: p.feedbackAvaliador || null,
+    feedbacks_questoes: p.feedbacksQuestoes || {},
     respostas_json: p.respostasJson || {},
     questoes_json: p.questoesJson || []
-  };
-}
-
-function mapDuvida(d) {
-  return {
-    titulo: d.titulo,
-    pergunta: d.pergunta,
-    status: d.status,
-    avaliador_nick: d.avaliadorNick || null,
-    resposta: d.resposta || null
   };
 }
 
@@ -60,11 +52,18 @@ module.exports = async function handler(req, res) {
         .where('alunoNickBusca', '==', String(alunoNick).trim().toLowerCase())
         .get();
 
-      const duvidas = snap.docs.map(d => ({ id: d.id, ...mapDuvida(d.data()) }));
+      const duvidas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       return res.status(200).json({ duvidas });
     }
 
-    // 3. Listar Minhas Avaliações
+    // 3. Listar TODAS as Dúvidas e Respostas (Comunidade de Alunos)
+    if (req.method === 'GET' && action === 'todasDuvidas') {
+      const snap = await db.collection('duvidas').orderBy('criadoEm', 'desc').get();
+      const duvidas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      return res.status(200).json({ duvidas });
+    }
+
+    // 4. Listar Minhas Avaliações (Histórico)
     if (req.method === 'GET' && action === 'minhasAvaliacoes') {
       const nick = req.query.nick || req.query.alunoNick;
       if (!nick) return res.status(400).json({ error: 'Nick não informado.' });
@@ -77,7 +76,21 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ provas });
     }
 
-    // 4. Buscar Avaliação pelo Token e Sortear Questões (se primeiro acesso)
+    // 5. Listar Avaliações Disponíveis/Pendentes para Iniciar Rápido
+    if (req.method === 'GET' && action === 'avaliacoesDisponiveis') {
+      const nick = req.query.nick;
+      if (!nick) return res.status(400).json({ error: 'Nick não informado.' });
+
+      const snap = await db.collection('provas')
+        .where('candidatoNickBusca', '==', String(nick).trim().toLowerCase())
+        .where('status', 'in', ['Pendente', 'Em Andamento'])
+        .get();
+
+      const disponiveis = snap.docs.map(d => ({ id: d.id, ...mapProva(d.data()) }));
+      return res.status(200).json({ disponiveis });
+    }
+
+    // 6. Buscar Avaliação pelo Token e Sortear Questões
     if (req.method === 'GET' && action === 'buscarProva') {
       const token = req.query.token;
       if (!token) return res.status(400).json({ error: 'Informe o Token da Avaliação.' });
@@ -88,6 +101,10 @@ module.exports = async function handler(req, res) {
       const docRef = snap.docs[0].ref;
       const dadosProva = snap.docs[0].data();
 
+      if (dadosProva.status === 'Cancelada') {
+        return res.status(400).json({ error: 'Esta prova foi cancelada pelo avaliador.' });
+      }
+
       if (dadosProva.questoesJson && dadosProva.questoesJson.length > 0) {
         return res.status(200).json({ prova: { id: snap.docs[0].id, ...mapProva(dadosProva) } });
       }
@@ -96,7 +113,7 @@ module.exports = async function handler(req, res) {
       const todas = todasSnap.docs.map(d => ({ id: d.id, ...d.data() }));
 
       if (todas.length === 0) {
-        return res.status(400).json({ error: 'O banco de questões está vazio. Avise o gestor do sistema.' });
+        return res.status(400).json({ error: 'O banco de questões está vazio. Avise a gestão.' });
       }
 
       const sorteadas = todas.sort(() => Math.random() - 0.5).slice(0, 10);
@@ -109,7 +126,7 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ prova: { id: snap.docs[0].id, ...mapProva(dadosProva) } });
     }
 
-    // 5. Submeter Respostas
+    // 7. Submeter Respostas
     if (req.method === 'POST' && action === 'submeterProva') {
       const { token, respostas } = body;
       if (!token || !respostas) {

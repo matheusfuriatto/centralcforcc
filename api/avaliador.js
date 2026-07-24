@@ -79,7 +79,7 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    // 3. Listar Tokens Emitidos
+    // 3. Listar e Revogar Tokens
     if (req.method === 'GET' && action === 'listarTokens') {
       const snap = await db.collection('provas').orderBy('criadoEm', 'desc').get();
       const tokens = snap.docs.map(d => ({
@@ -91,6 +91,12 @@ module.exports = async function handler(req, res) {
         criado_em: d.data().criadoEm
       }));
       return res.status(200).json({ tokens });
+    }
+
+    if (req.method === 'DELETE' && action === 'revogarToken') {
+      const { id } = body;
+      await db.collection('provas').doc(id).delete();
+      return res.status(200).json({ success: true, message: 'Token revogado com sucesso!' });
     }
 
     // 4. Solicitações de Acesso
@@ -110,7 +116,20 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ success: true });
     }
 
-    // 5. Provas e Correção
+    // 5. Cancelar ou Excluir Prova
+    if (req.method === 'POST' && action === 'cancelarProva') {
+      const { id } = body;
+      await db.collection('provas').doc(id).update({ status: 'Cancelada', canceladoEm: FieldValue.serverTimestamp() });
+      return res.status(200).json({ success: true });
+    }
+
+    if (req.method === 'DELETE' && action === 'excluirProva') {
+      const { id } = body;
+      await db.collection('provas').doc(id).delete();
+      return res.status(200).json({ success: true });
+    }
+
+    // 6. Provas e Correção
     if (req.method === 'GET' && action === 'listarProvas') {
       const snap = await db.collection('provas').orderBy('criadoEm', 'desc').get();
       return res.status(200).json({
@@ -141,7 +160,35 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ success: true });
     }
 
-    // 6. Central de Dúvidas
+    // 7. Enviar Sugestão de Questão pelo Avaliador
+    if (req.method === 'POST' && action === 'sugerirQuestao') {
+      const { avaliadorNick, categoria, titulo, enunciado, gabarito_esperado } = body;
+      if (!enunciado || !gabarito_esperado) {
+        return res.status(400).json({ error: 'Preencha enunciado e gabarito.' });
+      }
+
+      await db.collection('sugestoes_questoes').add({
+        avaliadorNick: avaliadorNick || 'Avaliador',
+        categoria: categoria || 'Geral',
+        titulo: titulo || '',
+        enunciado: enunciado.trim(),
+        gabarito_esperado: gabarito_esperado.trim(),
+        status: 'Pendente',
+        observacaoGestor: '',
+        criadoEm: FieldValue.serverTimestamp()
+      });
+
+      return res.status(200).json({ success: true, message: 'Sugestão enviada à gestão!' });
+    }
+
+    // 8. Listar Minhas Sugestões de Questão
+    if (req.method === 'GET' && action === 'minhasSugestoes') {
+      const nick = req.query.nick;
+      const snap = await db.collection('sugestoes_questoes').where('avaliadorNick', '==', nick).get();
+      return res.status(200).json({ sugestoes: snap.docs.map(d => ({ id: d.id, ...d.data() })) });
+    }
+
+    // 9. Central de Dúvidas
     if (req.method === 'GET' && action === 'listarDuvidas') {
       const snap = await db.collection('duvidas').orderBy('criadoEm', 'desc').get();
       return res.status(200).json({ duvidas: snap.docs.map(d => ({ id: d.id, ...d.data() })) });
@@ -157,34 +204,10 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ success: true });
     }
 
-    // 7. Central de Documentos
+    // 10. Documentos
     if (req.method === 'GET' && action === 'listarDocumentos') {
       const snap = await db.collection('documentos').orderBy('titulo', 'asc').get();
       return res.status(200).json({ documentos: snap.docs.map(d => ({ id: d.id, ...d.data() })) });
-    }
-
-    // 8. Análise Estatística / Índice de Erros por Questão
-    if (req.method === 'GET' && action === 'analiseQuestoes') {
-      const snapProvas = await db.collection('provas').where('status', '==', 'Corrigido').get();
-      const contagem = {};
-
-      snapProvas.docs.forEach(doc => {
-        const p = doc.data();
-        const questoes = p.questoesJson || [];
-        const fbs = p.feedbacksQuestoes || {};
-
-        questoes.forEach(q => {
-          if (!contagem[q.id]) {
-            contagem[q.id] = { id: q.id, enunciado: q.enunciado || q.titulo, totalRespostas: 0, errosObs: 0 };
-          }
-          contagem[q.id].totalRespostas++;
-          if (fbs[q.id] && fbs[q.id].length > 0) {
-            contagem[q.id].errosObs++;
-          }
-        });
-      });
-
-      return res.status(200).json({ estatisticas: Object.values(contagem) });
     }
 
     return res.status(400).json({ error: 'Ação não encontrada' });
