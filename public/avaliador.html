@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Central CFO - Gestão de Avaliações</title>
+  <title>Central CFO - Painel do Avaliador</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script>
@@ -17,55 +17,119 @@
 
   <div class="max-w-7xl mx-auto px-4 py-6 space-y-6">
 
+    <!-- BANNER SUPERIOR -->
     <div class="w-full h-32 rounded-2xl bg-cover bg-center border border-slate-200 dark:border-slate-800 shadow-sm" style="background-image: url('/assets/images/banner-cfo.png');"></div>
 
+    <!-- CABEÇALHO DA CONTA -->
     <header class="flex flex-wrap justify-between items-center gap-4 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
       <div class="flex items-center gap-4">
         <img id="habboAvatar" src="/assets/images/default-avatar.png" class="w-14 h-14 rounded-2xl border-2 border-brand-500 bg-slate-800">
         <div>
-          <h1 class="text-xl font-black text-slate-900 dark:text-white">Painel do Avaliador</h1>
-          <p class="text-xs text-slate-500">Avaliador: <strong id="userNick" class="text-brand-500"></strong></p>
+          <div class="flex items-center gap-2">
+            <h1 class="text-xl font-black text-slate-900 dark:text-white">Painel de Avaliação CFO</h1>
+            <span id="habboStatusBadge" class="px-2 py-0.5 text-xs rounded-full bg-slate-200 dark:bg-slate-800 font-semibold">Verificando...</span>
+          </div>
+          <p class="text-xs text-slate-500">Avaliador: <strong id="userNick" class="text-brand-500"></strong> | Visto por último: <span id="habboLastAccess">-</span></p>
         </div>
       </div>
+
       <div class="flex items-center gap-2">
+        <button onclick="toggleTheme()" class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800"><i data-lucide="sun" class="w-5 h-5 hidden dark:block text-amber-400"></i><i data-lucide="moon" class="w-5 h-5 block dark:hidden text-slate-600"></i></button>
         <button onclick="abrirModalTrocarSenha()" class="px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-bold">Trocar Senha</button>
         <button onclick="logout()" class="px-4 py-2 bg-red-500/10 text-red-500 font-bold text-xs rounded-xl">Sair</button>
       </div>
     </header>
 
+    <!-- NAVEGAÇÃO -->
     <nav class="flex gap-2 overflow-x-auto pb-2 border-b border-slate-200 dark:border-slate-800">
-      <button onclick="mudarAba('cadastros')" id="tab-cadastros" class="tab-btn px-5 py-2.5 rounded-xl text-sm font-bold bg-brand-500 text-black">Cadastrar & Token</button>
-      <button onclick="mudarAba('solicitacoes')" id="tab-solicitacoes" class="tab-btn px-5 py-2.5 rounded-xl text-sm font-bold text-slate-500">Solicitações de Acesso</button>
-      <button onclick="mudarAba('provas')" id="tab-provas" class="tab-btn px-5 py-2.5 rounded-xl text-sm font-bold text-slate-500">Avaliações & Provas</button>
+      <button onclick="mudarAba('cadastros')" id="tab-cadastros" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold bg-brand-500 text-black">Cadastrar & Token</button>
+      <button onclick="mudarAba('tokensEmitidos')" id="tab-tokensEmitidos" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Tokens Emitidos</button>
+      <button onclick="mudarAba('solicitacoes')" id="tab-solicitacoes" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Solicitações de Acesso</button>
+      <button onclick="mudarAba('provas')" id="tab-provas" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Provas & Correção</button>
+      <button onclick="mudarAba('duvidas')" id="tab-duvidas" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Central de Dúvidas</button>
+      <button onclick="mudarAba('estatisticas')" id="tab-estatisticas" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Índice de Erros</button>
+      <button onclick="mudarAba('documentos')" id="tab-documentos" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Documentos</button>
     </nav>
 
-    <!-- ABA CADASTRO & TOKEN -->
+    <!-- ABA 1: GERAR TOKEN E SENHA -->
     <section id="content-cadastros" class="space-y-4">
       <div class="max-w-xl mx-auto p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-4">
-        <h2 class="text-lg font-bold">Gerar Token e Senha do Avaliado</h2>
+        <h2 class="text-lg font-bold">Gerar Token de Avaliação & Criar Conta</h2>
         <form onsubmit="gerarToken(event)" class="space-y-4">
-          <input type="text" id="candNick" required placeholder="Nick do Candidato (ex: Popricard88)" class="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-sm">
-          <button type="submit" class="w-full py-3 bg-brand-500 hover:bg-brand-600 text-black font-extrabold rounded-xl text-sm">Gerar Token e Senha</button>
+          <input type="text" id="candNick" required placeholder="Nick Policial do Candidato (ex: Popricard88)" class="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-sm">
+          <button type="submit" class="w-full py-3 bg-brand-500 hover:bg-brand-600 text-black font-extrabold rounded-xl text-sm">Gerar Acesso</button>
         </form>
         <div id="tokenResultado"></div>
       </div>
     </section>
 
-    <!-- ABA SOLICITAÇÕES -->
+    <!-- ABA 2: TOKENS EMITIDOS -->
+    <section id="content-tokensEmitidos" class="hidden space-y-4">
+      <h2 class="text-lg font-bold">Tokens Emitidos no Sistema</h2>
+      <div id="listaTokensEmitidos" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+    </section>
+
+    <!-- ABA 3: SOLICITAÇÕES PENDENTES -->
     <section id="content-solicitacoes" class="hidden space-y-4">
       <h2 class="text-lg font-bold">Aprovar Solicitações de Acesso</h2>
       <div id="listaSolicitacoes" class="grid grid-cols-1 gap-3"></div>
     </section>
 
-    <section id="content-provas" class="hidden space-y-4"><div id="listaProvas"></div></section>
+    <!-- ABA 4: PROVAS APLICADAS -->
+    <section id="content-provas" class="hidden space-y-4">
+      <h2 class="text-lg font-bold">Provas Aplicadas & Em Correção</h2>
+      <div id="listaProvas" class="grid grid-cols-1 gap-4"></div>
+    </section>
+
+    <!-- ABA 5: CENTRAL DE DÚVIDAS -->
+    <section id="content-duvidas" class="hidden space-y-4">
+      <h2 class="text-lg font-bold">Central de Dúvidas dos Alunos</h2>
+      <div id="listaDuvidas" class="grid grid-cols-1 gap-4"></div>
+    </section>
+
+    <!-- ABA 6: ESTATÍSTICAS / ÍNDICE DE ERROS -->
+    <section id="content-estatisticas" class="hidden space-y-4">
+      <h2 class="text-lg font-bold">Índice de Erros e Observações por Questão</h2>
+      <div id="listaEstatisticas" class="grid grid-cols-1 gap-3"></div>
+    </section>
+
+    <!-- ABA 7: DOCUMENTOS -->
+    <section id="content-documentos" class="hidden space-y-4">
+      <h2 class="text-lg font-bold">Documentos Oficiais da RCC</h2>
+      <div id="listaDocumentos" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+    </section>
+
+  </div>
+
+  <!-- MODAL DE CORREÇÃO COMPLETA -->
+  <div id="modalProva" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 max-w-4xl w-full max-h-[90vh] rounded-2xl flex flex-col overflow-hidden shadow-2xl">
+      <div class="p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-950">
+        <div>
+          <h3 id="modalTitulo" class="font-black text-slate-900 dark:text-white">Correção de Avaliação</h3>
+          <p id="modalSubtitulo" class="text-xs text-slate-500"></p>
+        </div>
+        <button onclick="fecharModal()" class="p-2 text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <div id="modalCorpo" class="p-6 overflow-y-auto space-y-6 flex-1"></div>
+
+      <div class="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 space-y-3">
+        <div class="flex gap-2 items-center">
+          <input type="number" step="0.1" max="10" min="0" id="modalNota" placeholder="Nota (0-10)" class="w-32 p-2.5 rounded-xl bg-white dark:bg-slate-900 border text-sm font-bold">
+          <input type="text" id="modalFeedbackGeral" placeholder="Feedback Geral..." class="flex-1 p-2.5 rounded-xl bg-white dark:bg-slate-900 border text-sm">
+          <button onclick="salvarCorrecaoModal()" class="px-6 py-2.5 bg-brand-500 text-black font-extrabold rounded-xl text-sm">Salvar Correção</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- MODAL TROCAR SENHA -->
   <div id="modalTrocarSenha" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 max-w-md w-full p-6 rounded-2xl space-y-4 shadow-2xl">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 max-w-md w-full p-6 rounded-2xl space-y-4">
       <h3 class="font-bold text-sm">Alterar Minha Senha</h3>
-      <input type="password" id="senhaAtualAvaliador" placeholder="Senha Atual" class="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-sm">
-      <input type="password" id="novaSenhaAvaliador" placeholder="Nova Senha" class="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-sm">
+      <input type="password" id="senhaAtualAvaliador" placeholder="Senha Atual" class="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border text-sm">
+      <input type="password" id="novaSenhaAvaliador" placeholder="Nova Senha" class="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border text-sm">
       <div class="flex gap-2">
         <button onclick="salvarNovaSenhaAvaliador()" class="flex-1 py-3 bg-brand-500 text-black font-extrabold rounded-xl text-sm">Salvar</button>
         <button onclick="fecharModalTrocarSenha()" class="px-4 py-3 bg-slate-800 text-white rounded-xl text-sm">Cancelar</button>
@@ -75,59 +139,92 @@
 
   <script src="/assets/js/auth-guard.js"></script>
   <script>
+    function initTheme() {
+      const savedTheme = localStorage.getItem('cfo_theme') || 'dark';
+      if (savedTheme === 'dark') document.documentElement.classList.add('dark');
+      else document.documentElement.classList.remove('dark');
+    }
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('cfo_theme', isDark ? 'dark' : 'light');
+    }
+    initTheme();
+
     const user = checkAuth('avaliador');
+    let provaEmEdicao = null;
     document.getElementById('userNick').innerText = user.nick;
     lucide.createIcons();
 
+    async function carregarHabboProfile() {
+      try {
+        const res = await fetch(`/api/avaliador?action=habboProfile&nick=${encodeURIComponent(user.nick)}`);
+        const data = await res.json();
+        document.getElementById('habboAvatar').src = `https://www.habbo.com.br/habbo-imaging/avatarimage?user=${encodeURIComponent(user.nick)}&headonly=0&direction=2&head_direction=2&action=std&size=m`;
+        const badge = document.getElementById('habboStatusBadge');
+        badge.className = data.online ? "px-2 py-0.5 text-xs rounded-full bg-emerald-500/10 text-emerald-500 font-bold border border-emerald-500/20" : "px-2 py-0.5 text-xs rounded-full bg-slate-500/10 text-slate-400 font-bold border border-slate-500/20";
+        badge.innerText = data.online ? "ONLINE" : "OFFLINE";
+        document.getElementById('habboLastAccess').innerText = data.lastAccess;
+      } catch (e) {}
+    }
+    carregarHabboProfile();
+
     function mudarAba(aba) {
-      document.querySelectorAll('.tab-btn').forEach(b => b.className = "tab-btn px-5 py-2.5 rounded-xl text-sm font-bold text-slate-500");
-      document.getElementById(`tab-${aba}`).className = "tab-btn px-5 py-2.5 rounded-xl text-sm font-bold bg-brand-500 text-black";
-      ['cadastros', 'solicitacoes', 'provas'].forEach(a => document.getElementById(`content-${a}`).classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.className = "tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500");
+      document.getElementById(`tab-${aba}`).className = "tab-btn px-4 py-2.5 rounded-xl text-xs font-bold bg-brand-500 text-black";
+      ['cadastros', 'tokensEmitidos', 'solicitacoes', 'provas', 'duvidas', 'estatisticas', 'documentos'].forEach(a => document.getElementById(`content-${a}`).classList.add('hidden'));
       document.getElementById(`content-${aba}`).classList.remove('hidden');
 
+      if (aba === 'tokensEmitidos') carregarTokensEmitidos();
       if (aba === 'solicitacoes') carregarSolicitacoes();
+      if (aba === 'provas') carregarProvas();
+      if (aba === 'duvidas') carregarDuvidas();
+      if (aba === 'estatisticas') carregarEstatisticaQuestoes();
+      if (aba === 'documentos') carregarDocumentos();
     }
 
     async function gerarToken(e) {
       e.preventDefault();
-      const nickCandidato = document.getElementById('candNick').value;
       const res = await fetch('/api/avaliador?action=gerarToken', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nickAvaliador: user.nick, nickCandidato })
+        body: JSON.stringify({ nickAvaliador: user.nick, nickCandidato: document.getElementById('candNick').value })
       });
       const data = await res.json();
       if (res.ok) {
         document.getElementById('tokenResultado').innerHTML = `
-          <div class="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-sm space-y-2">
+          <div class="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-sm space-y-2">
             <p class="font-bold">${data.message}</p>
             <p>Token: <code class="font-mono font-bold">${data.token}</code></p>
-            <p class="text-base font-bold bg-slate-900 p-2 rounded-lg text-amber-400">Senha do Candidato: <code>${data.senhaGerada}</code></p>
+            <p class="text-base font-bold bg-slate-900 p-2 rounded-lg text-amber-400">Senha Inicial do Candidato: <code>${data.senhaGerada}</code></p>
           </div>
         `;
         document.getElementById('candNick').value = '';
       }
     }
 
+    async function carregarTokensEmitidos() {
+      const res = await fetch('/api/avaliador?action=listarTokens');
+      const data = await res.json();
+      document.getElementById('listaTokensEmitidos').innerHTML = (data.tokens || []).map(t => `
+        <div class="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex justify-between items-center">
+          <div>
+            <p class="font-mono font-bold text-amber-500">${t.token_utilizado}</p>
+            <p class="text-xs text-slate-500">Aluno: <strong>${t.candidato_nick}</strong> | Gerador: ${t.avaliador_nick}</p>
+          </div>
+          <span class="px-2.5 py-1 text-xs font-bold rounded-full bg-slate-100 dark:bg-slate-800 text-brand-500">${t.status}</span>
+        </div>
+      `).join('') || '<p class="text-xs text-slate-500 py-4">Nenhum token emitido.</p>';
+    }
+
     async function carregarSolicitacoes() {
       const res = await fetch('/api/avaliador?action=listarSolicitacoes');
       const data = await res.json();
-      const container = document.getElementById('listaSolicitacoes');
-
-      if (!data.solicitacoes || data.solicitacoes.length === 0) {
-        container.innerHTML = `<p class="text-xs text-slate-500 py-4">Nenhuma solicitação pendente.</p>`;
-        return;
-      }
-
-      container.innerHTML = data.solicitacoes.map(s => `
+      document.getElementById('listaSolicitacoes').innerHTML = (data.solicitacoes || []).map(s => `
         <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex justify-between items-center">
-          <div>
-            <p class="font-bold text-sm">${s.nickPolicial}</p>
-            <p class="text-xs text-slate-500">Solicitado em: ${new Date().toLocaleDateString('pt-BR')}</p>
-          </div>
+          <p class="font-bold text-sm">${s.nickPolicial}</p>
           <div class="flex items-center gap-2">
-            <select id="role-${s.id}" class="p-2 rounded-lg bg-slate-50 dark:bg-slate-950 border text-xs">
-              <option value="candidato">Candidato / Aluno</option>
+            <select id="role-${s.id}" class="p-2 rounded-lg bg-slate-950 border border-slate-800 text-xs">
+              <option value="candidato">Aluno / Candidato</option>
               <option value="avaliador">Avaliador</option>
               <option value="gestor">Gestor</option>
             </select>
@@ -135,40 +232,136 @@
             <button onclick="recusar('${s.id}')" class="px-3 py-1.5 bg-red-500 text-white font-bold text-xs rounded-lg">Recusar</button>
           </div>
         </div>
-      `).join('');
+      `).join('') || '<p class="text-xs text-slate-500 py-4">Nenhuma solicitação pendente.</p>';
     }
 
     async function aprovar(id) {
-      const role = document.getElementById(`role-${id}`).value;
-      await fetch('/api/avaliador?action=aprovarSolicitacao', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, role })
-      });
-      alert('Acesso Aprovado!');
+      await fetch('/api/avaliador?action=aprovarSolicitacao', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, role: document.getElementById(`role-${id}`).value }) });
       carregarSolicitacoes();
     }
 
     async function recusar(id) {
-      if (!confirm('Recusar esta solicitação?')) return;
-      await fetch('/api/avaliador?action=recusarSolicitacao', {
+      if (!confirm('Recusar solicitação?')) return;
+      await fetch('/api/avaliador?action=recusarSolicitacao', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+      carregarSolicitacoes();
+    }
+
+    async function carregarProvas() {
+      const res = await fetch(`/api/avaliador?action=listarProvas`);
+      const data = await res.json();
+      window.provasCache = data.provas || [];
+      document.getElementById('listaProvas').innerHTML = window.provasCache.map(p => `
+        <div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex justify-between items-center">
+          <div class="flex items-center gap-3">
+            <img src="https://www.habbo.com.br/habbo-imaging/avatarimage?user=${encodeURIComponent(p.candidatoNick)}&headonly=1&size=m" class="w-10 h-10 rounded-xl bg-slate-800">
+            <div>
+              <h4 class="font-bold text-sm">${p.candidatoNick} <span class="text-xs text-slate-500">| Token: ${p.tokenUtilizado}</span></h4>
+              <p class="text-xs text-slate-500">Status: <span class="text-brand-500 font-bold">${p.status}</span> ${p.nota !== undefined && p.nota !== null ? '| Nota: ' + p.nota : ''}</p>
+            </div>
+          </div>
+          <button onclick="abrirModalProva('${p.id}')" class="px-4 py-2 rounded-xl bg-slate-800 text-xs font-bold">${p.status === 'Submetido' ? 'Corrigir Prova' : 'Visualizar Prova'}</button>
+        </div>
+      `).join('');
+    }
+
+    function abrirModalProva(id) {
+      const p = window.provasCache.find(x => x.id === id);
+      if (!p) return;
+      provaEmEdicao = p;
+      const questoes = p.questoesJson || [];
+      const respostas = p.respostasJson || {};
+      const feedbacksQuestoes = p.feedbacksQuestoes || {};
+
+      document.getElementById('modalTitulo').innerText = `Avaliação de ${p.candidatoNick}`;
+      document.getElementById('modalSubtitulo').innerText = `Token: ${p.tokenUtilizado} | Status: ${p.status}`;
+      document.getElementById('modalNota').value = p.nota !== null && p.nota !== undefined ? p.nota : '';
+      document.getElementById('modalFeedbackGeral').value = p.feedbackAvaliador || '';
+
+      document.getElementById('modalCorpo').innerHTML = questoes.map((q, i) => `
+        <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-3">
+          <span class="text-xs font-bold text-brand-500 uppercase">Questão ${i + 1} - ${q.categoria || 'Geral'}</span>
+          <p class="font-bold text-sm">${q.enunciado || q.titulo}</p>
+          <div class="p-2.5 rounded-lg bg-emerald-500/10 text-emerald-400 text-xs"><strong>Gabarito Esperado:</strong> ${q.gabarito_esperado || 'Não cadastrado'}</div>
+          <div class="p-3 rounded-lg bg-slate-900 text-xs"><strong>Resposta do Aluno:</strong> <p class="whitespace-pre-wrap">${respostas[q.id] || 'Sem resposta'}</p></div>
+          <input type="text" data-fb-questao-id="${q.id}" value="${feedbacksQuestoes[q.id] || ''}" placeholder="Feedback individual da questão..." class="w-full p-2 bg-slate-900 border border-slate-800 rounded-lg text-xs">
+        </div>
+      `).join('');
+
+      document.getElementById('modalProva').classList.remove('hidden');
+    }
+
+    function fecharModal() { document.getElementById('modalProva').classList.add('hidden'); }
+
+    async function salvarCorrecaoModal() {
+      const feedbacksQuestoes = {};
+      document.querySelectorAll('[data-fb-questao-id]').forEach(el => feedbacksQuestoes[el.getAttribute('data-fb-questao-id')] = el.value.trim());
+
+      await fetch('/api/avaliador?action=corrigir', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id })
+        body: JSON.stringify({ provaId: provaEmEdicao.id, nota: document.getElementById('modalNota').value, feedbackGeral: document.getElementById('modalFeedbackGeral').value, feedbacksQuestoes })
       });
-      carregarSolicitacoes();
+
+      fecharModal();
+      carregarProvas();
+    }
+
+    async function carregarDuvidas() {
+      const res = await fetch('/api/avaliador?action=listarDuvidas');
+      const data = await res.json();
+      document.getElementById('listaDuvidas').innerHTML = (data.duvidas || []).map(d => `
+        <div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-800 space-y-3">
+          <div class="flex justify-between items-center">
+            <div class="flex items-center gap-2"><img src="https://www.habbo.com.br/habbo-imaging/avatarimage?user=${encodeURIComponent(d.alunoNick || '')}&headonly=1&size=s" class="w-8 h-8 rounded-full bg-slate-800"><h4 class="font-bold text-sm">${d.titulo} <span class="text-xs text-slate-500">(${d.alunoNick})</span></h4></div>
+            <span class="px-2.5 py-1 text-xs font-bold rounded-full bg-slate-800 text-brand-500">${d.status}</span>
+          </div>
+          <p class="text-xs bg-slate-950 p-3 rounded-xl">${d.pergunta}</p>
+          ${d.status === 'Pendente' ? `<button onclick="assumirDuvida('${d.id}')" class="px-3 py-1.5 bg-brand-500 text-black text-xs font-bold rounded-lg">Assumir Dúvida</button>` : d.status === 'Em Andamento' && d.avaliadorNick === user.nick ? `<div class="flex gap-2"><input type="text" id="resp-${d.id}" placeholder="Digite a resposta..." class="flex-1 p-2 bg-slate-950 border rounded-lg text-xs"><button onclick="responderDuvida('${d.id}')" class="px-3 py-1.5 bg-emerald-500 text-white text-xs font-bold rounded-lg">Enviar</button></div>` : `<div class="flex items-center gap-2 text-xs text-slate-500"><img src="https://www.habbo.com.br/habbo-imaging/avatarimage?user=${encodeURIComponent(d.avaliadorNick || '')}&headonly=1&size=s" class="w-6 h-6 rounded-full bg-slate-800"><span>Respondido por: <strong>${d.avaliadorNick}</strong> ${d.resposta ? '| Resposta: ' + d.resposta : ''}</span></div>`}
+        </div>
+      `).join('');
+    }
+
+    async function assumirDuvida(id) { await fetch('/api/avaliador?action=assumirDuvida', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, nickAvaliador: user.nick }) }); carregarDuvidas(); }
+    async function responderDuvida(id) { await fetch('/api/avaliador?action=responderDuvida', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, resposta: document.getElementById(`resp-${id}`).value, nickAvaliador: user.nick }) }); carregarDuvidas(); }
+
+    async function carregarEstatisticaQuestoes() {
+      const res = await fetch('/api/avaliador?action=analiseQuestoes');
+      const data = await res.json();
+      document.getElementById('listaEstatisticas').innerHTML = (data.estatisticas || []).map(e => `
+        <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-800 flex justify-between items-center">
+          <div>
+            <p class="font-bold text-sm text-slate-900 dark:text-white">${e.enunciado}</p>
+            <p class="text-xs text-slate-500">Apareceu em ${e.totalRespostas} avaliações corrigidas</p>
+          </div>
+          <div class="text-right">
+            <span class="text-xs font-bold px-2.5 py-1 rounded-full ${e.errosObs > 0 ? 'bg-red-500/10 text-red-500' : 'bg-emerald-500/10 text-emerald-500'}">
+              ${e.errosObs} observações de erro
+            </span>
+          </div>
+        </div>
+      `).join('') || '<p class="text-xs text-slate-500 py-4">Sem dados estatísticos suficientes.</p>';
+    }
+
+    async function carregarDocumentos() {
+      const res = await fetch('/api/avaliador?action=listarDocumentos');
+      const data = await res.json();
+      document.getElementById('listaDocumentos').innerHTML = (data.documentos || []).map(doc => `
+        <a href="${doc.url}" target="_blank" class="p-4 rounded-2xl bg-white dark:bg-slate-900 border hover:border-brand-500 flex items-center justify-between">
+          <div><h4 class="font-bold text-sm">${doc.titulo}</h4><p class="text-xs text-slate-500">${doc.categoria || 'Geral'}</p></div>
+          <i data-lucide="external-link" class="w-4 h-4 text-slate-400"></i>
+        </a>
+      `).join('');
+      lucide.createIcons();
     }
 
     function abrirModalTrocarSenha() { document.getElementById('modalTrocarSenha').classList.remove('hidden'); }
     function fecharModalTrocarSenha() { document.getElementById('modalTrocarSenha').classList.add('hidden'); }
 
     async function salvarNovaSenhaAvaliador() {
-      const senhaAtual = document.getElementById('senhaAtualAvaliador').value;
-      const novaSenha = document.getElementById('novaSenhaAvaliador').value;
       const res = await fetch('/api/auth?action=alterarMinhaSenha', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nick: user.nick, senhaAtual, novaSenha })
+        body: JSON.stringify({ nick: user.nick, senhaAtual: document.getElementById('senhaAtualAvaliador').value, novaSenha: document.getElementById('novaSenhaAvaliador').value })
       });
       if (res.ok) { alert('Senha alterada!'); fecharModalTrocarSenha(); }
     }

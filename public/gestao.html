@@ -5,36 +5,175 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Central CFO - Painel do Gestor</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body class="p-4 md:p-8 min-h-screen bg-slate-950 text-slate-100 flex flex-col items-center">
 
   <div class="max-w-6xl w-full space-y-6">
 
+    <!-- BANNER SUPERIOR -->
     <div class="w-full h-32 rounded-2xl bg-cover bg-center border border-slate-800 shadow-sm" style="background-image: url('/assets/images/banner-cfo.png');"></div>
 
-    <header class="flex justify-between items-center">
-      <h1 class="text-2xl font-extrabold text-white">Central CFO <span class="text-purple-400">· Gestor</span></h1>
-      <button onclick="logout()" class="bg-red-600 text-white text-sm font-semibold px-4 py-2 rounded-xl">Sair</button>
+    <header class="flex justify-between items-center flex-wrap gap-4">
+      <div class="flex items-center gap-3">
+        <img id="habboAvatar" src="" class="w-12 h-12 rounded-full border-2 border-purple-500 bg-slate-800">
+        <div>
+          <h1 class="text-2xl font-extrabold text-white">Central CFO <span class="text-purple-400">· Gestor</span></h1>
+          <p class="text-slate-400 text-sm"><span id="userNick"></span> (<span id="userNome"></span>)</p>
+        </div>
+      </div>
+      <button onclick="logout()" class="bg-red-600 hover:bg-red-700 text-white text-sm font-semibold px-4 py-2 rounded-xl">Sair</button>
     </header>
 
-    <!-- USUÁRIOS E NÍVEIS DE ACESSO -->
-    <section class="bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-4">
-      <h2 class="text-xl font-bold text-purple-400">Gerenciar Usuários & Níveis de Acesso</h2>
-      <div id="listaUsuariosGestao" class="space-y-3"></div>
-    </section>
+    <!-- NAVEGAÇÃO -->
+    <div class="flex justify-center border-b border-slate-800 pb-4 gap-3 flex-wrap">
+      <button onclick="mudarAbaGestor('usuarios')" id="btnUsuarios" class="px-4 py-2 rounded-xl font-semibold bg-purple-600 text-white text-sm">Usuários & Senhas</button>
+      <button onclick="mudarAbaGestor('questoes')" id="btnQuestoes" class="px-4 py-2 rounded-xl font-semibold bg-slate-800 text-slate-400 hover:text-white text-sm">Banco de Questões</button>
+      <button onclick="mudarAbaGestor('tokens')" id="btnTokens" class="px-4 py-2 rounded-xl font-semibold bg-slate-800 text-slate-400 hover:text-white text-sm">Tokens Emitidos</button>
+      <button onclick="mudarAbaGestor('relatorios')" id="btnRelatorios" class="px-4 py-2 rounded-xl font-semibold bg-slate-800 text-slate-400 hover:text-white text-sm">Métricas & Relatórios</button>
+      <button onclick="mudarAbaGestor('documentos')" id="btnDocumentos" class="px-4 py-2 rounded-xl font-semibold bg-slate-800 text-slate-400 hover:text-white text-sm">Central de Documentos</button>
+    </div>
+
+    <!-- ABA USUÁRIOS -->
+    <div id="abaUsuarios" class="space-y-6">
+      <section class="bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-4">
+        <h2 class="text-xl font-bold text-purple-400">Cadastrar Novo Usuário Manualmente</h2>
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
+          <input type="text" id="usrNome" placeholder="Nome completo" class="bg-slate-800 border border-slate-700 rounded-xl p-3 text-white md:col-span-2 text-sm">
+          <input type="text" id="usrNick" placeholder="Nick policial" class="bg-slate-800 border border-slate-700 rounded-xl p-3 text-white text-sm">
+          <input type="password" id="usrSenha" placeholder="Senha" class="bg-slate-800 border border-slate-700 rounded-xl p-3 text-white text-sm">
+          <select id="usrRole" class="bg-slate-800 border border-slate-700 rounded-xl p-3 text-white text-sm">
+            <option value="candidato">Candidato / Aluno</option>
+            <option value="avaliador">Avaliador</option>
+            <option value="gestor">Gestor</option>
+          </select>
+        </div>
+        <button onclick="cadastrarUsuario()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-6 py-2.5 rounded-xl text-sm">Cadastrar Usuário</button>
+      </section>
+
+      <section class="bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-4">
+        <h2 class="text-xl font-bold text-white">Gestão de Níveis de Acesso e Redefinição de Senhas</h2>
+        <div id="listaUsuariosGestao" class="space-y-3"></div>
+      </section>
+    </div>
+
+    <!-- ABA QUESTÕES -->
+    <div id="abaQuestoes" class="hidden space-y-6">
+      <section class="bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-4">
+        <h2 class="text-xl font-bold text-purple-400">Cadastrar Nova Questão no Banco</h2>
+        <div class="space-y-3">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <input type="text" id="questCategoria" placeholder="Categoria (ex: Penal)" class="bg-slate-800 border border-slate-700 rounded-xl p-3 text-white text-sm">
+            <input type="text" id="questTitulo" placeholder="Título" class="bg-slate-800 border border-slate-700 rounded-xl p-3 text-white text-sm">
+          </div>
+          <textarea id="questEnunciado" rows="3" placeholder="Enunciado da pergunta..." class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white text-sm"></textarea>
+          <textarea id="questGabarito" rows="2" placeholder="Gabarito oficial esperado para correção..." class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white text-sm"></textarea>
+          <button onclick="cadastrarQuestao()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-6 py-2.5 rounded-xl text-sm">Salvar Questão</button>
+        </div>
+      </section>
+
+      <section class="bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-4">
+        <h2 class="text-xl font-bold text-white">Questões Cadastradas</h2>
+        <div id="listaQuestoes" class="space-y-3"></div>
+      </section>
+    </div>
+
+    <!-- ABA TOKENS EMITIDOS -->
+    <div id="abaTokens" class="hidden space-y-6">
+      <section class="bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-4">
+        <h2 class="text-xl font-bold text-white">Registro de Todos os Tokens Emitidos</h2>
+        <div id="listaTokensGestor" class="space-y-2"></div>
+      </section>
+    </div>
+
+    <!-- ABA RELATÓRIOS -->
+    <div id="abaRelatorios" class="hidden space-y-6">
+      <section class="bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-4">
+        <h2 class="text-xl font-bold text-white">Relatório Geral da Plataforma</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="bg-slate-800 p-4 rounded-xl text-center border border-slate-700">
+            <p class="text-slate-400 text-xs">Total de Provas Criadas</p>
+            <p id="totalProvas" class="text-3xl font-extrabold text-indigo-400">-</p>
+          </div>
+          <div class="bg-slate-800 p-4 rounded-xl text-center border border-slate-700">
+            <p class="text-slate-400 text-xs">Aguardando Correção</p>
+            <p id="totalPendentes" class="text-3xl font-extrabold text-amber-400">-</p>
+          </div>
+          <div class="bg-slate-800 p-4 rounded-xl text-center border border-slate-700">
+            <p class="text-slate-400 text-xs">Média Geral de Notas</p>
+            <p id="mediaNotas" class="text-3xl font-extrabold text-emerald-400">-</p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ABA DOCUMENTOS -->
+    <div id="abaDocumentos" class="hidden space-y-6">
+      <section class="bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-4">
+        <div class="flex justify-between items-center">
+          <h2 class="text-xl font-bold text-purple-400">Gerenciar Central de Documentos</h2>
+          <button onclick="inicializarDocumentos()" class="bg-slate-800 hover:bg-slate-700 text-xs px-3 py-1.5 rounded-lg text-purple-300">Carregar Documentos Padrão RCC</button>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <input type="text" id="docTitulo" placeholder="Título do Documento" class="bg-slate-800 border border-slate-700 rounded-xl p-3 text-white text-sm">
+          <input type="url" id="docUrl" placeholder="Link Completo (https://...)" class="bg-slate-800 border border-slate-700 rounded-xl p-3 text-white text-sm">
+          <input type="text" id="docCategoria" placeholder="Categoria (ex: Penal)" class="bg-slate-800 border border-slate-700 rounded-xl p-3 text-white text-sm">
+        </div>
+        <button onclick="cadastrarDocumento()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-6 py-2.5 rounded-xl text-sm">Adicionar Documento</button>
+      </section>
+
+      <section class="bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-4">
+        <h2 class="text-xl font-bold text-white">Links Ativos para Alunos e Avaliadores</h2>
+        <div id="listaDocumentosGestor" class="space-y-2"></div>
+      </section>
+    </div>
 
   </div>
 
   <script src="/assets/js/auth-guard.js"></script>
   <script>
     const user = checkAuth('gestor');
+    document.getElementById('userNick').innerText = user.nick;
+    document.getElementById('userNome').innerText = user.nome || 'Gestor';
+    document.getElementById('habboAvatar').src = `https://www.habbo.com.br/habbo-imaging/avatarimage?user=${encodeURIComponent(user.nick)}&headonly=1&size=m`;
+    lucide.createIcons();
+
+    function mudarAbaGestor(aba) {
+      ['Usuarios', 'Questoes', 'Tokens', 'Relatorios', 'Documentos'].forEach(a => {
+        document.getElementById('aba' + a).classList.add('hidden');
+        document.getElementById('btn' + a).className = "px-4 py-2 rounded-xl font-semibold bg-slate-800 text-slate-400 hover:text-white text-sm";
+      });
+
+      const nomeAba = aba.charAt(0).toUpperCase() + aba.slice(1);
+      document.getElementById('aba' + nomeAba).classList.remove('hidden');
+      document.getElementById('btn' + nomeAba).className = "px-4 py-2 rounded-xl font-semibold bg-purple-600 text-white text-sm";
+
+      if (aba === 'usuarios') carregarUsuariosGestao();
+      if (aba === 'questoes') carregarQuestoes();
+      if (aba === 'tokens') carregarTokensGestor();
+      if (aba === 'relatorios') carregarRelatorios();
+      if (aba === 'documentos') carregarDocumentosGestor();
+    }
+
+    async function cadastrarUsuario() {
+      await fetch('/api/gestor?action=cadastrarUsuario', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nome: document.getElementById('usrNome').value,
+          nick: document.getElementById('usrNick').value,
+          senha: document.getElementById('usrSenha').value,
+          role: document.getElementById('usrRole').value
+        })
+      });
+      alert('Usuário cadastrado!');
+      carregarUsuariosGestao();
+    }
 
     async function carregarUsuariosGestao() {
       const res = await fetch('/api/gestor?action=listarUsuarios');
       const data = await res.json();
-      const container = document.getElementById('listaUsuariosGestao');
-
-      container.innerHTML = (data.usuarios || []).map(u => `
+      document.getElementById('listaUsuariosGestao').innerHTML = (data.usuarios || []).map(u => `
         <div class="bg-slate-800 p-4 rounded-xl flex justify-between items-center flex-wrap gap-3">
           <div>
             <p class="font-bold text-white">${u.nome} <span class="text-slate-400">(${u.nick_policial})</span></p>
@@ -42,40 +181,137 @@
           </div>
 
           <div class="flex items-center gap-2">
-            <select id="role-select-${u.id}" class="bg-slate-900 text-xs p-2 rounded-lg border border-slate-700">
+            <select id="role-select-${u.id}" class="bg-slate-900 text-xs p-2 rounded-lg border border-slate-700 text-white">
               <option value="candidato" ${u.role === 'candidato' ? 'selected' : ''}>Aluno / Candidato</option>
               <option value="avaliador" ${u.role === 'avaliador' ? 'selected' : ''}>Avaliador</option>
               <option value="gestor" ${u.role === 'gestor' ? 'selected' : ''}>Gestor</option>
             </select>
             <button onclick="alterarCargo('${u.id}')" class="px-3 py-1.5 bg-purple-600 text-white text-xs font-bold rounded-lg">Alterar Cargo</button>
             <button onclick="redefinirSenhaUsuario('${u.nick_policial}')" class="px-3 py-1.5 bg-amber-500 text-black text-xs font-bold rounded-lg">Resetar Senha</button>
+            <button onclick="removerUsuario('${u.id}')" class="px-3 py-1.5 bg-red-600 text-white text-xs font-bold rounded-lg">Excluir</button>
           </div>
         </div>
       `).join('');
     }
 
     async function alterarCargo(id) {
-      const role = document.getElementById(`role-select-${id}`).value;
       await fetch('/api/avaliador?action=aprovarSolicitacao', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, role })
+        body: JSON.stringify({ id, role: document.getElementById(`role-select-${id}`).value })
       });
-      alert('Nível de acesso alterado!');
+      alert('Cargo atualizado!');
       carregarUsuariosGestao();
     }
 
     async function redefinirSenhaUsuario(nick) {
-      const novaSenha = prompt(`Digite a nova senha para ${nick}:`);
+      const novaSenha = prompt(`Digite a nova senha para o usuário ${nick}:`);
       if (!novaSenha) return;
-
       const res = await fetch('/api/auth?action=alterarMinhaSenha', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nick, novaSenha })
       });
+      if (res.ok) alert(`Senha de ${nick} redefinida!`);
+    }
 
-      if (res.ok) alert(`Senha de ${nick} redefinida com sucesso!`);
+    async function removerUsuario(id) {
+      if (!confirm('Excluir usuário permanentemente?')) return;
+      await fetch('/api/gestor?action=removerUsuario', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+      carregarUsuariosGestao();
+    }
+
+    async function cadastrarQuestao() {
+      await fetch('/api/gestor?action=cadastrarQuestao', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          categoria: document.getElementById('questCategoria').value,
+          titulo: document.getElementById('questTitulo').value,
+          enunciado: document.getElementById('questEnunciado').value,
+          gabarito_esperado: document.getElementById('questGabarito').value
+        })
+      });
+      alert('Questão cadastrada no banco!');
+      carregarQuestoes();
+    }
+
+    async function carregarQuestoes() {
+      const res = await fetch('/api/gestor?action=listarQuestoes');
+      const data = await res.json();
+      document.getElementById('listaQuestoes').innerHTML = (data.questoes || []).map(q => `
+        <div class="bg-slate-800 p-4 rounded-xl space-y-2 border border-slate-700">
+          <div class="flex justify-between items-start">
+            <p class="font-bold text-white text-sm">[${q.categoria || 'Geral'}] ${q.enunciado}</p>
+            <button onclick="excluirQuestao('${q.id}')" class="text-red-400 text-xs font-bold">Excluir</button>
+          </div>
+          <p class="text-emerald-400 text-xs"><strong>Gabarito Oficial:</strong> ${q.gabarito_esperado}</p>
+        </div>
+      `).join('');
+    }
+
+    async function excluirQuestao(id) {
+      if (!confirm('Excluir esta questão?')) return;
+      await fetch('/api/gestor?action=excluirQuestao', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+      carregarQuestoes();
+    }
+
+    async function carregarTokensGestor() {
+      const res = await fetch('/api/avaliador?action=listarTokens');
+      const data = await res.json();
+      document.getElementById('listaTokensGestor').innerHTML = (data.tokens || []).map(t => `
+        <div class="bg-slate-800 p-3 rounded-xl flex justify-between items-center border border-slate-700">
+          <div>
+            <p class="font-mono font-bold text-amber-400 text-sm">${t.token_utilizado}</p>
+            <p class="text-xs text-slate-400">Aluno: ${t.candidato_nick} | Avaliador: ${t.avaliador_nick || 'Sistema'}</p>
+          </div>
+          <span class="text-xs px-2.5 py-1 rounded-full bg-slate-700 text-slate-300 font-bold">${t.status}</span>
+        </div>
+      `).join('');
+    }
+
+    async function carregarRelatorios() {
+      const res = await fetch('/api/avaliador?action=listarProvas');
+      const data = await res.json();
+      const provas = data.provas || [];
+      document.getElementById('totalProvas').innerText = provas.length;
+      document.getElementById('totalPendentes').innerText = provas.filter(p => p.status === 'Submetido' || p.status === 'Em Andamento').length;
+
+      const notas = provas.filter(p => p.nota !== null && p.nota !== undefined).map(p => Number(p.nota));
+      const media = notas.length > 0 ? (notas.reduce((a, b) => a + b, 0) / notas.length).toFixed(1) : '0.0';
+      document.getElementById('mediaNotas').innerText = media;
+    }
+
+    async function inicializarDocumentos() {
+      await fetch('/api/gestor?action=inicializarDocumentos');
+      alert('Documentos padrão RCC carregados!');
+      carregarDocumentosGestor();
+    }
+
+    async function cadastrarDocumento() {
+      await fetch('/api/gestor?action=cadastrarDocumento', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ titulo: document.getElementById('docTitulo').value, url: document.getElementById('docUrl').value, categoria: document.getElementById('docCategoria').value })
+      });
+      carregarDocumentosGestor();
+    }
+
+    async function carregarDocumentosGestor() {
+      const res = await fetch('/api/avaliador?action=listarDocumentos');
+      const data = await res.json();
+      document.getElementById('listaDocumentosGestor').innerHTML = (data.documentos || []).map(d => `
+        <div class="bg-slate-800 p-3 rounded-xl flex justify-between items-center border border-slate-700">
+          <div><p class="font-bold text-white text-sm">${d.titulo} <span class="text-xs text-purple-400">(${d.categoria || 'Geral'})</span></p><a href="${d.url}" target="_blank" class="text-xs text-slate-400 hover:underline">${d.url}</a></div>
+          <button onclick="excluirDocumento('${d.id}')" class="text-red-400 text-xs font-bold">Remover</button>
+        </div>
+      `).join('');
+    }
+
+    async function excluirDocumento(id) {
+      if (!confirm('Remover documento?')) return;
+      await fetch('/api/gestor?action=excluirDocumento', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+      carregarDocumentosGestor();
     }
 
     carregarUsuariosGestao();
