@@ -41,7 +41,7 @@ module.exports = async function handler(req, res) {
       }
     }
 
-    // 2. Gerar Avaliação (SENHA PRESERVADA PARA USUÁRIOS EXISTENTES)
+    // 2. Gerar Avaliação
     if (req.method === 'POST' && (action === 'gerarAvaliacao' || action === 'gerarToken')) {
       const { nickAvaliador, nickCandidato } = body;
       if (!nickCandidato || !String(nickCandidato).trim()) {
@@ -57,7 +57,6 @@ module.exports = async function handler(req, res) {
       const usuarioExistente = await db.collection('usuarios').where('nickBusca', '==', nickBusca).limit(1).get();
 
       if (usuarioExistente.empty) {
-        // Usuário NOVO: Cria a conta e gera a senha inicial
         senhaGerada = gerarSenhaAleatoria();
         const senhaHash = await bcrypt.hash(senhaGerada, 10);
         await db.collection('usuarios').add({
@@ -70,7 +69,6 @@ module.exports = async function handler(req, res) {
           criadoEm: FieldValue.serverTimestamp()
         });
       }
-      // Se o usuário JÁ EXISTE, a senha NÃO É REALTERADA nem sobrescrita!
 
       await db.collection('provas').add({
         tokenUtilizado: token,
@@ -86,8 +84,8 @@ module.exports = async function handler(req, res) {
         nick: nickLimpo,
         senhaGerada,
         message: senhaGerada
-          ? 'Avaliação liberada e nova conta criada para o candidato!'
-          : 'Nova avaliação liberada para o candidato existente (mantendo a senha cadastrada dele).'
+          ? 'Avaliação liberada e conta criada com sucesso!'
+          : 'Nova avaliação liberada para o candidato (mantida a senha existente).'
       });
     }
 
@@ -203,30 +201,20 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ sugestoes: snap.docs.map(d => ({ id: d.id, ...d.data() })) });
     }
 
-    // 8. Práticas de BBCode
-    if (req.method === 'GET' && action === 'listarPraticasBBCode') {
-      const snap = await db.collection('praticas_bbcode').orderBy('criadoEm', 'desc').get();
-      return res.status(200).json({ praticas: snap.docs.map(d => ({ id: d.id, ...d.data() })) });
-    }
-
-    if (req.method === 'POST' && action === 'avaliarPraticaBBCode') {
-      const { id, avaliadorNick, feedback, status } = body;
-      if (!id || !feedback) return res.status(400).json({ error: 'Feedback é obrigatório.' });
-
-      await db.collection('praticas_bbcode').doc(id).update({
-        avaliadorNick: avaliadorNick || 'Avaliador',
-        feedbackAvaliador: feedback.trim(),
-        status: status || 'Avaliada',
-        avaliadoEm: FieldValue.serverTimestamp()
-      });
-
-      return res.status(200).json({ success: true, message: 'Feedback enviado com sucesso!' });
-    }
-
-    // 9. Central de Dúvidas
+    // 8. Central de Dúvidas
     if (req.method === 'GET' && action === 'listarDuvidas') {
       const snap = await db.collection('duvidas').orderBy('criadoEm', 'desc').get();
-      return res.status(200).json({ duvidas: snap.docs.map(d => ({ id: d.id, ...d.data() })) });
+      return res.status(200).json({
+        duvidas: snap.docs.map(d => ({
+          id: d.id,
+          alunoNick: d.data().alunoNick,
+          titulo: d.data().titulo,
+          pergunta: d.data().pergunta,
+          status: d.data().status || 'Pendente',
+          avaliadorNick: d.data().avaliadorNick || null,
+          resposta: d.data().resposta || null
+        }))
+      });
     }
 
     if (req.method === 'POST' && action === 'assumirDuvida') {
@@ -239,10 +227,11 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ success: true });
     }
 
-    // 10. Central de Documentos
+    // 9. Central de Documentos (Garante retorno mesmo se a coleção ainda estiver vazia)
     if (req.method === 'GET' && action === 'listarDocumentos') {
-      const snap = await db.collection('documentos').orderBy('titulo', 'asc').get();
-      return res.status(200).json({ documentos: snap.docs.map(d => ({ id: d.id, ...d.data() })) });
+      const snap = await db.collection('documentos').get();
+      const documentos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      return res.status(200).json({ documentos });
     }
 
     return res.status(400).json({ error: 'Ação não encontrada' });

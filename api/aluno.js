@@ -4,9 +4,9 @@ function mapProva(p) {
   return {
     token_utilizado: p.tokenUtilizado,
     candidato_nick: p.candidatoNick,
-    avaliador_nick: p.avaliadorNick,
-    status: p.status,
-    nota: p.nota !== undefined ? p.nota : null,
+    avaliador_nick: p.avaliadorNick || 'Corpo Docente',
+    status: p.status || 'Pendente',
+    nota: p.nota !== undefined && p.nota !== null ? p.nota : null,
     feedback_avaliador: p.feedbackAvaliador || null,
     feedbacks_questoes: p.feedbacksQuestoes || {},
     respostas_json: p.respostasJson || {},
@@ -40,7 +40,7 @@ module.exports = async function handler(req, res) {
         criadoEm: FieldValue.serverTimestamp()
       });
 
-      return res.status(200).json({ success: true, message: 'Dúvida enviada!', id: doc.id });
+      return res.status(200).json({ success: true, message: 'Dúvida enviada com sucesso!', id: doc.id });
     }
 
     // 2. Listar Minhas Dúvidas
@@ -52,18 +52,34 @@ module.exports = async function handler(req, res) {
         .where('alunoNickBusca', '==', String(alunoNick).trim().toLowerCase())
         .get();
 
-      const duvidas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      const duvidas = snap.docs.map(d => ({
+        id: d.id,
+        alunoNick: d.data().alunoNick,
+        titulo: d.data().titulo,
+        pergunta: d.data().pergunta,
+        status: d.data().status || 'Pendente',
+        avaliadorNick: d.data().avaliadorNick || null,
+        resposta: d.data().resposta || null
+      }));
       return res.status(200).json({ duvidas });
     }
 
-    // 3. Listar TODAS as Dúvidas
+    // 3. Listar TODAS as Dúvidas (Comunidade)
     if (req.method === 'GET' && action === 'todasDuvidas') {
       const snap = await db.collection('duvidas').orderBy('criadoEm', 'desc').get();
-      const duvidas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      const duvidas = snap.docs.map(d => ({
+        id: d.id,
+        alunoNick: d.data().alunoNick,
+        titulo: d.data().titulo,
+        pergunta: d.data().pergunta,
+        status: d.data().status || 'Pendente',
+        avaliadorNick: d.data().avaliadorNick || null,
+        resposta: d.data().resposta || null
+      }));
       return res.status(200).json({ duvidas });
     }
 
-    // 4. Listar Minhas Avaliações
+    // 4. Listar Minhas Avaliações e Resultados
     if (req.method === 'GET' && action === 'minhasAvaliacoes') {
       const nick = req.query.nick || req.query.alunoNick;
       if (!nick) return res.status(400).json({ error: 'Nick não informado.' });
@@ -93,10 +109,10 @@ module.exports = async function handler(req, res) {
     // 6. Buscar Avaliação pelo Token
     if (req.method === 'GET' && action === 'buscarProva') {
       const token = req.query.token;
-      if (!token) return res.status(400).json({ error: 'Informe o Token da Avaliação.' });
+      if (!token) return res.status(400).json({ error: 'Informe a Avaliação.' });
 
       const snap = await db.collection('provas').where('tokenUtilizado', '==', token.trim()).limit(1).get();
-      if (snap.empty) return res.status(404).json({ error: 'Token não encontrado ou inválido.' });
+      if (snap.empty) return res.status(404).json({ error: 'Avaliação não encontrada ou inválida.' });
 
       const docRef = snap.docs[0].ref;
       const dadosProva = snap.docs[0].data();
@@ -126,53 +142,23 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ prova: { id: snap.docs[0].id, ...mapProva(dadosProva) } });
     }
 
-    // 7. Submeter Respostas
+    // 7. Submeter Respostas da Prova
     if (req.method === 'POST' && action === 'submeterProva') {
       const { token, respostas } = body;
       if (!token || !respostas) {
-        return res.status(400).json({ error: 'Token ou respostas ausentes.' });
+        return res.status(400).json({ error: 'Dados incompletos para envio da prova.' });
       }
 
       const snap = await db.collection('provas').where('tokenUtilizado', '==', token.trim()).limit(1).get();
-      if (snap.empty) return res.status(404).json({ error: 'Token não encontrado.' });
+      if (snap.empty) return res.status(404).json({ error: 'Avaliação não encontrada.' });
 
-      await snap.docs[0].ref.update({ respostasJson: respostas, status: 'Submetido' });
-
-      return res.status(200).json({ success: true, message: 'Avaliação entregue com sucesso!' });
-    }
-
-    // 8. NOVA: Enviar Prática de BBCode para os Avaliadores
-    if (req.method === 'POST' && action === 'enviarPraticaBBCode') {
-      const { nick, titulo, codigoBBCode } = body;
-      if (!nick || !codigoBBCode) {
-        return res.status(400).json({ error: 'Preencha o código BBCode.' });
-      }
-
-      const doc = await db.collection('praticas_bbcode').add({
-        alunoNick: String(nick).trim(),
-        alunoNickBusca: String(nick).trim().toLowerCase(),
-        titulo: titulo ? titulo.trim() : 'Exercício de BBCode',
-        codigoBBCode: codigoBBCode.trim(),
-        status: 'Pendente',
-        feedbackAvaliador: '',
-        avaliadorNick: '',
-        criadoEm: FieldValue.serverTimestamp()
+      await snap.docs[0].ref.update({
+        respostasJson: respostas,
+        status: 'Submetido',
+        submetidoEm: FieldValue.serverTimestamp()
       });
 
-      return res.status(200).json({ success: true, message: 'Prática de BBCode enviada aos avaliadores!', id: doc.id });
-    }
-
-    // 9. NOVA: Listar Minhas Práticas de BBCode
-    if (req.method === 'GET' && action === 'minhasPraticasBBCode') {
-      const nick = req.query.nick;
-      if (!nick) return res.status(400).json({ error: 'Nick não informado.' });
-
-      const snap = await db.collection('praticas_bbcode')
-        .where('alunoNickBusca', '==', String(nick).trim().toLowerCase())
-        .get();
-
-      const praticas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      return res.status(200).json({ praticas });
+      return res.status(200).json({ success: true, message: 'Avaliação entregue com sucesso!' });
     }
 
     return res.status(400).json({ error: 'Ação não reconhecida.' });

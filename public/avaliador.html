@@ -43,7 +43,6 @@
       <button onclick="mudarAba('tokensEmitidos')" id="tab-tokensEmitidos" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Avaliações Geradas</button>
       <button onclick="mudarAba('solicitacoes')" id="tab-solicitacoes" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Solicitações de Acesso</button>
       <button onclick="mudarAba('provas')" id="tab-provas" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Provas & Correção</button>
-      <button onclick="mudarAba('praticasBbcode')" id="tab-praticasBbcode" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Práticas BBCode</button>
       <button onclick="mudarAba('sugerir')" id="tab-sugerir" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Sugerir Questão</button>
       <button onclick="mudarAba('duvidas')" id="tab-duvidas" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Central de Dúvidas</button>
       <button onclick="mudarAba('documentos')" id="tab-documentos" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Documentos</button>
@@ -79,12 +78,6 @@
       <div id="listaProvas" class="grid grid-cols-1 gap-4"></div>
     </section>
 
-    <!-- AVALIAÇÃO DE PRÁTICAS DE BBCODE -->
-    <section id="content-praticasBbcode" class="hidden space-y-4">
-      <h2 class="text-lg font-bold">Práticas de BBCode Submetidas pelos Alunos</h2>
-      <div id="listaPraticasBBCode" class="grid grid-cols-1 gap-4"></div>
-    </section>
-
     <!-- SUGERIR QUESTÃO -->
     <section id="content-sugerir" class="space-y-6 hidden">
       <div class="max-w-2xl mx-auto p-6 rounded-2xl bg-white dark:bg-slate-900 border space-y-4">
@@ -108,7 +101,7 @@
 
     <!-- DÚVIDAS -->
     <section id="content-duvidas" class="hidden space-y-4">
-      <h2 class="text-lg font-bold">Central de Dúvidas</h2>
+      <h2 class="text-lg font-bold">Central de Dúvidas de Simulados</h2>
       <div id="listaDuvidas" class="grid grid-cols-1 gap-4"></div>
     </section>
 
@@ -204,13 +197,12 @@
     function mudarAba(aba) {
       document.querySelectorAll('.tab-btn').forEach(b => b.className = "tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500");
       document.getElementById(`tab-${aba}`).className = "tab-btn px-4 py-2.5 rounded-xl text-xs font-bold bg-brand-500 text-black";
-      ['cadastros', 'tokensEmitidos', 'solicitacoes', 'provas', 'praticasBbcode', 'sugerir', 'duvidas', 'documentos'].forEach(a => document.getElementById(`content-${a}`).classList.add('hidden'));
+      ['cadastros', 'tokensEmitidos', 'solicitacoes', 'provas', 'sugerir', 'duvidas', 'documentos'].forEach(a => document.getElementById(`content-${a}`).classList.add('hidden'));
       document.getElementById(`content-${aba}`).classList.remove('hidden');
 
       if (aba === 'tokensEmitidos') carregarTokensEmitidos();
       if (aba === 'solicitacoes') carregarSolicitacoes();
       if (aba === 'provas') carregarProvas();
-      if (aba === 'praticasBbcode') carregarPraticasBBCodeAvaliador();
       if (aba === 'sugerir') carregarMinhasSugestoes();
       if (aba === 'duvidas') carregarDuvidas();
       if (aba === 'documentos') carregarDocumentos();
@@ -391,6 +383,109 @@
       carregarProvas();
     }
 
+    async function enviarSugestaoQuestao(e) {
+      e.preventDefault();
+      await fetch('/api/avaliador?action=sugerirQuestao', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          avaliadorNick: user.nick,
+          categoria: document.getElementById('sugCategoria').value,
+          titulo: document.getElementById('sugTitulo').value,
+          enunciado: document.getElementById('sugEnunciado').value,
+          gabarito_esperado: document.getElementById('sugGabarito').value
+        })
+      });
+      alert('Sugestão enviada à gestão!');
+      e.target.reset();
+      carregarMinhasSugestoes();
+    }
+
+    async function carregarMinhasSugestoes() {
+      const res = await fetch(`/api/avaliador?action=minhasSugestoes&nick=${encodeURIComponent(user.nick)}`);
+      const data = await res.json();
+      document.getElementById('listaMinhasSugestoes').innerHTML = (data.sugestoes || []).map(s => `
+        <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border space-y-2">
+          <div class="flex justify-between items-center">
+            <span class="text-xs font-bold text-slate-400">[${s.categoria}] ${s.titulo}</span>
+            <span class="px-2.5 py-0.5 text-xs font-bold rounded-full ${s.status === 'Aprovada' ? 'bg-emerald-500/10 text-emerald-500' : s.status === 'Reprovada' ? 'bg-red-500/10 text-red-500' : 'bg-amber-500/10 text-amber-500'}">${s.status}</span>
+          </div>
+          <p class="text-xs font-bold">${s.enunciado}</p>
+          ${s.observacaoGestor ? `<p class="text-xs text-purple-400 bg-slate-950 p-2 rounded-lg"><strong>Retorno da Gestão:</strong> ${s.observacaoGestor}</p>` : ''}
+        </div>
+      `).join('') || '<p class="text-xs text-slate-500 py-4">Nenhuma sugestão enviada.</p>';
+    }
+
+    async function carregarDuvidas() {
+      const container = document.getElementById('listaDuvidas');
+      try {
+        const res = await fetch('/api/avaliador?action=listarDuvidas');
+        const data = await res.json();
+
+        if (!data.duvidas || data.duvidas.length === 0) {
+          container.innerHTML = '<p class="text-xs text-slate-500 py-4 text-center">Nenhuma dúvida registrada.</p>';
+          return;
+        }
+
+        container.innerHTML = data.duvidas.map(d => `
+          <div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3">
+            <div class="flex justify-between items-center">
+              <div class="flex items-center gap-2">
+                <img src="https://www.habbo.com.br/habbo-imaging/avatarimage?user=${encodeURIComponent(d.alunoNick || '')}&headonly=1&size=s" class="w-8 h-8 rounded-full bg-slate-800">
+                <h4 class="font-bold text-sm">${d.titulo} <span class="text-xs font-normal text-slate-500">(${d.alunoNick})</span></h4>
+              </div>
+              <span class="px-2.5 py-1 text-xs font-bold rounded-full bg-slate-100 dark:bg-slate-800 text-brand-500">${d.status}</span>
+            </div>
+            <p class="text-xs bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-800">${d.pergunta}</p>
+            ${d.status === 'Pendente' ? `
+              <button onclick="assumirDuvida('${d.id}')" class="px-3 py-1.5 bg-brand-500 text-black text-xs font-bold rounded-lg">Assumir Dúvida</button>
+            ` : d.status === 'Em Andamento' && d.avaliadorNick === user.nick ? `
+              <div class="flex gap-2">
+                <input type="text" id="resp-${d.id}" placeholder="Digite a resposta para o aluno..." class="flex-1 p-2 bg-slate-50 dark:bg-slate-950 border rounded-lg text-xs">
+                <button onclick="responderDuvida('${d.id}')" class="px-3 py-1.5 bg-emerald-500 text-white text-xs font-bold rounded-lg">Enviar Resposta</button>
+              </div>
+            ` : `
+              <div class="flex items-center gap-2 text-xs text-slate-500">
+                <img src="https://www.habbo.com.br/habbo-imaging/avatarimage?user=${encodeURIComponent(d.avaliadorNick || '')}&headonly=1&size=s" class="w-6 h-6 rounded-full bg-slate-800">
+                <span>Respondido por: <strong>${d.avaliadorNick}</strong> ${d.resposta ? '| Resposta: ' + d.resposta : ''}</span>
+              </div>
+            `}
+          </div>
+        `).join('');
+      } catch (err) {
+        container.innerHTML = '<p class="text-xs text-red-500 py-4 text-center">Erro ao carregar dúvidas.</p>';
+      }
+    }
+
+    async function assumirDuvida(id) { await fetch('/api/avaliador?action=assumirDuvida', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, nickAvaliador: user.nick }) }); carregarDuvidas(); }
+    async function responderDuvida(id) { await fetch('/api/avaliador?action=responderDuvida', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, resposta: document.getElementById(`resp-${id}`).value, nickAvaliador: user.nick }) }); carregarDuvidas(); }
+
+    async function carregarDocumentos() {
+      const container = document.getElementById('listaDocumentos');
+      try {
+        const res = await fetch('/api/avaliador?action=listarDocumentos');
+        const data = await res.json();
+
+        if (!data.documentos || data.documentos.length === 0) {
+          container.innerHTML = '<p class="text-xs text-slate-500 py-4 col-span-2 text-center">Nenhum documento cadastrado.</p>';
+          return;
+        }
+
+        container.innerHTML = data.documentos.map(doc => `
+          <a href="${doc.url}" target="_blank" class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-brand-500 flex items-center justify-between transition group">
+            <div>
+              <h4 class="font-bold text-sm text-slate-900 dark:text-white group-hover:text-brand-500 transition">${doc.titulo}</h4>
+              <p class="text-xs text-slate-500">${doc.categoria || 'Geral'}</p>
+            </div>
+            <i data-lucide="external-link" class="w-4 h-4 text-slate-400 group-hover:text-brand-500 transition"></i>
+          </a>
+        `).join('');
+        lucide.createIcons();
+      } catch (err) {
+        container.innerHTML = '<p class="text-xs text-red-500 py-4 col-span-2 text-center">Erro ao carregar documentos.</p>';
+      }
+    }
+
     function abrirModalTrocarSenha() { document.getElementById('modalTrocarSenha').classList.remove('hidden'); }
     function fecharModalTrocarSenha() { document.getElementById('modalTrocarSenha').classList.add('hidden'); }
 
@@ -400,7 +495,7 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nick: user.nick, senhaAtual: document.getElementById('senhaAtualAvaliador').value, novaSenha: document.getElementById('novaSenhaAvaliador').value })
       });
-      if (res.ok) { alert('Senha alterada!'); fecharModalTrocarSenha(); }
+      if (res.ok) { alert('Senha alterada com sucesso!'); fecharModalTrocarSenha(); }
     }
   </script>
 </body>
