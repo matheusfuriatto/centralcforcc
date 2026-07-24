@@ -5,49 +5,41 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Central CFO - Painel do Gestor</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
   <script>
     tailwind.config = {
       darkMode: 'class',
       theme: { extend: { colors: { brand: { 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca' } } } }
     }
   </script>
-  <style>
-    body { background-color: #0f172a; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; }
-    .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); }
-    .avatar-container {
-      width: 44px; height: 44px; border-radius: 9999px; background: rgba(255,255,255,0.08);
-      border: 2px solid #a855f7; overflow: hidden; display: flex; align-items: center; justify-content: center;
-    }
-    .avatar-container img { width: 50px; height: auto; margin-top: -9px; }
-  </style>
 </head>
-<body class="p-4 md:p-8 min-h-screen flex flex-col items-center">
+<body class="p-4 md:p-8 min-h-screen bg-slate-950 text-slate-100 flex flex-col items-center">
 
-  <div class="max-w-6xl w-full space-y-8">
+  <div class="max-w-6xl w-full space-y-6">
+
+    <!-- BANNER SUPERIOR -->
+    <div class="w-full h-32 rounded-2xl bg-cover bg-center border border-slate-800 shadow-sm" style="background-image: url('/assets/images/banner-cfo.png');"></div>
 
     <header class="flex justify-between items-center flex-wrap gap-4">
       <div class="flex items-center gap-3">
-        <div class="avatar-container">
-          <img id="habboAvatar" src="" alt="Avatar" onerror="this.src='https://www.habbo.com.br/habbo-imaging/avatarimage?user=Habbo&headonly=1'">
-        </div>
+        <img id="habboAvatar" src="" class="w-12 h-12 rounded-full border-2 border-purple-500 bg-slate-800">
         <div>
           <h1 class="text-2xl font-extrabold text-white">Central CFO <span class="text-purple-400">· Gestor</span></h1>
           <p class="text-slate-400 text-sm"><span id="userNick"></span> (<span id="userNome"></span>)</p>
         </div>
       </div>
-      <button onclick="logout()" class="bg-red-600 hover:bg-red-700 text-white text-sm font-semibold px-4 py-2 rounded-xl transition">Sair</button>
+      <button onclick="logout()" class="bg-red-600 hover:bg-red-700 text-white text-sm font-semibold px-4 py-2 rounded-xl">Sair</button>
     </header>
 
     <div class="flex justify-center border-b border-slate-800 pb-4 gap-4 flex-wrap">
-      <button onclick="mudarAbaGestor('usuarios')" id="btnUsuarios" class="px-5 py-2 rounded-xl font-semibold bg-purple-600 text-white transition">Usuários</button>
-      <button onclick="mudarAbaGestor('questoes')" id="btnQuestoes" class="px-5 py-2 rounded-xl font-semibold bg-slate-800 text-slate-400 hover:text-white transition">Banco de Questões</button>
-      <button onclick="mudarAbaGestor('tokens')" id="btnTokens" class="px-5 py-2 rounded-xl font-semibold bg-slate-800 text-slate-400 hover:text-white transition">Tokens Ativos</button>
-      <button onclick="mudarAbaGestor('relatorios')" id="btnRelatorios" class="px-5 py-2 rounded-xl font-semibold bg-slate-800 text-slate-400 hover:text-white transition">Relatório Geral</button>
+      <button onclick="mudarAbaGestor('usuarios')" id="btnUsuarios" class="px-5 py-2 rounded-xl font-semibold bg-purple-600 text-white">Usuários</button>
+      <button onclick="mudarAbaGestor('questoes')" id="btnQuestoes" class="px-5 py-2 rounded-xl font-semibold bg-slate-800 text-slate-400">Banco de Questões</button>
+      <button onclick="mudarAbaGestor('documentos')" id="btnDocumentos" class="px-5 py-2 rounded-xl font-semibold bg-slate-800 text-slate-400">Central de Documentos</button>
     </div>
 
-    <!-- ABA USUÁRIOS -->
+    <!-- USUÁRIOS -->
     <div id="abaUsuarios" class="space-y-6">
-      <section class="glass p-6 rounded-2xl space-y-4">
+      <section class="bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-4">
         <h2 class="text-xl font-bold text-purple-400">Cadastrar Novo Usuário</h2>
         <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
           <input type="text" id="usrNome" placeholder="Nome completo" class="bg-slate-800 border border-slate-700 rounded-xl p-3 text-white md:col-span-2">
@@ -59,77 +51,54 @@
             <option value="gestor">Gestor</option>
           </select>
         </div>
-        <button onclick="cadastrarUsuario()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-6 py-2.5 rounded-xl transition">Cadastrar</button>
+        <button onclick="cadastrarUsuario()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-6 py-2.5 rounded-xl">Cadastrar</button>
       </section>
 
-      <section class="glass p-6 rounded-2xl space-y-4">
-        <div class="flex justify-between items-center">
-          <h2 class="text-xl font-bold text-white">Usuários Cadastrados</h2>
-          <button onclick="carregarUsuarios()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-xl text-sm">Atualizar</button>
-        </div>
-        <div id="listaUsuarios" class="space-y-2">
-          <p class="text-slate-500 text-center py-4">Carregando usuários...</p>
-        </div>
+      <section class="bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-4">
+        <h2 class="text-xl font-bold text-white">Usuários Cadastrados</h2>
+        <div id="listaUsuarios" class="space-y-2"></div>
       </section>
     </div>
 
-    <!-- ABA QUESTÕES -->
+    <!-- QUESTÕES -->
     <div id="abaQuestoes" class="hidden space-y-6">
-      <section class="glass p-6 rounded-2xl space-y-4">
+      <section class="bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-4">
         <h2 class="text-xl font-bold text-purple-400">Cadastrar Nova Questão</h2>
         <div class="space-y-3">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <input type="text" id="questCategoria" placeholder="Categoria (ex: Direito Penal)" class="bg-slate-800 border border-slate-700 rounded-xl p-3 text-white">
-            <input type="text" id="questTitulo" placeholder="Título da questão" class="bg-slate-800 border border-slate-700 rounded-xl p-3 text-white">
+            <input type="text" id="questCategoria" placeholder="Categoria" class="bg-slate-800 border border-slate-700 rounded-xl p-3 text-white">
+            <input type="text" id="questTitulo" placeholder="Título" class="bg-slate-800 border border-slate-700 rounded-xl p-3 text-white">
           </div>
-          <textarea id="questEnunciado" rows="3" placeholder="Enunciado da pergunta..." class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white focus:ring-2 focus:ring-purple-500"></textarea>
-          <textarea id="questGabarito" rows="2" placeholder="Gabarito esperado para a correção..." class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white focus:ring-2 focus:ring-purple-500"></textarea>
-          <button onclick="cadastrarQuestao()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-6 py-2.5 rounded-xl transition">Salvar Questão</button>
+          <textarea id="questEnunciado" rows="3" placeholder="Enunciado..." class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white"></textarea>
+          <textarea id="questGabarito" rows="2" placeholder="Gabarito esperado..." class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white"></textarea>
+          <button onclick="cadastrarQuestao()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-6 py-2.5 rounded-xl">Salvar Questão</button>
         </div>
       </section>
 
-      <section class="glass p-6 rounded-2xl space-y-4">
-        <div class="flex justify-between items-center">
-          <h2 class="text-xl font-bold text-white">Questões Cadastradas</h2>
-          <button onclick="carregarQuestoes()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-xl text-sm">Atualizar</button>
-        </div>
-        <div id="listaQuestoes" class="space-y-3">
-          <p class="text-slate-500 text-center py-4">Carregando questões...</p>
-        </div>
+      <section class="bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-4">
+        <h2 class="text-xl font-bold text-white">Questões Cadastradas</h2>
+        <div id="listaQuestoes" class="space-y-3"></div>
       </section>
     </div>
 
-    <!-- ABA TOKENS -->
-    <div id="abaTokens" class="hidden space-y-6">
-      <section class="glass p-6 rounded-2xl space-y-4">
+    <!-- DOCUMENTOS -->
+    <div id="abaDocumentos" class="hidden space-y-6">
+      <section class="bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-4">
         <div class="flex justify-between items-center">
-          <h2 class="text-xl font-bold text-white">Todos os Tokens Emitidos</h2>
-          <button onclick="carregarTokensGestor()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-xl text-sm">Atualizar Tokens</button>
+          <h2 class="text-xl font-bold text-purple-400">Gerenciar Documentos Oficiais</h2>
+          <button onclick="inicializarDocumentos()" class="bg-slate-800 hover:bg-slate-700 text-xs px-3 py-1.5 rounded-lg text-purple-300">Carregar Padrões RCC</button>
         </div>
-        <div id="listaTokensGestor" class="space-y-3">
-          <p class="text-slate-500 text-center py-4">Carregando tokens...</p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <input type="text" id="docTitulo" placeholder="Título do Documento" class="bg-slate-800 border border-slate-700 rounded-xl p-3 text-white">
+          <input type="url" id="docUrl" placeholder="Link Completo (https://...)" class="bg-slate-800 border border-slate-700 rounded-xl p-3 text-white">
+          <input type="text" id="docCategoria" placeholder="Categoria (ex: Penal)" class="bg-slate-800 border border-slate-700 rounded-xl p-3 text-white">
         </div>
+        <button onclick="cadastrarDocumento()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-6 py-2.5 rounded-xl">Adicionar Documento</button>
       </section>
-    </div>
 
-    <!-- ABA RELATÓRIOS -->
-    <div id="abaRelatorios" class="hidden space-y-6">
-      <section class="glass p-6 rounded-2xl space-y-4">
-        <h2 class="text-xl font-bold text-white">Métricas da Plataforma</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div class="bg-slate-800/80 p-4 rounded-xl text-center border border-slate-700">
-            <p class="text-slate-400 text-sm">Total de Provas</p>
-            <p id="totalProvas" class="text-3xl font-extrabold text-brand-500">-</p>
-          </div>
-          <div class="bg-slate-800/80 p-4 rounded-xl text-center border border-slate-700">
-            <p class="text-slate-400 text-sm">Aguardando Correção</p>
-            <p id="totalPendentes" class="text-3xl font-extrabold text-amber-400">-</p>
-          </div>
-          <div class="bg-slate-800/80 p-4 rounded-xl text-center border border-slate-700">
-            <p class="text-slate-400 text-sm">Média de Notas</p>
-            <p id="mediaNotas" class="text-3xl font-extrabold text-emerald-400">-</p>
-          </div>
-        </div>
+      <section class="bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-4">
+        <h2 class="text-xl font-bold text-white">Links Ativos</h2>
+        <div id="listaDocumentosGestor" class="space-y-2"></div>
       </section>
     </div>
 
@@ -140,167 +109,104 @@
     const user = checkAuth('gestor');
     document.getElementById('userNick').innerText = user.nick;
     document.getElementById('userNome').innerText = user.nome || 'Gestor';
-    document.getElementById('habboAvatar').src = habboAvatarUrl(user.nick);
+    document.getElementById('habboAvatar').src = `https://www.habbo.com.br/habbo-imaging/avatarimage?user=${encodeURIComponent(user.nick)}&headonly=1&size=m`;
+    lucide.createIcons();
 
     function mudarAbaGestor(aba) {
-      ['Usuarios', 'Questoes', 'Tokens', 'Relatorios'].forEach(a => {
+      ['Usuarios', 'Questoes', 'Documentos'].forEach(a => {
         document.getElementById('aba' + a).classList.add('hidden');
-        document.getElementById('btn' + a).className = "px-5 py-2 rounded-xl font-semibold bg-slate-800 text-slate-400 hover:text-white transition";
+        document.getElementById('btn' + a).className = "px-5 py-2 rounded-xl font-semibold bg-slate-800 text-slate-400";
       });
 
       const nomeAba = aba.charAt(0).toUpperCase() + aba.slice(1);
       document.getElementById('aba' + nomeAba).classList.remove('hidden');
-      document.getElementById('btn' + nomeAba).className = "px-5 py-2 rounded-xl font-semibold bg-purple-600 text-white transition";
+      document.getElementById('btn' + nomeAba).className = "px-5 py-2 rounded-xl font-semibold bg-purple-600 text-white";
 
       if (aba === 'usuarios') carregarUsuarios();
-      else if (aba === 'questoes') carregarQuestoes();
-      else if (aba === 'tokens') carregarTokensGestor();
-      else if (aba === 'relatorios') carregarRelatorios();
-    }
-
-    // Usuários
-    async function cadastrarUsuario() {
-      const nome = document.getElementById('usrNome').value.trim();
-      const nick = document.getElementById('usrNick').value.trim();
-      const senha = document.getElementById('usrSenha').value;
-      const role = document.getElementById('usrRole').value;
-
-      if (!nome || !nick || !senha) return alert('Preencha todos os campos.');
-
-      const res = await fetch('/api/gestor?action=cadastrarUsuario', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nome, nick, senha, role })
-      });
-      const data = await res.json();
-      if (!res.ok) return alert(data.error || 'Erro ao cadastrar.');
-
-      alert('Usuário cadastrado!');
-      document.getElementById('usrNome').value = '';
-      document.getElementById('usrNick').value = '';
-      document.getElementById('usrSenha').value = '';
-      carregarUsuarios();
+      if (aba === 'questoes') carregarQuestoes();
+      if (aba === 'documentos') carregarDocumentosGestor();
     }
 
     async function carregarUsuarios() {
-      const container = document.getElementById('listaUsuarios');
       const res = await fetch('/api/gestor?action=listarUsuarios');
       const data = await res.json();
-
-      if (!data.usuarios || data.usuarios.length === 0) {
-        container.innerHTML = '<p class="text-slate-500 text-center py-4">Nenhum usuário cadastrado.</p>';
-        return;
-      }
-
-      container.innerHTML = data.usuarios.map(u => `
-        <div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700 flex justify-between items-center flex-wrap gap-2">
-          <div class="flex items-center gap-3">
-            <img src="https://www.habbo.com.br/habbo-imaging/avatarimage?user=${encodeURIComponent(u.nick_policial)}&headonly=1&size=s" class="rounded-full bg-slate-700">
-            <div>
-              <p class="font-bold text-white">${u.nome} <span class="text-slate-400 font-normal">(${u.nick_policial})</span></p>
-              <span class="text-xs px-2 py-0.5 rounded-full bg-slate-700 text-slate-300">${u.role}</span>
-            </div>
-          </div>
-          <button onclick="removerUsuario('${u.id}')" class="text-red-400 hover:text-red-300 text-sm font-semibold">Excluir</button>
+      document.getElementById('listaUsuarios').innerHTML = (data.usuarios || []).map(u => `
+        <div class="bg-slate-800 p-3 rounded-xl flex justify-between items-center">
+          <p class="font-bold text-white">${u.nome} <span class="text-slate-400">(${u.nick_policial})</span> - <span class="text-xs text-purple-400">${u.role}</span></p>
+          <button onclick="removerUsuario('${u.id}')" class="text-red-400 text-sm font-bold">Excluir</button>
         </div>
       `).join('');
     }
 
     async function removerUsuario(id) {
-      if (!confirm('Excluir este usuário? Essa ação não pode ser desfeita.')) return;
-      await fetch('/api/gestor?action=removerUsuario', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id })
-      });
+      if (!confirm('Excluir este usuário?')) return;
+      await fetch('/api/gestor?action=removerUsuario', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
       carregarUsuarios();
     }
 
-    // Questões
-    async function cadastrarQuestao() {
-      const categoria = document.getElementById('questCategoria').value.trim();
-      const titulo = document.getElementById('questTitulo').value.trim();
-      const enunciado = document.getElementById('questEnunciado').value.trim();
-      const gabarito = document.getElementById('questGabarito').value.trim();
-
-      if (!enunciado || !gabarito) return alert('Preencha o enunciado e o gabarito.');
-
-      const res = await fetch('/api/gestor?action=cadastrarQuestao', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ categoria, titulo, enunciado, gabarito })
-      });
-      const data = await res.json();
-      if (data.success) {
-        alert('Questão adicionada ao banco!');
-        document.getElementById('questCategoria').value = '';
-        document.getElementById('questTitulo').value = '';
-        document.getElementById('questEnunciado').value = '';
-        document.getElementById('questGabarito').value = '';
-        carregarQuestoes();
-      }
-    }
-
     async function carregarQuestoes() {
-      const container = document.getElementById('listaQuestoes');
       const res = await fetch('/api/gestor?action=listarQuestoes');
       const data = await res.json();
-
-      if (!data.questoes || data.questoes.length === 0) {
-        container.innerHTML = '<p class="text-slate-500 text-center py-4">Nenhuma questão cadastrada.</p>';
-        return;
-      }
-
-      container.innerHTML = data.questoes.map(q => `
-        <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700 space-y-2">
-          <div class="flex justify-between items-start gap-3">
-            <p class="font-bold text-white">[${q.categoria || 'Geral'}] ${q.titulo ? q.titulo + ' — ' : ''}${q.enunciado}</p>
-            <button onclick="excluirQuestao('${q.id}')" class="text-red-400 hover:text-red-300 text-sm shrink-0">Excluir</button>
+      document.getElementById('listaQuestoes').innerHTML = (data.questoes || []).map(q => `
+        <div class="bg-slate-800 p-4 rounded-xl space-y-2">
+          <div class="flex justify-between items-start">
+            <p class="font-bold text-white">[${q.categoria || 'Geral'}] ${q.enunciado}</p>
+            <button onclick="excluirQuestao('${q.id}')" class="text-red-400 text-sm font-bold">Excluir</button>
           </div>
-          <p class="text-emerald-400 text-sm"><strong>Gabarito:</strong> ${q.gabarito_esperado}</p>
+          <p class="text-emerald-400 text-xs"><strong>Gabarito:</strong> ${q.gabarito_esperado}</p>
         </div>
       `).join('');
     }
 
     async function excluirQuestao(id) {
       if (!confirm('Excluir esta questão?')) return;
-      await fetch('/api/gestor?action=excluirQuestao', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id })
-      });
+      await fetch('/api/gestor?action=excluirQuestao', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
       carregarQuestoes();
     }
 
-    // Tokens
-    async function carregarTokensGestor() {
-      const container = document.getElementById('listaTokensGestor');
-      const res = await fetch('/api/gestor?action=listarTokens');
+    async function inicializarDocumentos() {
+      await fetch('/api/gestor?action=inicializarDocumentos');
+      alert('Documentos padrão inicializados!');
+      carregarDocumentosGestor();
+    }
+
+    async function cadastrarDocumento() {
+      const titulo = document.getElementById('docTitulo').value.trim();
+      const url = document.getElementById('docUrl').value.trim();
+      const categoria = document.getElementById('docCategoria').value.trim();
+
+      if (!titulo || !url) return alert('Informe Título e URL.');
+
+      await fetch('/api/gestor?action=cadastrarDocumento', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ titulo, url, categoria })
+      });
+
+      document.getElementById('docTitulo').value = '';
+      document.getElementById('docUrl').value = '';
+      document.getElementById('docCategoria').value = '';
+      carregarDocumentosGestor();
+    }
+
+    async function carregarDocumentosGestor() {
+      const res = await fetch('/api/gestor?action=listarDocumentos');
       const data = await res.json();
-
-      if (!data.tokens || data.tokens.length === 0) {
-        container.innerHTML = '<p class="text-slate-500 text-center py-4">Nenhum token emitido.</p>';
-        return;
-      }
-
-      container.innerHTML = data.tokens.map(t => `
-        <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700 flex justify-between items-center">
+      document.getElementById('listaDocumentosGestor').innerHTML = (data.documentos || []).map(d => `
+        <div class="bg-slate-800 p-3 rounded-xl flex justify-between items-center">
           <div>
-            <p class="font-bold text-amber-400 font-mono">${t.token_utilizado}</p>
-            <p class="text-xs text-slate-400">Candidato: ${t.candidato_nick} | Avaliador: ${t.avaliador_gerador || 'N/A'}</p>
+            <p class="font-bold text-white text-sm">${d.titulo} <span class="text-xs text-purple-400">(${d.categoria || 'Geral'})</span></p>
+            <a href="${d.url}" target="_blank" class="text-xs text-slate-400 hover:underline">${d.url}</a>
           </div>
-          <span class="text-xs px-3 py-1 rounded-full bg-slate-700 text-slate-300">${t.status}</span>
+          <button onclick="excluirDocumento('${d.id}')" class="text-red-400 text-sm font-bold">Remover</button>
         </div>
       `).join('');
     }
 
-    // Relatórios
-    async function carregarRelatorios() {
-      const res = await fetch('/api/gestor?action=metricas');
-      const data = await res.json();
-      document.getElementById('totalProvas').innerText = data.totalProvas || 0;
-      document.getElementById('totalPendentes').innerText = data.totalPendentes || 0;
-      document.getElementById('mediaNotas').innerText = data.mediaNotas ? Number(data.mediaNotas).toFixed(1) : '0.0';
+    async function excluirDocumento(id) {
+      if (!confirm('Remover link do documento?')) return;
+      await fetch('/api/gestor?action=excluirDocumento', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+      carregarDocumentosGestor();
     }
 
     carregarUsuarios();

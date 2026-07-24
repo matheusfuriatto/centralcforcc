@@ -3,32 +3,35 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Central do CFO - Autenticação</title>
+  <title>Central CFO - Autenticação</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="min-h-screen flex items-center justify-center p-4 bg-slate-950">
+<body class="min-h-screen flex items-center justify-center p-4 bg-cover bg-center bg-no-repeat relative" style="background-image: url('/assets/images/bg-login.jpg');">
 
-  <div class="bg-slate-900/80 border border-amber-500/20 p-8 rounded-3xl max-w-md w-full space-y-6 shadow-2xl">
+  <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm"></div>
+
+  <div class="relative bg-slate-900/90 border border-amber-500/30 p-8 rounded-3xl max-w-md w-full space-y-6 shadow-2xl">
     <div class="text-center space-y-3">
+      <img src="/assets/images/logo-cfo.png" alt="Logo CFO" class="w-24 h-auto mx-auto drop-shadow-md" onerror="this.style.display='none'">
       <h1 class="text-2xl font-extrabold text-amber-400 tracking-wider">CENTRAL DO CFO</h1>
-      <p class="text-xs text-gray-400">Insira suas credenciais para acessar o portal</p>
+      <p class="text-xs text-slate-400">Insira suas credenciais para acessar o portal</p>
     </div>
 
     <form onsubmit="login(event)" class="space-y-4">
       <div>
-        <label class="text-xs font-semibold text-gray-300">Usuário / Nick Policial</label>
+        <label class="text-xs font-semibold text-slate-300">Usuário / Nick Policial</label>
         <div class="relative mt-1">
-          <input type="text" id="user" required placeholder="Ex: gestor1" class="w-full bg-gray-950/80 border border-gray-800 rounded-xl p-3 pl-10 text-sm focus:border-amber-500 focus:outline-none text-white">
-          <i data-lucide="user" class="w-4 h-4 text-gray-500 absolute left-3 top-3.5"></i>
+          <input type="text" id="user" required placeholder="Ex: gestor1" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl p-3 pl-10 text-sm focus:border-amber-500 focus:outline-none text-white">
+          <i data-lucide="user" class="w-4 h-4 text-slate-500 absolute left-3 top-3.5"></i>
         </div>
       </div>
 
       <div>
-        <label class="text-xs font-semibold text-gray-300">Senha</label>
+        <label class="text-xs font-semibold text-slate-300">Senha</label>
         <div class="relative mt-1">
-          <input type="password" id="pass" required placeholder="••••••••" class="w-full bg-gray-950/80 border border-gray-800 rounded-xl p-3 pl-10 text-sm focus:border-amber-500 focus:outline-none text-white">
-          <i data-lucide="lock" class="w-4 h-4 text-gray-500 absolute left-3 top-3.5"></i>
+          <input type="password" id="pass" required placeholder="••••••••" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl p-3 pl-10 text-sm focus:border-amber-500 focus:outline-none text-white">
+          <i data-lucide="lock" class="w-4 h-4 text-slate-500 absolute left-3 top-3.5"></i>
         </div>
       </div>
 
@@ -43,7 +46,6 @@
   <script src="/assets/js/auth-guard.js"></script>
   <script>
     lucide.createIcons();
-
     const user = JSON.parse(sessionStorage.getItem('cfo_user') || 'null');
     if (user) redirecionarPorRole(user.role);
 
@@ -64,15 +66,12 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ usuario, senha })
         });
-
         const data = await res.json();
-
         if (!res.ok || data.error) {
           erroEl.innerText = data.error || 'Erro ao entrar.';
           erroEl.classList.remove('hidden');
           return;
         }
-
         sessionStorage.setItem('cfo_user', JSON.stringify(data.user));
         redirecionarPorRole(data.user.role);
       } catch (err) {

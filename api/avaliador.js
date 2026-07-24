@@ -13,19 +13,9 @@ function mapProva(p) {
     status: p.status,
     nota: p.nota !== undefined ? p.nota : null,
     feedback_avaliador: p.feedbackAvaliador || null,
+    feedbacks_questoes: p.feedbacksQuestoes || {},
     respostas_json: p.respostasJson || {},
     questoes_json: p.questoesJson || []
-  };
-}
-
-function mapDuvida(d) {
-  return {
-    aluno_nick: d.alunoNick,
-    titulo: d.titulo,
-    pergunta: d.pergunta,
-    status: d.status,
-    avaliador_nick: d.avaliadorNick || null,
-    resposta: d.resposta || null
   };
 }
 
@@ -37,37 +27,27 @@ module.exports = async function handler(req, res) {
     let body = req.body || {};
     if (typeof body === 'string') { try { body = JSON.parse(body); } catch (e) { body = {}; } }
 
-    // 1. Consulta Dados do Habbo (Online/Offline, Última Acesso e Avatar)
+    // 1. Habbo Profile
     if (req.method === 'GET' && action === 'habboProfile') {
       const nick = req.query.nick;
       if (!nick) return res.status(400).json({ error: 'Nick não informado' });
 
       try {
         const response = await fetch(`https://www.habbo.com.br/api/public/users?name=${encodeURIComponent(nick)}`);
-        if (!response.ok) {
-          return res.status(200).json({
-            online: false,
-            lastAccess: 'Não encontrado',
-            figureString: '',
-            motto: ''
-          });
-        }
+        if (!response.ok) return res.status(200).json({ online: false, lastAccess: 'Não encontrado' });
         const data = await response.json();
         return res.status(200).json({
           online: data.online || false,
-          lastAccess: data.lastAccessTime ? new Date(data.lastAccessTime).toLocaleString('pt-BR') : 'Privado/Indisponível',
-          figureString: data.figureString || '',
-          motto: data.motto || ''
+          lastAccess: data.lastAccessTime ? new Date(data.lastAccessTime).toLocaleString('pt-BR') : 'Privado/Indisponível'
         });
       } catch (e) {
         return res.status(200).json({ online: false, lastAccess: 'Indisponível' });
       }
     }
 
-    // 2. Gerar Token de Avaliação
+    // 2. Gerar Token (permite múltiplos para a mesma pessoa)
     if (req.method === 'POST' && action === 'gerarToken') {
       const { nickAvaliador, nickCandidato } = body;
-
       if (!nickCandidato || !String(nickCandidato).trim()) {
         return res.status(400).json({ error: 'Informe o nick do candidato.' });
       }
@@ -107,34 +87,29 @@ module.exports = async function handler(req, res) {
         nick: nickLimpo,
         senhaGerada,
         message: senhaGerada
-          ? `Token gerado! Conta criada para ${nickLimpo}.`
-          : `Token gerado para o candidato ${nickLimpo} (usuário já existente).`
+          ? `Token gerado e conta criada para ${nickLimpo}.`
+          : `Novo token gerado para ${nickLimpo} (tentativa adicional).`
       });
     }
 
-    // 3. Listar Avaliações do Avaliador ou Gestor
+    // 3. Listar Provas
     if (req.method === 'GET' && action === 'listarProvas') {
-      const nickAvaliador = (req.query.nick || '').trim().toLowerCase();
       const snap = await db.collection('provas').orderBy('criadoEm', 'desc').get();
-      let provas = snap.docs.map(d => ({ id: d.id, ...mapProva(d.data()) }));
-
-      if (nickAvaliador && req.query.filtrarMeuNick === 'true') {
-        provas = provas.filter(p => (p.avaliador_nick || '').toLowerCase() === nickAvaliador);
-      }
-
+      const provas = snap.docs.map(d => ({ id: d.id, ...mapProva(d.data()) }));
       return res.status(200).json({ provas });
     }
 
-    // 4. Corrigir Avaliação
+    // 4. Corrigir Avaliação com Feedback por Questão e Geral
     if (req.method === 'POST' && action === 'corrigir') {
-      const { provaId, nota, feedback } = body;
+      const { provaId, nota, feedbackGeral, feedbacksQuestoes } = body;
       if (!provaId || nota === undefined || nota === '') {
         return res.status(400).json({ error: 'ID da prova e nota são obrigatórios.' });
       }
 
       await db.collection('provas').doc(provaId).update({
         nota: parseFloat(nota),
-        feedbackAvaliador: feedback || '',
+        feedbackAvaliador: feedbackGeral || '',
+        feedbacksQuestoes: feedbacksQuestoes || {},
         status: 'Corrigido',
         corrigidoEm: FieldValue.serverTimestamp()
       });
@@ -145,43 +120,40 @@ module.exports = async function handler(req, res) {
     // 5. Listar Dúvidas
     if (req.method === 'GET' && action === 'listarDuvidas') {
       const snap = await db.collection('duvidas').orderBy('criadoEm', 'desc').get();
-      const duvidas = snap.docs.map(d => ({ id: d.id, ...mapDuvida(d.data()) }));
+      const duvidas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       return res.status(200).json({ duvidas });
     }
 
-    // 6. Assumir Dúvida
+    // 6. Assumir e Responder Dúvida
     if (req.method === 'POST' && action === 'assumirDuvida') {
       const { id, nickAvaliador } = body;
-      if (!id) return res.status(400).json({ error: 'ID da dúvida ausente.' });
-
       await db.collection('duvidas').doc(id).update({
         avaliadorNick: nickAvaliador || 'Avaliador',
         status: 'Em Andamento'
       });
-
       return res.status(200).json({ success: true });
     }
 
-    // 7. Responder Dúvida
     if (req.method === 'POST' && action === 'responderDuvida') {
       const { id, resposta, nickAvaliador } = body;
-      if (!id || !resposta) {
-        return res.status(400).json({ error: 'ID da dúvida e resposta são necessários.' });
-      }
-
       await db.collection('duvidas').doc(id).update({
         resposta: resposta.trim(),
         avaliadorNick: nickAvaliador || 'Avaliador',
         status: 'Respondida',
         respondidoEm: FieldValue.serverTimestamp()
       });
-
       return res.status(200).json({ success: true });
+    }
+
+    // 7. Central de Documentos
+    if (req.method === 'GET' && action === 'listarDocumentos') {
+      const snap = await db.collection('documentos').orderBy('titulo', 'asc').get();
+      const documentos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      return res.status(200).json({ documentos });
     }
 
     return res.status(400).json({ error: 'Ação não encontrada' });
   } catch (err) {
-    console.error('Erro na API Avaliador:', err);
     return res.status(500).json({ error: 'Erro interno', message: err.message });
   }
 };

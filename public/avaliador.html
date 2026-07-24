@@ -9,142 +9,107 @@
   <script>
     tailwind.config = {
       darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            brand: { 500: '#f59e0b', 600: '#d97706', 700: '#b45309' }
-          }
-        }
-      }
+      theme: { extend: { colors: { brand: { 500: '#f59e0b', 600: '#d97706', 700: '#b45309' } } } }
     }
   </script>
-  <style>
-    .glass { backdrop-filter: blur(12px); }
-  </style>
 </head>
 <body class="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-colors duration-200">
 
   <div class="max-w-7xl mx-auto px-4 py-6 space-y-6">
 
-    <!-- CABEÇALHO PRINCIPAL -->
+    <!-- BANNER SUPERIOR -->
+    <div class="w-full h-32 rounded-2xl bg-cover bg-center border border-slate-200 dark:border-slate-800 shadow-sm" style="background-image: url('/assets/images/banner-cfo.png');"></div>
+
+    <!-- CABEÇALHO -->
     <header class="flex flex-wrap justify-between items-center gap-4 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
       <div class="flex items-center gap-4">
         <div class="relative w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-800 border-2 border-brand-500 overflow-hidden flex items-center justify-center shrink-0">
-          <img id="habboAvatar" src="/assets/images/default-avatar.png" alt="Avatar Habbo" class="w-16 h-auto mt-[-10px]" onerror="this.src='https://www.habbo.com.br/habbo-imaging/avatarimage?user=Habbo&headonly=1'">
+          <img id="habboAvatar" src="/assets/images/default-avatar.png" alt="Avatar" class="w-16 h-auto mt-[-10px]">
         </div>
         <div>
           <div class="flex items-center gap-2">
-            <h1 class="text-xl font-black text-slate-900 dark:text-white">Painel de Avaliação & Gestão</h1>
+            <h1 class="text-xl font-black text-slate-900 dark:text-white">Painel do Avaliador</h1>
             <span id="habboStatusBadge" class="px-2 py-0.5 text-xs rounded-full bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-semibold">Verificando...</span>
           </div>
-          <p class="text-xs text-slate-500 dark:text-slate-400">
-            Avaliador: <strong id="userNick" class="text-brand-500"></strong> | Visto por último: <span id="habboLastAccess">-</span>
-          </p>
+          <p class="text-xs text-slate-500">Avaliador: <strong id="userNick" class="text-brand-500"></strong> | Visto por último: <span id="habboLastAccess">-</span></p>
         </div>
       </div>
 
       <div class="flex items-center gap-3">
-        <button onclick="toggleTheme()" class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition">
+        <button onclick="toggleTheme()" class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800">
           <i data-lucide="sun" class="w-5 h-5 hidden dark:block text-amber-400"></i>
           <i data-lucide="moon" class="w-5 h-5 block dark:hidden text-slate-600"></i>
         </button>
-        <button onclick="logout()" class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 font-bold text-sm transition">
-          <i data-lucide="log-out" class="w-4 h-4"></i> Sair
-        </button>
+        <button onclick="logout()" class="px-4 py-2.5 rounded-xl bg-red-500/10 text-red-600 dark:text-red-400 font-bold text-sm">Sair</button>
       </div>
     </header>
 
-    <!-- NAVEGAÇÃO POR ABAS -->
+    <!-- NAVEGAÇÃO -->
     <nav class="flex gap-2 overflow-x-auto pb-2 border-b border-slate-200 dark:border-slate-800">
-      <button onclick="mudarAba('cadastros')" id="tab-cadastros" class="tab-btn px-5 py-2.5 rounded-xl text-sm font-bold bg-brand-500 text-black">
-        <i data-lucide="user-plus" class="w-4 h-4 inline mr-1.5"></i> Cadastrar & Gerar Token
-      </button>
-      <button onclick="mudarAba('provas')" id="tab-provas" class="tab-btn px-5 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white">
-        <i data-lucide="file-check" class="w-4 h-4 inline mr-1.5"></i> Avaliações e Provas
-      </button>
-      <button onclick="mudarAba('duvidas')" id="tab-duvidas" class="tab-btn px-5 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white">
-        <i data-lucide="help-circle" class="w-4 h-4 inline mr-1.5"></i> Central de Dúvidas
-      </button>
+      <button onclick="mudarAba('cadastros')" id="tab-cadastros" class="tab-btn px-5 py-2.5 rounded-xl text-sm font-bold bg-brand-500 text-black">Cadastrar & Token</button>
+      <button onclick="mudarAba('provas')" id="tab-provas" class="tab-btn px-5 py-2.5 rounded-xl text-sm font-bold text-slate-500">Avaliações & Provas</button>
+      <button onclick="mudarAba('duvidas')" id="tab-duvidas" class="tab-btn px-5 py-2.5 rounded-xl text-sm font-bold text-slate-500">Central de Dúvidas</button>
+      <button onclick="mudarAba('documentos')" id="tab-documentos" class="tab-btn px-5 py-2.5 rounded-xl text-sm font-bold text-slate-500">Central de Documentos</button>
     </nav>
 
-    <!-- ABA 1: GERAR TOKEN -->
+    <!-- ABA CADASTRO & TOKEN -->
     <section id="content-cadastros" class="space-y-4">
-      <div class="max-w-xl mx-auto p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
-        <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-          <i data-lucide="key" class="w-5 h-5 text-brand-500"></i> Gerar Novo Token de Avaliação
-        </h2>
+      <div class="max-w-xl mx-auto p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-4">
+        <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">Gerar Token de Avaliação</h2>
         <form onsubmit="gerarToken(event)" class="space-y-4">
-          <div>
-            <label class="text-xs font-bold text-slate-600 dark:text-slate-400">Nick Policial do Candidato</label>
-            <input type="text" id="candNick" required placeholder="Ex: Popricard88" class="mt-1 w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-sm focus:outline-none focus:border-brand-500">
-          </div>
-          <button type="submit" class="w-full py-3 bg-brand-500 hover:bg-brand-600 text-black font-extrabold rounded-xl text-sm transition">
-            Liberar Acesso e Gerar Token
-          </button>
+          <input type="text" id="candNick" required placeholder="Nick do Candidato (ex: Popricard88)" class="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-sm">
+          <button type="submit" class="w-full py-3 bg-brand-500 hover:bg-brand-600 text-black font-extrabold rounded-xl text-sm">Gerar Token e Liberar Tentativa</button>
         </form>
         <div id="tokenResultado"></div>
       </div>
     </section>
 
-    <!-- ABA 2: LISTA DE PROVAS -->
+    <!-- ABA PROVAS -->
     <section id="content-provas" class="hidden space-y-4">
-      <div class="flex justify-between items-center">
-        <h2 class="text-lg font-bold text-slate-900 dark:text-white">Avaliações Submetidas e Pendentes</h2>
-        <button onclick="carregarProvas()" class="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800">
-          <i data-lucide="refresh-cw" class="w-3.5 h-3.5 inline"></i> Atualizar
-        </button>
-      </div>
       <div id="listaProvas" class="grid grid-cols-1 gap-4"></div>
     </section>
 
-    <!-- ABA 3: CENTRAL DE DÚVIDAS -->
+    <!-- ABA DÚVIDAS -->
     <section id="content-duvidas" class="hidden space-y-4">
-      <div class="flex justify-between items-center">
-        <h2 class="text-lg font-bold text-slate-900 dark:text-white">Dúvidas dos Alunos</h2>
-        <button onclick="carregarDuvidas()" class="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800">
-          <i data-lucide="refresh-cw" class="w-3.5 h-3.5 inline"></i> Atualizar
-        </button>
-      </div>
       <div id="listaDuvidas" class="grid grid-cols-1 gap-4"></div>
+    </section>
+
+    <!-- ABA DOCUMENTOS -->
+    <section id="content-documentos" class="hidden space-y-4">
+      <div id="listaDocumentos" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
     </section>
 
   </div>
 
-  <!-- MODAL DE CORREÇÃO E DETALHAMENTO DA PROVA -->
+  <!-- MODAL DE CORREÇÃO DE PROVA -->
   <div id="modalProva" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 max-w-4xl w-full max-h-[90vh] rounded-2xl flex flex-col overflow-hidden shadow-2xl">
       <div class="p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-950">
         <div>
           <h3 id="modalTitulo" class="font-black text-slate-900 dark:text-white">Correção de Avaliação</h3>
-          <p id="modalSubtitulo" class="text-xs text-slate-500 dark:text-slate-400"></p>
+          <p id="modalSubtitulo" class="text-xs text-slate-500"></p>
         </div>
         <button onclick="fecharModal()" class="p-2 text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
 
       <div id="modalCorpo" class="p-6 overflow-y-auto space-y-6 flex-1"></div>
 
-      <div class="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 flex flex-wrap gap-3 items-center justify-between">
-        <div class="flex gap-2 w-full md:w-auto flex-1">
-          <input type="number" step="0.1" max="10" min="0" id="modalNota" placeholder="Nota (0-10)" class="w-32 p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-sm font-bold">
-          <input type="text" id="modalFeedback" placeholder="Feedback para o candidato..." class="flex-1 p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-sm">
+      <div class="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 space-y-3">
+        <div class="flex gap-2 items-center">
+          <input type="number" step="0.1" max="10" min="0" id="modalNota" placeholder="Nota Final (0-10)" class="w-36 p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-sm font-bold">
+          <input type="text" id="modalFeedbackGeral" placeholder="Feedback Geral do Avaliado..." class="flex-1 p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-sm">
+          <button onclick="salvarCorrecaoModal()" class="px-6 py-2.5 bg-brand-500 hover:bg-brand-600 text-black font-extrabold rounded-xl text-sm">Salvar Correção</button>
         </div>
-        <button onclick="salvarCorrecaoModal()" class="px-6 py-2.5 bg-brand-500 hover:bg-brand-600 text-black font-extrabold rounded-xl text-sm">
-          Salvar Correção
-        </button>
       </div>
     </div>
   </div>
 
   <script src="/assets/js/auth-guard.js"></script>
   <script>
-    // Gerenciamento de Tema Claro/Escuro
     function initTheme() {
       const savedTheme = localStorage.getItem('cfo_theme') || 'dark';
-      if (savedTheme === 'dark') {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
+      if (savedTheme === 'dark') document.documentElement.classList.add('dark');
+      else document.documentElement.classList.remove('dark');
     }
     function toggleTheme() {
       const isDark = document.documentElement.classList.toggle('dark');
@@ -154,46 +119,36 @@
 
     const user = checkAuth('avaliador');
     let provaEmEdicao = null;
-
     document.getElementById('userNick').innerText = user.nick;
     lucide.createIcons();
 
-    // Buscar Informações do Habbo do Avaliador
     async function carregarHabboProfile() {
       try {
         const res = await fetch(`/api/avaliador?action=habboProfile&nick=${encodeURIComponent(user.nick)}`);
         const data = await res.json();
-
         document.getElementById('habboAvatar').src = `https://www.habbo.com.br/habbo-imaging/avatarimage?user=${encodeURIComponent(user.nick)}&headonly=0&direction=2&head_direction=2&action=std&size=m`;
-
         const badge = document.getElementById('habboStatusBadge');
         if (data.online) {
           badge.className = "px-2 py-0.5 text-xs rounded-full bg-emerald-500/10 text-emerald-500 font-bold border border-emerald-500/20";
-          badge.innerText = "ONLINE NO HABBO";
+          badge.innerText = "ONLINE";
         } else {
           badge.className = "px-2 py-0.5 text-xs rounded-full bg-slate-500/10 text-slate-400 font-bold border border-slate-500/20";
           badge.innerText = "OFFLINE";
         }
         document.getElementById('habboLastAccess').innerText = data.lastAccess;
-      } catch (e) {
-        document.getElementById('habboStatusBadge').innerText = "Status Indisponível";
-      }
+      } catch (e) {}
     }
     carregarHabboProfile();
 
     function mudarAba(aba) {
-      document.querySelectorAll('.tab-btn').forEach(b => {
-        b.className = "tab-btn px-5 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white";
-      });
+      document.querySelectorAll('.tab-btn').forEach(b => b.className = "tab-btn px-5 py-2.5 rounded-xl text-sm font-bold text-slate-500");
       document.getElementById(`tab-${aba}`).className = "tab-btn px-5 py-2.5 rounded-xl text-sm font-bold bg-brand-500 text-black";
-
-      ['cadastros', 'provas', 'duvidas'].forEach(a => {
-        document.getElementById(`content-${a}`).classList.add('hidden');
-      });
+      ['cadastros', 'provas', 'duvidas', 'documentos'].forEach(a => document.getElementById(`content-${a}`).classList.add('hidden'));
       document.getElementById(`content-${aba}`).classList.remove('hidden');
 
       if (aba === 'provas') carregarProvas();
       if (aba === 'duvidas') carregarDuvidas();
+      if (aba === 'documentos') carregarDocumentos();
     }
 
     async function gerarToken(e) {
@@ -210,42 +165,57 @@
           <div class="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-sm space-y-1">
             <p class="font-bold">${data.message}</p>
             <p>Token: <code class="font-mono font-bold">${data.token}</code></p>
-            ${data.senhaGerada ? `<p>Senha Inicial: <code class="font-mono font-bold">${data.senhaGerada}</code></p>` : ''}
           </div>
         `;
         document.getElementById('candNick').value = '';
-      } else {
-        alert(data.error);
       }
     }
 
     async function carregarProvas() {
       const res = await fetch(`/api/avaliador?action=listarProvas&nick=${encodeURIComponent(user.nick)}`);
       const data = await res.json();
+      window.provasCache = data.provas || [];
       const container = document.getElementById('listaProvas');
 
-      if (!data.provas || data.provas.length === 0) {
-        container.innerHTML = `<p class="text-sm text-slate-500 text-center py-8">Nenhuma avaliação encontrada.</p>`;
-        return;
-      }
-
-      window.provasCache = data.provas;
-
-      container.innerHTML = data.provas.map(p => `
-        <div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex flex-wrap justify-between items-center gap-4">
+      container.innerHTML = window.provasCache.map(p => `
+        <div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex justify-between items-center">
           <div class="flex items-center gap-3">
-            <img src="https://www.habbo.com.br/habbo-imaging/avatarimage?user=${encodeURIComponent(p.candidato_nick)}&headonly=1&size=m" class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800" onerror="this.src='/assets/images/default-avatar.png'">
+            <img src="https://www.habbo.com.br/habbo-imaging/avatarimage?user=${encodeURIComponent(p.candidato_nick)}&headonly=1&size=m" class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800">
             <div>
-              <h4 class="font-bold text-slate-900 dark:text-white">${p.candidato_nick} <span class="text-xs font-normal text-slate-500">| Token: ${p.token_utilizado}</span></h4>
-              <p class="text-xs text-slate-500">Status: <span class="font-semibold text-brand-500">${p.status}</span> ${p.nota !== null ? `| Nota: ${p.nota}` : ''}</p>
+              <h4 class="font-bold text-slate-900 dark:text-white">${p.candidato_nick} <span class="text-xs text-slate-500">| Token: ${p.token_utilizado}</span></h4>
+              <p class="text-xs text-slate-500">Status: <span class="text-brand-500 font-bold">${p.status}</span> ${p.nota !== null ? '| Nota: ' + p.nota : ''}</p>
             </div>
           </div>
-          <button onclick="abrirModalProva('${p.id}')" class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-bold transition">
-            ${p.status === 'Submetido' ? 'Corrigir Avaliação' : 'Visualizar Prova'}
+          <button onclick="abrirModalProva('${p.id}')" class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-bold">
+            ${p.status === 'Submetido' ? 'Corrigir Prova' : 'Visualizar Prova'}
           </button>
         </div>
       `).join('');
-      lucide.createIcons();
+    }
+
+    // Função para estimar pontuação automaticamente baseada em similaridade simples de texto
+    function calcularPontuacaoSugerida(respostas, questoes) {
+      if (!questoes || questoes.length === 0) return 0;
+      let totalMatch = 0;
+
+      questoes.forEach(q => {
+        const resp = (respostas[q.id] || '').toLowerCase().trim();
+        const gabarito = (q.gabarito_esperado || '').toLowerCase().trim();
+        if (!resp || !gabarito) return;
+
+        const palavrasGabarito = gabarito.split(/\s+/).filter(w => w.length > 3);
+        if (palavrasGabarito.length === 0) return;
+
+        let acertadas = 0;
+        palavrasGabarito.forEach(w => {
+          if (resp.includes(w)) acertadas++;
+        });
+
+        totalMatch += (acertadas / palavrasGabarito.length);
+      });
+
+      const notaEstimada = (totalMatch / questoes.length) * 10;
+      return Math.min(10, Math.max(0, notaEstimada)).toFixed(1);
     }
 
     function abrirModalProva(id) {
@@ -253,35 +223,48 @@
       if (!p) return;
       provaEmEdicao = p;
 
-      document.getElementById('modalTitulo').innerText = `Avaliação de ${p.candidato_nick}`;
-      document.getElementById('modalSubtitulo').innerText = `Token: ${p.token_utilizado} | Status: ${p.status}`;
-      document.getElementById('modalNota').value = p.nota !== null ? p.nota : '';
-      document.getElementById('modalFeedback').value = p.feedback_avaliador || '';
-
       const questoes = p.questoes_json || [];
       const respostas = p.respostas_json || {};
+      const feedbacksQuestoes = p.feedbacks_questoes || {};
+
+      const notaSugerida = calcularPontuacaoSugerida(respostas, questoes);
+
+      document.getElementById('modalTitulo').innerText = `Avaliação de ${p.candidato_nick}`;
+      document.getElementById('modalSubtitulo').innerText = `Token: ${p.token_utilizado} | Status: ${p.status}`;
+      document.getElementById('modalNota').value = p.nota !== null ? p.nota : notaSugerida;
+      document.getElementById('modalFeedbackGeral').value = p.feedback_avaliador || '';
 
       const corpo = document.getElementById('modalCorpo');
-      if (questoes.length === 0) {
-        corpo.innerHTML = `<p class="text-sm text-slate-500">A avaliação ainda não foi iniciada pelo aluno.</p>`;
-      } else {
-        corpo.innerHTML = questoes.map((q, i) => {
-          const respAluno = respostas[q.id] || 'Não respondida';
-          return `
-            <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-3">
-              <div class="flex justify-between items-start">
-                <span class="text-xs font-bold text-brand-500 uppercase">Questão ${i + 1} - ${q.categoria || 'Geral'}</span>
-              </div>
-              <p class="font-bold text-sm text-slate-900 dark:text-white">${q.enunciado || q.titulo}</p>
-              ${q.gabarito_esperado ? `<div class="p-2.5 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs"><strong>Gabarito Esperado:</strong> ${q.gabarito_esperado}</div>` : ''}
-              <div class="p-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs space-y-1">
-                <span class="text-slate-400 font-bold block">Resposta do Aluno:</span>
-                <p class="text-slate-800 dark:text-slate-200 whitespace-pre-wrap">${respAluno}</p>
-              </div>
+      corpo.innerHTML = `
+        <div class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-500 text-xs flex justify-between items-center">
+          <span>💡 <strong>Análise da Plataforma:</strong> Sugestão de nota preliminar baseada nos gabaritos.</span>
+          <span class="text-sm font-black">${notaSugerida} / 10</span>
+        </div>
+      ` + questoes.map((q, i) => {
+        const respAluno = respostas[q.id] || 'Não respondida';
+        const fbQuestao = feedbacksQuestoes[q.id] || '';
+
+        return `
+          <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-3">
+            <span class="text-xs font-bold text-brand-500 uppercase">Questão ${i + 1} - ${q.categoria || 'Geral'}</span>
+            <p class="font-bold text-sm text-slate-900 dark:text-white">${q.enunciado || q.titulo}</p>
+
+            <div class="p-2.5 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs">
+              <strong>Gabarito Esperado:</strong> ${q.gabarito_esperado || 'Não cadastrado'}
             </div>
-          `;
-        }).join('');
-      }
+
+            <div class="p-3 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs space-y-1">
+              <span class="text-slate-400 font-bold block">Resposta do Aluno:</span>
+              <p class="text-slate-800 dark:text-slate-200 whitespace-pre-wrap">${respAluno}</p>
+            </div>
+
+            <div>
+              <label class="text-[11px] font-bold text-slate-400">Feedback Individual desta Questão:</label>
+              <input type="text" data-fb-questao-id="${q.id}" value="${fbQuestao}" placeholder="Ex: Faltou citar o artigo correspondente..." class="mt-1 w-full p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs">
+            </div>
+          </div>
+        `;
+      }).join('');
 
       document.getElementById('modalProva').classList.remove('hidden');
     }
@@ -293,17 +276,27 @@
     async function salvarCorrecaoModal() {
       if (!provaEmEdicao) return;
       const nota = document.getElementById('modalNota').value;
-      const feedback = document.getElementById('modalFeedback').value;
+      const feedbackGeral = document.getElementById('modalFeedbackGeral').value;
+
+      const feedbacksQuestoes = {};
+      document.querySelectorAll('[data-fb-questao-id]').forEach(el => {
+        feedbacksQuestoes[el.getAttribute('data-fb-questao-id')] = el.value.trim();
+      });
 
       if (nota === '') return alert('Informe a nota.');
 
       await fetch('/api/avaliador?action=corrigir', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ provaId: provaEmEdicao.id, nota, feedback })
+        body: JSON.stringify({
+          provaId: provaEmEdicao.id,
+          nota,
+          feedbackGeral,
+          feedbacksQuestoes
+        })
       });
 
-      alert('Correção registrada com sucesso!');
+      alert('Correção registrada!');
       fecharModal();
       carregarProvas();
     }
@@ -313,26 +306,29 @@
       const data = await res.json();
       const container = document.getElementById('listaDuvidas');
 
-      if (!data.duvidas || data.duvidas.length === 0) {
-        container.innerHTML = `<p class="text-sm text-slate-500 text-center py-8">Nenhuma dúvida registrada.</p>`;
-        return;
-      }
-
-      container.innerHTML = data.duvidas.map(d => `
+      container.innerHTML = (data.duvidas || []).map(d => `
         <div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3">
           <div class="flex justify-between items-center">
-            <h4 class="font-bold text-slate-900 dark:text-white">${d.titulo} <span class="text-xs font-normal text-slate-500">(${d.aluno_nick})</span></h4>
+            <div class="flex items-center gap-2">
+              <img src="https://www.habbo.com.br/habbo-imaging/avatarimage?user=${encodeURIComponent(d.alunoNick || '')}&headonly=1&size=s" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800">
+              <h4 class="font-bold text-slate-900 dark:text-white">${d.titulo} <span class="text-xs text-slate-500">(${d.alunoNick})</span></h4>
+            </div>
             <span class="px-2.5 py-1 text-xs font-bold rounded-full bg-slate-100 dark:bg-slate-800 text-brand-500">${d.status}</span>
           </div>
           <p class="text-xs text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-800">${d.pergunta}</p>
           ${d.status === 'Pendente' ? `
-            <button onclick="assumirDuvida('${d.id}')" class="px-3 py-1.5 bg-brand-500 hover:bg-brand-600 text-black text-xs font-bold rounded-lg">Assumir Dúvida</button>
-          ` : d.status === 'Em Andamento' && d.avaliador_nick === user.nick ? `
+            <button onclick="assumirDuvida('${d.id}')" class="px-3 py-1.5 bg-brand-500 text-black text-xs font-bold rounded-lg">Assumir Dúvida</button>
+          ` : d.status === 'Em Andamento' && d.avaliadorNick === user.nick ? `
             <div class="flex gap-2">
               <input type="text" id="resp-${d.id}" placeholder="Digite a resposta..." class="flex-1 p-2 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs">
               <button onclick="responderDuvida('${d.id}')" class="px-3 py-1.5 bg-emerald-500 text-white text-xs font-bold rounded-lg">Enviar</button>
             </div>
-          ` : `<p class="text-xs text-slate-500">Atribuído a: ${d.avaliador_nick} ${d.resposta ? '| Resposta: ' + d.resposta : ''}</p>`}
+          ` : `
+            <div class="flex items-center gap-2 text-xs text-slate-500">
+              <img src="https://www.habbo.com.br/habbo-imaging/avatarimage?user=${encodeURIComponent(d.avaliadorNick || '')}&headonly=1&size=s" class="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800">
+              <span>Respondido por: <strong>${d.avaliadorNick}</strong> ${d.resposta ? '| Resposta: ' + d.resposta : ''}</span>
+            </div>
+          `}
         </div>
       `).join('');
     }
@@ -348,13 +344,35 @@
 
     async function responderDuvida(id) {
       const resposta = document.getElementById(`resp-${id}`).value;
-      if (!resposta.trim()) return alert('Digite uma resposta.');
+      if (!resposta.trim()) return alert('Digite a resposta.');
       await fetch('/api/avaliador?action=responderDuvida', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, resposta, nickAvaliador: user.nick })
       });
       carregarDuvidas();
+    }
+
+    async function carregarDocumentos() {
+      const res = await fetch('/api/avaliador?action=listarDocumentos');
+      const data = await res.json();
+      const container = document.getElementById('listaDocumentos');
+
+      container.innerHTML = (data.documentos || []).map(doc => `
+        <a href="${doc.url}" target="_blank" class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-brand-500 transition flex items-center justify-between group">
+          <div class="flex items-center gap-3">
+            <div class="p-2.5 rounded-xl bg-brand-500/10 text-brand-500 group-hover:bg-brand-500 group-hover:text-black transition">
+              <i data-lucide="file-text" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <h4 class="font-bold text-sm text-slate-900 dark:text-white group-hover:text-brand-500 transition">${doc.titulo}</h4>
+              <p class="text-xs text-slate-500">${doc.categoria || 'Documento Oficial'}</p>
+            </div>
+          </div>
+          <i data-lucide="external-link" class="w-4 h-4 text-slate-400 group-hover:text-brand-500 transition"></i>
+        </a>
+      `).join('');
+      lucide.createIcons();
     }
   </script>
 </body>
