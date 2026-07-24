@@ -31,7 +31,7 @@ module.exports = async function handler(req, res) {
       }
     }
 
-    // 2. Gerar Token e Senha
+    // 2. Gerar Token (CORRIGIDO: Não altera a senha de usuários já existentes)
     if (req.method === 'POST' && action === 'gerarToken') {
       const { nickAvaliador, nickCandidato } = body;
       if (!nickCandidato || !String(nickCandidato).trim()) {
@@ -43,12 +43,13 @@ module.exports = async function handler(req, res) {
       const avaliadorLimpo = nickAvaliador ? String(nickAvaliador).trim() : 'Avaliador';
       const token = 'CFO-' + Math.random().toString(36).substring(2, 8).toUpperCase();
 
-      const senhaGerada = gerarSenhaAleatoria();
-      const senhaHash = await bcrypt.hash(senhaGerada, 10);
-
+      let senhaGerada = null;
       const usuarioExistente = await db.collection('usuarios').where('nickBusca', '==', nickBusca).limit(1).get();
 
       if (usuarioExistente.empty) {
+        // Usuário NOVO: Cria a conta e gera uma senha inicial
+        senhaGerada = gerarSenhaAleatoria();
+        const senhaHash = await bcrypt.hash(senhaGerada, 10);
         await db.collection('usuarios').add({
           nome: nickLimpo,
           nickPolicial: nickLimpo,
@@ -58,9 +59,8 @@ module.exports = async function handler(req, res) {
           statusAprovacao: 'Aprovado',
           criadoEm: FieldValue.serverTimestamp()
         });
-      } else {
-        await usuarioExistente.docs[0].ref.update({ senhaHash, statusAprovacao: 'Aprovado' });
       }
+      // Se o usuário JÁ EXISTE, a senha NÃO é alterada!
 
       await db.collection('provas').add({
         tokenUtilizado: token,
@@ -74,8 +74,10 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({
         token,
         nick: nickLimpo,
-        senhaGerada,
-        message: 'Token gerado com sucesso!'
+        senhaGerada, // Retorna a senha APENAS se a conta acabou de ser criada
+        message: senhaGerada
+          ? 'Nova conta criada e token liberado!'
+          : 'Novo token liberado para candidato existente (a senha mantida é a cadastrada).'
       });
     }
 
