@@ -79,12 +79,10 @@
       <div id="listaProvas" class="grid grid-cols-1 gap-4"></div>
     </section>
 
-    <!-- AVALIAÇÃO DE PRÁTICAS DE BBCODE (NOVA) -->
+    <!-- AVALIAÇÃO DE PRÁTICAS DE BBCODE -->
     <section id="content-praticasBbcode" class="hidden space-y-4">
       <h2 class="text-lg font-bold">Práticas de BBCode Submetidas pelos Alunos</h2>
-      <div id="listaPraticasBBCode" class="grid grid-cols-1 gap-4">
-        <p class="text-xs text-slate-500 py-4">Carregando práticas de BBCode...</p>
-      </div>
+      <div id="listaPraticasBBCode" class="grid grid-cols-1 gap-4"></div>
     </section>
 
     <!-- SUGERIR QUESTÃO -->
@@ -122,21 +120,21 @@
 
   </div>
 
-  <!-- MODAL DE CORREÇÃO DE PROVA -->
+  <!-- MODAL DE CORREÇÃO COM COMPARATIVO E NOTA PRELIMINAR -->
   <div id="modalProva" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white dark:bg-slate-900 border max-w-4xl w-full max-h-[90vh] rounded-2xl flex flex-col overflow-hidden shadow-2xl">
-      <div class="p-4 border-b flex justify-between items-center bg-slate-50 dark:bg-slate-950">
-        <div><h3 id="modalTitulo" class="font-black">Correção de Avaliação</h3><p id="modalSubtitulo" class="text-xs text-slate-500"></p></div>
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 max-w-4xl w-full max-h-[90vh] rounded-2xl flex flex-col overflow-hidden shadow-2xl">
+      <div class="p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-950">
+        <div><h3 id="modalTitulo" class="font-black text-slate-900 dark:text-white">Correção de Avaliação</h3><p id="modalSubtitulo" class="text-xs text-slate-500"></p></div>
         <button onclick="fecharModal()" class="p-2 text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
 
       <div id="modalCorpo" class="p-6 overflow-y-auto space-y-6 flex-1"></div>
 
-      <div class="p-4 border-t space-y-3 bg-slate-50 dark:bg-slate-950">
+      <div class="p-4 border-t border-slate-200 dark:border-slate-800 space-y-3 bg-slate-50 dark:bg-slate-950">
         <div class="flex gap-2 items-center">
-          <input type="number" step="0.1" max="10" min="0" id="modalNota" placeholder="Nota" class="w-32 p-2.5 rounded-xl bg-white dark:bg-slate-900 border text-sm font-bold">
-          <input type="text" id="modalFeedbackGeral" placeholder="Feedback Geral..." class="flex-1 p-2.5 rounded-xl bg-white dark:bg-slate-900 border text-sm">
-          <button onclick="salvarCorrecaoModal()" class="px-6 py-2.5 bg-brand-500 text-black font-extrabold rounded-xl text-sm">Salvar Correção</button>
+          <input type="number" step="0.1" max="10" min="0" id="modalNota" placeholder="Nota Final (0-10)" class="w-36 p-2.5 rounded-xl bg-white dark:bg-slate-900 border text-sm font-bold">
+          <input type="text" id="modalFeedbackGeral" placeholder="Feedback Geral do Avaliado..." class="flex-1 p-2.5 rounded-xl bg-white dark:bg-slate-900 border text-sm">
+          <button onclick="salvarCorrecaoModal()" class="px-6 py-2.5 bg-brand-500 hover:bg-brand-600 text-black font-extrabold rounded-xl text-sm transition">Salvar Correção</button>
         </div>
       </div>
     </div>
@@ -173,21 +171,22 @@
     document.getElementById('userNick').innerText = user.nick;
     lucide.createIcons();
 
-    function parseBBCode(str) {
-      if (!str) return '';
-      return str
-        .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
-        .replace(/\[b\](.*?)\[\/b\]/gi, "<b>$1</b>")
-        .replace(/\[i\](.*?)\[\/i\]/gi, "<i>$1</i>")
-        .replace(/\[u\](.*?)\[\/u\]/gi, "<u>$1</u>")
-        .replace(/\[s\](.*?)\[\/s\]/gi, "<s>$1</s>")
-        .replace(/\[center\](.*?)\[\/center\]/gi, "<div style='text-align:center;'>$1</div>")
-        .replace(/\[color=(.*?)\](.*?)\[\/color\]/gi, "<span style='color:$1;'>$2</span>")
-        .replace(/\[size=(.*?)\](.*?)\[\/size\]/gi, "<span style='font-size:$1px;'>$2</span>")
-        .replace(/\[quote\](.*?)\[\/quote\]/gi, "<blockquote class='p-3 my-2 border-l-4 border-brand-500 bg-slate-100 dark:bg-slate-900 rounded-r-xl italic'>$1</blockquote>")
-        .replace(/\[img\](.*?)\[\/img\]/gi, "<img src='$1' class='max-w-full h-auto my-2 rounded-lg inline-block border' alt='Imagem BBCode'>")
-        .replace(/\[url=(.*?)\](.*?)\[\/url\]/gi, "<a href='$1' target='_blank' class='text-brand-500 underline'>$2</a>")
-        .replace(/\n/g, "<br>");
+    // ALGORITMO COMPARA RESPOSTA X GABARITO E GERA NOTA PRELIMINAR
+    function calcularPontuacaoPreliminar(resposta, gabarito) {
+      if (!resposta || !gabarito || gabarito === 'Gabarito não cadastrado') return 0;
+      const respClean = resposta.toLowerCase().replace(/[^\w\s]/gi, '');
+      const gabClean = gabarito.toLowerCase().replace(/[^\w\s]/gi, '');
+
+      const palavrasGabarito = gabClean.split(/\s+/).filter(w => w.length > 3);
+      if (palavrasGabarito.length === 0) return 0;
+
+      let acertos = 0;
+      palavrasGabarito.forEach(w => {
+        if (respClean.includes(w)) acertos++;
+      });
+
+      const taxa = acertos / palavrasGabarito.length;
+      return Math.min(10, Math.max(0, taxa * 10));
     }
 
     async function carregarHabboProfile() {
@@ -212,7 +211,6 @@
       if (aba === 'tokensEmitidos') carregarTokensEmitidos();
       if (aba === 'solicitacoes') carregarSolicitacoes();
       if (aba === 'provas') carregarProvas();
-      if (aba === 'praticasBbcode') carregarPraticasBBCodeAvaliador();
       if (aba === 'sugerir') carregarMinhasSugestoes();
       if (aba === 'duvidas') carregarDuvidas();
       if (aba === 'documentos') carregarDocumentos();
@@ -238,110 +236,6 @@
       }
     }
 
-    async function carregarPraticasBBCodeAvaliador() {
-      const res = await fetch('/api/avaliador?action=listarPraticasBBCode');
-      const data = await res.json();
-      const container = document.getElementById('listaPraticasBBCode');
-
-      container.innerHTML = (data.praticas || []).map(p => `
-        <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3">
-          <div class="flex justify-between items-center">
-            <div class="flex items-center gap-2">
-              <img src="https://www.habbo.com.br/habbo-imaging/avatarimage?user=${encodeURIComponent(p.alunoNick)}&headonly=1&size=s" class="w-8 h-8 rounded-full bg-slate-800">
-              <h4 class="font-bold text-sm text-slate-900 dark:text-white">${p.titulo || 'Prática BBCode'} <span class="text-xs font-normal text-slate-500">(${p.alunoNick})</span></h4>
-            </div>
-            <span class="px-2.5 py-1 text-xs font-bold rounded-full ${p.status === 'Avaliada' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-amber-500/10 text-amber-500'}">${p.status}</span>
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
-            <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 text-xs font-mono">
-              <strong class="text-amber-400 block mb-1">Código BBCode Bruto enviado:</strong>
-              <pre class="whitespace-pre-wrap text-slate-300">${p.codigoBBCode}</pre>
-            </div>
-            <div class="p-3 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 text-xs">
-              <strong class="text-brand-500 block mb-1">Resultado Renderizado:</strong>
-              <div class="pt-1">${parseBBCode(p.codigoBBCode)}</div>
-            </div>
-          </div>
-
-          <div class="p-3 bg-slate-50 dark:bg-slate-950 rounded-xl border space-y-2">
-            <label class="text-xs font-bold text-slate-400">Feedback e Dicas de Formatação para o Aluno:</label>
-            <input type="text" id="fb-bbcode-${p.id}" value="${p.feedbackAvaliador || ''}" placeholder="Ex: A alinhamento ficou ótimo, mas faltou fechar a tag [b]..." class="w-full p-2 rounded-lg bg-white dark:bg-slate-900 border text-xs">
-            <button onclick="avaliarPraticaBBCode('${p.id}')" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-lg transition">
-              Salvar Feedback do BBCode
-            </button>
-          </div>
-        </div>
-      `).join('') || '<p class="text-xs text-slate-500 py-4">Nenhuma prática enviada ainda.</p>';
-    }
-
-    async function avaliarPraticaBBCode(id) {
-      const feedback = document.getElementById(`fb-bbcode-${id}`).value;
-      if (!feedback.trim()) return alert('Digite um feedback.');
-
-      await fetch('/api/avaliador?action=avaliarPraticaBBCode', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, avaliadorNick: user.nick, feedback, status: 'Avaliada' })
-      });
-
-      alert('Feedback salvo!');
-      carregarPraticasBBCodeAvaliador();
-    }
-
-    async function carregarTokensEmitidos() {
-      const res = await fetch('/api/avaliador?action=listarTokens');
-      const data = await res.json();
-      document.getElementById('listaTokensEmitidos').innerHTML = (data.tokens || []).map(t => `
-        <div class="p-3 rounded-xl bg-white dark:bg-slate-900 border flex justify-between items-center">
-          <div>
-            <p class="font-mono font-bold text-amber-500 text-sm">${t.token_utilizado}</p>
-            <p class="text-xs text-slate-500">Aluno: <strong>${t.candidato_nick}</strong> | Avaliador: ${t.avaliador_nick}</p>
-          </div>
-          <div class="flex items-center gap-2">
-            <span class="px-2.5 py-1 text-xs font-bold rounded-full bg-slate-100 dark:bg-slate-800 text-brand-500">${t.status}</span>
-            <button onclick="revogarToken('${t.id}')" class="px-2.5 py-1 bg-red-500/10 text-red-500 text-xs font-bold rounded-lg hover:bg-red-500/20">Revogar</button>
-          </div>
-        </div>
-      `).join('') || '<p class="text-xs text-slate-500 py-4">Nenhum token emitido.</p>';
-    }
-
-    async function revogarToken(id) {
-      if (!confirm('Revogar token?')) return;
-      await fetch('/api/avaliador?action=revogarToken', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
-      carregarTokensEmitidos();
-    }
-
-    async function carregarSolicitacoes() {
-      const res = await fetch('/api/avaliador?action=listarSolicitacoes');
-      const data = await res.json();
-      document.getElementById('listaSolicitacoes').innerHTML = (data.solicitacoes || []).map(s => `
-        <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border flex justify-between items-center">
-          <p class="font-bold text-sm">${s.nickPolicial}</p>
-          <div class="flex items-center gap-2">
-            <select id="role-${s.id}" class="p-2 rounded-lg bg-slate-950 border text-xs">
-              <option value="candidato">Aluno / Candidato</option>
-              <option value="avaliador">Avaliador</option>
-              <option value="gestor">Gestor</option>
-            </select>
-            <button onclick="aprovar('${s.id}')" class="px-3 py-1.5 bg-emerald-500 text-white font-bold text-xs rounded-lg">Aprovar</button>
-            <button onclick="recusar('${s.id}')" class="px-3 py-1.5 bg-red-500 text-white font-bold text-xs rounded-lg">Recusar</button>
-          </div>
-        </div>
-      `).join('') || '<p class="text-xs text-slate-500 py-4">Nenhuma solicitação pendente.</p>';
-    }
-
-    async function aprovar(id) {
-      await fetch('/api/avaliador?action=aprovarSolicitacao', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, role: document.getElementById(`role-${id}`).value }) });
-      carregarSolicitacoes();
-    }
-
-    async function recusar(id) {
-      if (!confirm('Recusar solicitação?')) return;
-      await fetch('/api/avaliador?action=recusarSolicitacao', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
-      carregarSolicitacoes();
-    }
-
     async function carregarProvas() {
       const res = await fetch(`/api/avaliador?action=listarProvas`);
       const data = await res.json();
@@ -364,18 +258,6 @@
       `).join('') || '<p class="text-xs text-slate-500 py-4">Nenhuma prova cadastrada.</p>';
     }
 
-    async function cancelarProva(id) {
-      if (!confirm('Cancelar esta avaliação?')) return;
-      await fetch('/api/avaliador?action=cancelarProva', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
-      carregarProvas();
-    }
-
-    async function excluirProva(id) {
-      if (!confirm('Excluir avaliação?')) return;
-      await fetch('/api/avaliador?action=excluirProva', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
-      carregarProvas();
-    }
-
     function abrirModalProva(id) {
       const p = window.provasCache.find(x => x.id === id);
       if (!p) return;
@@ -384,20 +266,46 @@
       const respostas = p.respostasJson || {};
       const feedbacksQuestoes = p.feedbacksQuestoes || {};
 
+      let somaPreliminar = 0;
+
       document.getElementById('modalTitulo').innerText = `Avaliação de ${p.candidatoNick}`;
       document.getElementById('modalSubtitulo').innerText = `Token: ${p.tokenUtilizado} | Status: ${p.status}`;
-      document.getElementById('modalNota').value = p.nota !== null && p.nota !== undefined ? p.nota : '';
       document.getElementById('modalFeedbackGeral').value = p.feedbackAvaliador || '';
 
-      document.getElementById('modalCorpo').innerHTML = questoes.map((q, i) => `
-        <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-3">
-          <span class="text-xs font-bold text-brand-500 uppercase">Questão ${i + 1} - ${q.categoria || 'Geral'}</span>
-          <p class="font-bold text-sm">${q.enunciado || q.titulo}</p>
-          <div class="p-2.5 rounded-lg bg-emerald-500/10 text-emerald-400 text-xs"><strong>Gabarito Esperado:</strong> ${q.gabarito_esperado || 'Não cadastrado'}</div>
-          <div class="p-3 rounded-lg bg-slate-900 text-xs"><strong>Resposta do Aluno:</strong> <p class="whitespace-pre-wrap">${respostas[q.id] || 'Sem resposta'}</p></div>
-          <input type="text" data-fb-questao-id="${q.id}" value="${feedbacksQuestoes[q.id] || ''}" placeholder="Feedback individual da questão..." class="w-full p-2 bg-slate-900 border border-slate-800 rounded-lg text-xs">
-        </div>
-      `).join('');
+      document.getElementById('modalCorpo').innerHTML = questoes.map((q, i) => {
+        const respAluno = respostas[q.id] || 'Sem resposta';
+        const gabarito = q.gabarito_esperado || q.gabaritoEsperado || 'Gabarito não cadastrado';
+        const pontuacaoItem = calcularPontuacaoPreliminar(respAluno, gabarito);
+        somaPreliminar += pontuacaoItem;
+
+        return `
+          <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-3">
+            <div class="flex justify-between items-center">
+              <span class="text-xs font-bold text-brand-500 uppercase">Questão ${i + 1} - ${q.categoria || 'Geral'}</span>
+              <span class="text-xs font-bold px-2 py-0.5 rounded bg-blue-500/10 text-blue-400">Score de Precisão: ${pontuacaoItem.toFixed(1)} / 10</span>
+            </div>
+            <p class="font-bold text-sm text-white">${q.enunciado || q.titulo}</p>
+
+            <div class="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs">
+              <strong class="block mb-1">✅ Gabarito Esperado Oficial:</strong>
+              <p class="whitespace-pre-wrap">${gabarito}</p>
+            </div>
+
+            <div class="p-3 rounded-lg bg-slate-900 border border-slate-800 text-xs space-y-1">
+              <strong class="text-slate-400 block mb-1">📝 Resposta do Candidato:</strong>
+              <p class="whitespace-pre-wrap text-white">${respAluno}</p>
+            </div>
+
+            <div>
+              <label class="text-[11px] font-bold text-slate-400">Feedback Individual desta Questão:</label>
+              <input type="text" data-fb-questao-id="${q.id}" value="${feedbacksQuestoes[q.id] || ''}" placeholder="Dica de melhoria ou justificativa da pontuação..." class="w-full p-2 mt-1 bg-slate-900 border border-slate-800 rounded-lg text-xs text-white">
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      const notaFinalSugerida = questoes.length > 0 ? (somaPreliminar / questoes.length).toFixed(1) : '0.0';
+      document.getElementById('modalNota').value = p.nota !== null && p.nota !== undefined ? p.nota : notaFinalSugerida;
 
       document.getElementById('modalProva').classList.remove('hidden');
     }
@@ -418,67 +326,16 @@
       carregarProvas();
     }
 
-    async function enviarSugestaoQuestao(e) {
-      e.preventDefault();
-      await fetch('/api/avaliador?action=sugerirQuestao', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          avaliadorNick: user.nick,
-          categoria: document.getElementById('sugCategoria').value,
-          titulo: document.getElementById('sugTitulo').value,
-          enunciado: document.getElementById('sugEnunciado').value,
-          gabarito_esperado: document.getElementById('sugGabarito').value
-        })
-      });
-      alert('Sugestão enviada!');
-      e.target.reset();
-      carregarMinhasSugestoes();
+    async function cancelarProva(id) {
+      if (!confirm('Cancelar esta avaliação?')) return;
+      await fetch('/api/avaliador?action=cancelarProva', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+      carregarProvas();
     }
 
-    async function carregarMinhasSugestoes() {
-      const res = await fetch(`/api/avaliador?action=minhasSugestoes&nick=${encodeURIComponent(user.nick)}`);
-      const data = await res.json();
-      document.getElementById('listaMinhasSugestoes').innerHTML = (data.sugestoes || []).map(s => `
-        <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border space-y-2">
-          <div class="flex justify-between items-center">
-            <span class="text-xs font-bold text-slate-400">[${s.categoria}] ${s.titulo}</span>
-            <span class="px-2.5 py-0.5 text-xs font-bold rounded-full ${s.status === 'Aprovada' ? 'bg-emerald-500/10 text-emerald-500' : s.status === 'Reprovada' ? 'bg-red-500/10 text-red-500' : 'bg-amber-500/10 text-amber-500'}">${s.status}</span>
-          </div>
-          <p class="text-xs font-bold">${s.enunciado}</p>
-          ${s.observacaoGestor ? `<p class="text-xs text-purple-400 bg-slate-950 p-2 rounded-lg"><strong>Retorno da Gestão:</strong> ${s.observacaoGestor}</p>` : ''}
-        </div>
-      `).join('') || '<p class="text-xs text-slate-500 py-4">Nenhuma sugestão enviada.</p>';
-    }
-
-    async function carregarDuvidas() {
-      const res = await fetch('/api/avaliador?action=listarDuvidas');
-      const data = await res.json();
-      document.getElementById('listaDuvidas').innerHTML = (data.duvidas || []).map(d => `
-        <div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border space-y-3">
-          <div class="flex justify-between items-center">
-            <div class="flex items-center gap-2"><img src="https://www.habbo.com.br/habbo-imaging/avatarimage?user=${encodeURIComponent(d.alunoNick || '')}&headonly=1&size=s" class="w-8 h-8 rounded-full bg-slate-800"><h4 class="font-bold text-sm">${d.titulo} <span class="text-xs text-slate-500">(${d.alunoNick})</span></h4></div>
-            <span class="px-2.5 py-1 text-xs font-bold rounded-full bg-slate-800 text-brand-500">${d.status}</span>
-          </div>
-          <p class="text-xs bg-slate-950 p-3 rounded-xl">${d.pergunta}</p>
-          ${d.status === 'Pendente' ? `<button onclick="assumirDuvida('${d.id}')" class="px-3 py-1.5 bg-brand-500 text-black text-xs font-bold rounded-lg">Assumir Dúvida</button>` : d.status === 'Em Andamento' && d.avaliadorNick === user.nick ? `<div class="flex gap-2"><input type="text" id="resp-${d.id}" placeholder="Digite a resposta..." class="flex-1 p-2 bg-slate-950 border rounded-lg text-xs"><button onclick="responderDuvida('${d.id}')" class="px-3 py-1.5 bg-emerald-500 text-white text-xs font-bold rounded-lg">Enviar</button></div>` : `<div class="flex items-center gap-2 text-xs text-slate-500"><img src="https://www.habbo.com.br/habbo-imaging/avatarimage?user=${encodeURIComponent(d.avaliadorNick || '')}&headonly=1&size=s" class="w-6 h-6 rounded-full bg-slate-800"><span>Respondido por: <strong>${d.avaliadorNick}</strong> ${d.resposta ? '| Resposta: ' + d.resposta : ''}</span></div>`}
-        </div>
-      `).join('');
-    }
-
-    async function assumirDuvida(id) { await fetch('/api/avaliador?action=assumirDuvida', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, nickAvaliador: user.nick }) }); carregarDuvidas(); }
-    async function responderDuvida(id) { await fetch('/api/avaliador?action=responderDuvida', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, resposta: document.getElementById(`resp-${id}`).value, nickAvaliador: user.nick }) }); carregarDuvidas(); }
-
-    async function carregarDocumentos() {
-      const res = await fetch('/api/avaliador?action=listarDocumentos');
-      const data = await res.json();
-      document.getElementById('listaDocumentos').innerHTML = (data.documentos || []).map(doc => `
-        <a href="${doc.url}" target="_blank" class="p-4 rounded-2xl bg-white dark:bg-slate-900 border hover:border-brand-500 flex items-center justify-between">
-          <div><h4 class="font-bold text-sm">${doc.titulo}</h4><p class="text-xs text-slate-500">${doc.categoria || 'Geral'}</p></div>
-          <i data-lucide="external-link" class="w-4 h-4 text-slate-400"></i>
-        </a>
-      `).join('');
-      lucide.createIcons();
+    async function excluirProva(id) {
+      if (!confirm('Excluir avaliação?')) return;
+      await fetch('/api/avaliador?action=excluirProva', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+      carregarProvas();
     }
 
     function abrirModalTrocarSenha() { document.getElementById('modalTrocarSenha').classList.remove('hidden'); }

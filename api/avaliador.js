@@ -5,6 +5,16 @@ function gerarSenhaAleatoria() {
   return Math.random().toString(36).slice(-8);
 }
 
+function normalizarQuestao(q) {
+  return {
+    id: q.id,
+    categoria: q.categoria || 'Geral',
+    titulo: q.titulo || '',
+    enunciado: q.enunciado || q.titulo || '',
+    gabarito_esperado: q.gabarito_esperado || q.gabaritoEsperado || q.gabarito || 'Gabarito não cadastrado'
+  };
+}
+
 module.exports = async function handler(req, res) {
   res.setHeader('Content-Type', 'application/json');
 
@@ -129,22 +139,26 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ success: true });
     }
 
-    // 6. Provas e Correção
+    // 6. Provas e Correção com Garantia de Gabarito
     if (req.method === 'GET' && action === 'listarProvas') {
       const snap = await db.collection('provas').orderBy('criadoEm', 'desc').get();
       return res.status(200).json({
-        provas: snap.docs.map(d => ({
-          id: d.id,
-          tokenUtilizado: d.data().tokenUtilizado,
-          candidatoNick: d.data().candidatoNick,
-          avaliadorNick: d.data().avaliadorNick,
-          status: d.data().status,
-          nota: d.data().nota !== undefined ? d.data().nota : null,
-          feedbackAvaliador: d.data().feedbackAvaliador || null,
-          feedbacksQuestoes: d.data().feedbacksQuestoes || {},
-          respostasJson: d.data().respostasJson || {},
-          questoesJson: d.data().questoesJson || []
-        }))
+        provas: snap.docs.map(d => {
+          const data = d.data();
+          const qRaw = data.questoesJson || [];
+          return {
+            id: d.id,
+            tokenUtilizado: data.tokenUtilizado,
+            candidatoNick: data.candidatoNick,
+            avaliadorNick: data.avaliadorNick,
+            status: data.status,
+            nota: data.nota !== undefined ? data.nota : null,
+            feedbackAvaliador: data.feedbackAvaliador || null,
+            feedbacksQuestoes: data.feedbacksQuestoes || {},
+            respostasJson: data.respostasJson || {},
+            questoesJson: qRaw.map(normalizarQuestao)
+          };
+        })
       });
     }
 
@@ -187,13 +201,13 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ sugestoes: snap.docs.map(d => ({ id: d.id, ...d.data() })) });
     }
 
-    // 8. NOVA: Listar Práticas de BBCode para Correção
+    // 8. Listar Práticas de BBCode
     if (req.method === 'GET' && action === 'listarPraticasBBCode') {
       const snap = await db.collection('praticas_bbcode').orderBy('criadoEm', 'desc').get();
       return res.status(200).json({ praticas: snap.docs.map(d => ({ id: d.id, ...d.data() })) });
     }
 
-    // 9. NOVA: Avaliar e Enviar Feedback da Prática de BBCode
+    // 9. Avaliar Prática de BBCode
     if (req.method === 'POST' && action === 'avaliarPraticaBBCode') {
       const { id, avaliadorNick, feedback, status } = body;
       if (!id || !feedback) return res.status(400).json({ error: 'Feedback é obrigatório.' });
