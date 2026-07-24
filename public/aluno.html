@@ -18,9 +18,9 @@
     .sceditor-button { padding: 4px 8px; font-size: 11px; font-weight: bold; color: #cbd5e1; background-color: #0f172a; border: 1px solid #334155; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
     .sceditor-button:hover { background-color: #3b82f6; color: #ffffff; border-color: #3b82f6; }
 
-    /* Estilização para Renderização de Tabelas e Containers de Fórum no BBCode */
+    /* Estilização para Renderização e Tabelas no BBCode do Fórum */
     .bbcode-render table { border-collapse: separate; border-spacing: 0; width: 100%; margin: 8px 0; }
-    .bbcode-render td, .bbcode-render th { border: 1px solid rgba(255,255,255,0.1); }
+    .bbcode-render td, .bbcode-render th { border: 1px solid rgba(255,255,255,0.15); padding: 8px; }
   </style>
 </head>
 <body class="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-colors duration-200">
@@ -30,7 +30,7 @@
     <!-- BANNER SUPERIOR -->
     <div class="w-full h-32 rounded-2xl bg-cover bg-center border border-slate-200 dark:border-slate-800 shadow-sm" style="background-image: url('/assets/images/banner-cfo.png');"></div>
 
-    <!-- CABEÇALHO DA CONTA DO ALUNO -->
+    <!-- CABEÇALHO -->
     <header class="flex flex-wrap justify-between items-center gap-4 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
       <div class="flex items-center gap-4">
         <img id="habboAvatar" src="/assets/images/default-avatar.png" class="w-14 h-14 rounded-2xl border-2 border-brand-500 bg-slate-800">
@@ -50,9 +50,9 @@
       </div>
     </header>
 
-    <!-- MENU DE NAVEGAÇÃO -->
+    <!-- NAVEGAÇÃO -->
     <nav class="flex gap-2 overflow-x-auto pb-2 border-b border-slate-200 dark:border-slate-800">
-      <button onclick="mudarAba('realizar')" id="tab-realizar" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold bg-brand-500 text-white">Realizar Prova</button>
+      <button onclick="mudarAba('realizar')" id="tab-realizar" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold bg-brand-500 text-white">Realizar Avaliação</button>
       <button onclick="mudarAba('avaliacoes')" id="tab-avaliacoes" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Minhas Avaliações</button>
       <button onclick="mudarAba('estudoBbcode')" id="tab-estudoBbcode" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Estudo BBCode</button>
       <button onclick="mudarAba('enviarDuvida')" id="tab-enviarDuvida" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Enviar Dúvida</button>
@@ -63,7 +63,7 @@
     <!-- ABA 1: REALIZAR AVALIAÇÃO -->
     <section id="content-realizar" class="space-y-6">
       <div id="areaProvasPendentes" class="space-y-4">
-        <h2 class="text-lg font-bold">Avaliação Disponível para Você</h2>
+        <h2 class="text-lg font-bold">Avaliações Liberadas para Você</h2>
         <div id="listaProvasDisponiveis" class="grid grid-cols-1 gap-4">
           <p class="text-xs text-slate-500 py-4">Verificando se há avaliações liberadas...</p>
         </div>
@@ -71,7 +71,7 @@
 
       <div id="boxProva" class="hidden space-y-6">
         <div class="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-500 text-xs flex justify-between items-center">
-          <span>Token Ativo: <strong id="provaToken" class="font-mono text-sm"></strong></span>
+          <span>Avaliação Ativa: <strong id="provaToken" class="font-mono text-sm"></strong></span>
           <span class="font-bold">Atenção: A prova só pode ser submetida uma única vez!</span>
         </div>
         <form onsubmit="submeterProva(event)" id="formProva" class="space-y-4"></form>
@@ -88,14 +88,14 @@
     <section id="content-estudoBbcode" class="hidden space-y-6">
       <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-4 shadow-sm">
         <h2 class="text-lg font-black text-brand-500 flex items-center gap-2">📘 Editor & Prática de BBCode</h2>
-        <p class="text-xs text-slate-500">Utilize a barra de ferramentas para formatar seus tópicos. Clique em "Gerar Pré-visualização" para validar a renderização.</p>
+        <p class="text-xs text-slate-500">Utilize a barra de ferramentas abaixo para formatar o texto. Clique no botão de pré-visualização antes de enviar.</p>
       </div>
 
       <!-- EDITOR BBCODE -->
       <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-4">
-        <input type="text" id="bbcodeTitulo" placeholder="Título da Prática (ex: Cronograma Tático)" class="w-full p-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-bold">
+        <input type="text" id="bbcodeTitulo" placeholder="Título da Prática (ex: Relatório de Ação)" class="w-full p-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-bold">
 
-        <!-- TOOLBAR DE BOTÕES DE BBCODE -->
+        <!-- TOOLBAR SCEDITOR -->
         <div class="sceditor-container">
           <div class="sceditor-toolbar">
             <div class="sceditor-group">
@@ -108,20 +108,23 @@
               <button type="button" class="sceditor-button" onclick="insertBBCode('[left]', '[/left]')">Esquerda</button>
               <button type="button" class="sceditor-button" onclick="insertBBCode('[center]', '[/center]')">Centrado</button>
               <button type="button" class="sceditor-button" onclick="insertBBCode('[right]', '[/right]')">Direita</button>
+              <button type="button" class="sceditor-button" onclick="insertBBCode('[justify]', '[/justify]')">Justificado</button>
             </div>
             <div class="sceditor-group">
               <button type="button" class="sceditor-button" onclick="insertBBCode('[quote]', '[/quote]')">Citar</button>
               <button type="button" class="sceditor-button" onclick="insertBBCode('[code]', '[/code]')">Code</button>
-              <button type="button" class="sceditor-button" onclick="insertBBCode('[table style=&quot;width:100%;&quot;][tr][td]', '[/td][/tr][/table]')">Tabela</button>
+              <button type="button" class="sceditor-button" onclick="insertBBCode('[table bgcolor=&quot;#0B1622&quot;][tr][td]', '[/td][/tr][/table]')">Tabela</button>
               <button type="button" class="sceditor-button" onclick="insertBBCode('[spoiler]', '[/spoiler]')">Spoiler</button>
+              <button type="button" class="sceditor-button" onclick="insertBBCode('[hide]', '[/hide]')">Oculto</button>
             </div>
             <div class="sceditor-group">
               <button type="button" class="sceditor-button" onclick="insertBBCode('[img]', '[/img]')">Imagem</button>
               <button type="button" class="sceditor-button" onclick="insertBBCode('[url=https://Link]', '[/url]')">Link</button>
-              <button type="button" class="sceditor-button" onclick="insertBBCode('[color=#0B1622]', '[/color]')">Cor</button>
+              <button type="button" class="sceditor-button" onclick="insertBBCode('[color=#00C3FF]', '[/color]')">Cor</button>
+              <button type="button" class="sceditor-button" onclick="insertBBCode('[size=16]', '[/size]')">Tamanho</button>
             </div>
           </div>
-          <textarea id="bbcodeEditor" rows="12" placeholder="Digite seu BBCode..." class="w-full p-4 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-b-xl font-mono text-xs focus:outline-none focus:border-brand-500"></textarea>
+          <textarea id="bbcodeEditor" rows="12" placeholder="Digite seu código BBCode aqui..." class="w-full p-4 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-b-xl font-mono text-xs focus:outline-none focus:border-brand-500"></textarea>
         </div>
 
         <div class="flex flex-wrap gap-3">
@@ -134,7 +137,7 @@
         </div>
       </div>
 
-      <!-- ÁREA DE PREVIEW RENDERIZADO -->
+      <!-- PREVIEW RENDERIZADO -->
       <div id="boxPreviewContainer" class="hidden p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3">
         <h3 class="font-bold text-sm text-brand-500">👁️ Pré-visualização Renderizada</h3>
         <div id="bbcodePreview" class="p-4 rounded-xl bg-slate-950 border border-slate-800 text-xs min-h-[150px] overflow-x-auto bbcode-render">
@@ -174,6 +177,19 @@
 
   </div>
 
+  <!-- MODAL TROCA DE SENHA -->
+  <div id="modalTrocarSenha" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 border max-w-md w-full p-6 rounded-2xl space-y-4 shadow-2xl">
+      <h3 class="font-bold text-sm">Alterar Minha Senha</h3>
+      <input type="password" id="senhaAtualAluno" placeholder="Senha Atual" class="w-full p-3 bg-slate-50 dark:bg-slate-950 border rounded-xl text-sm">
+      <input type="password" id="novaSenhaAluno" placeholder="Nova Senha" class="w-full p-3 bg-slate-50 dark:bg-slate-950 border rounded-xl text-sm">
+      <div class="flex gap-2">
+        <button onclick="salvarNovaSenhaAluno()" class="flex-1 py-3 bg-brand-500 text-white font-extrabold rounded-xl text-sm">Salvar Nova Senha</button>
+        <button onclick="fecharModalTrocarSenha()" class="px-4 py-3 bg-slate-800 text-white rounded-xl text-sm">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
   <script src="/assets/js/auth-guard.js"></script>
   <script>
     function initTheme() {
@@ -201,19 +217,18 @@
       txt.focus();
     }
 
-    // PARSER COMPLETO DE BBCODE QUE TRATA TABELAS, ATRIBUTOS E HTML INLINE
+    // PARSER COMPLETO DE BBCODE COM SUPORTE A ATRIBUTOS HTML/ESTILOS DO FÓRUM
     function parseBBCodeCompleto(str) {
       if (!str) return '';
       let code = str;
 
-      // Trata tag [code]
       const codes = [];
       code = code.replace(/\[code\]([\s\S]*?)\[\/code\]/gi, function(match, content) {
         codes.push(content);
         return '___CODE_BLOCK_' + (codes.length - 1) + '___';
       });
 
-      // Substituição de Tabelas e Containers de Fórum
+      // Substituição de Tabelas e Atributos de Estilo
       code = code.replace(/\[table([\s\S]*?)\]/gi, (m, attr) => `<table ${cleanAttributes(attr)}>`);
       code = code.replace(/\[\/table\]/gi, '</table>');
       code = code.replace(/\[tr([\s\S]*?)\]/gi, (m, attr) => `<tr ${cleanAttributes(attr)}>`);
@@ -221,7 +236,7 @@
       code = code.replace(/\[td([\s\S]*?)\]/gi, (m, attr) => `<td ${cleanAttributes(attr)}>`);
       code = code.replace(/\[\/td\]/gi, '</td>');
 
-      // Tags de Formatação Tradicionais
+      // Formatting
       code = code.replace(/\[b\](.*?)\[\/b\]/gi, '<b>$1</b>');
       code = code.replace(/\[i\](.*?)\[\/i\]/gi, '<i>$1</i>');
       code = code.replace(/\[u\](.*?)\[\/u\]/gi, '<u>$1</u>');
@@ -232,15 +247,16 @@
       code = code.replace(/\[justify\]([\s\S]*?)\[\/justify\]/gi, '<div style="text-align:justify;">$1</div>');
       code = code.replace(/\[color=(.*?)\]([\s\S]*?)\[\/color\]/gi, '<span style="color:$1;">$2</span>');
       code = code.replace(/\[size=(.*?)\]([\s\S]*?)\[\/size\]/gi, '<span style="font-size:$1px;">$2</span>');
+      code = code.replace(/\[font=(.*?)\]([\s\S]*?)\[\/font\]/gi, '<span style="font-family:$1;">$2</span>');
       code = code.replace(/\[quote\]([\s\S]*?)\[\/quote\]/gi, '<blockquote class="p-3 my-2 border-l-4 border-brand-500 bg-slate-900 rounded-r-xl italic">$1</blockquote>');
       code = code.replace(/\[spoiler\]([\s\S]*?)\[\/spoiler\]/gi, '<details class="p-2 bg-slate-900 border rounded-lg my-2"><summary class="cursor-pointer text-amber-400 font-bold">Spoiler</summary><div class="mt-2">$1</div></details>');
+      code = code.replace(/\[hide\]([\s\S]*?)\[\/hide\]/gi, '<div class="p-2 bg-slate-800 text-slate-400 rounded-lg my-2 italic">Conteúdo Oculto: $1</div>');
+      code = code.replace(/\[hr\]/gi, '<hr class="my-3 border-slate-700">');
       code = code.replace(/\[img\](.*?)\[\/img\]/gi, '<img src="$1" class="max-w-full h-auto inline-block border rounded-lg">');
       code = code.replace(/\[url=(.*?)\](.*?)\[\/url\]/gi, '<a href="$1" target="_blank" class="text-brand-500 underline">$2</a>');
 
-      // Restaura blocos de código
       codes.forEach((c, i) => {
-        const safeCode = c.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-        code = code.replace('___CODE_BLOCK_' + i + '___', `<pre class="p-3 bg-slate-950 text-emerald-400 font-mono text-xs rounded-xl border border-slate-800 overflow-x-auto">${safeCode}</pre>`);
+        code = code.replace('___CODE_BLOCK_' + i + '___', `<pre class="p-3 bg-slate-950 text-emerald-400 font-mono text-xs rounded-xl border border-slate-800 overflow-x-auto">${c}</pre>`);
       });
 
       return code.replace(/\n/g, '<br>');
@@ -340,9 +356,9 @@
         <div class="p-6 rounded-2xl bg-gradient-to-br from-brand-500/10 to-blue-600/5 border-2 border-brand-500/40 flex justify-between items-center">
           <div>
             <span class="px-3 py-1 text-xs font-black rounded-full bg-brand-500 text-white uppercase">Avaliação Liberada</span>
-            <h3 class="text-lg font-black mt-2">Token: ${p.token_utilizado}</h3>
+            <h3 class="text-lg font-black mt-2">Avaliação ID: ${p.token_utilizado}</h3>
           </div>
-          <button onclick="iniciarProvaDireto('${p.token_utilizado}')" class="px-6 py-3 bg-brand-500 text-white font-black rounded-xl text-xs">Iniciar Prova →</button>
+          <button onclick="iniciarProvaDireto('${p.token_utilizado}')" class="px-6 py-3 bg-brand-500 text-white font-black rounded-xl text-xs">Iniciar Avaliação →</button>
         </div>
       `).join('');
     }

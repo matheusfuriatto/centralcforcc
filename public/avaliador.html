@@ -39,8 +39,8 @@
     </header>
 
     <nav class="flex gap-2 overflow-x-auto pb-2 border-b border-slate-200 dark:border-slate-800">
-      <button onclick="mudarAba('cadastros')" id="tab-cadastros" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold bg-brand-500 text-black">Gerar Token</button>
-      <button onclick="mudarAba('tokensEmitidos')" id="tab-tokensEmitidos" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Tokens Emitidos</button>
+      <button onclick="mudarAba('cadastros')" id="tab-cadastros" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold bg-brand-500 text-black">Gerar Avaliação</button>
+      <button onclick="mudarAba('tokensEmitidos')" id="tab-tokensEmitidos" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Avaliações Geradas</button>
       <button onclick="mudarAba('solicitacoes')" id="tab-solicitacoes" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Solicitações de Acesso</button>
       <button onclick="mudarAba('provas')" id="tab-provas" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Provas & Correção</button>
       <button onclick="mudarAba('praticasBbcode')" id="tab-praticasBbcode" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Práticas BBCode</button>
@@ -49,21 +49,21 @@
       <button onclick="mudarAba('documentos')" id="tab-documentos" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Documentos</button>
     </nav>
 
-    <!-- GERAR TOKEN -->
+    <!-- GERAR AVALIAÇÃO -->
     <section id="content-cadastros" class="space-y-4">
       <div class="max-w-xl mx-auto p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-4">
-        <h2 class="text-lg font-bold">Gerar Token de Avaliação & Criar Acesso</h2>
-        <form onsubmit="gerarToken(event)" class="space-y-4">
+        <h2 class="text-lg font-bold">Gerar Nova Avaliação para Candidato</h2>
+        <form onsubmit="gerarAvaliacao(event)" class="space-y-4">
           <input type="text" id="candNick" required placeholder="Nick do Candidato (ex: Popricard88)" class="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border text-sm">
-          <button type="submit" class="w-full py-3 bg-brand-500 hover:bg-brand-600 text-black font-extrabold rounded-xl text-sm">Gerar Token</button>
+          <button type="submit" class="w-full py-3 bg-brand-500 hover:bg-brand-600 text-black font-extrabold rounded-xl text-sm">Liberar Avaliação</button>
         </form>
         <div id="tokenResultado"></div>
       </div>
     </section>
 
-    <!-- TOKENS EMITIDOS -->
+    <!-- AVALIAÇÕES GERADAS -->
     <section id="content-tokensEmitidos" class="hidden space-y-4">
-      <h2 class="text-lg font-bold">Tokens Emitidos no Sistema</h2>
+      <h2 class="text-lg font-bold">Avaliações Geradas no Sistema</h2>
       <div id="listaTokensEmitidos" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
     </section>
 
@@ -120,21 +120,21 @@
 
   </div>
 
-  <!-- MODAL DE CORREÇÃO COM COMPARATIVO E NOTA PRELIMINAR -->
+  <!-- MODAL DE CORREÇÃO -->
   <div id="modalProva" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 max-w-4xl w-full max-h-[90vh] rounded-2xl flex flex-col overflow-hidden shadow-2xl">
-      <div class="p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-950">
-        <div><h3 id="modalTitulo" class="font-black text-slate-900 dark:text-white">Correção de Avaliação</h3><p id="modalSubtitulo" class="text-xs text-slate-500"></p></div>
+    <div class="bg-white dark:bg-slate-900 border max-w-4xl w-full max-h-[90vh] rounded-2xl flex flex-col overflow-hidden shadow-2xl">
+      <div class="p-4 border-b flex justify-between items-center bg-slate-50 dark:bg-slate-950">
+        <div><h3 id="modalTitulo" class="font-black">Correção de Avaliação</h3><p id="modalSubtitulo" class="text-xs text-slate-500"></p></div>
         <button onclick="fecharModal()" class="p-2 text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
 
       <div id="modalCorpo" class="p-6 overflow-y-auto space-y-6 flex-1"></div>
 
-      <div class="p-4 border-t border-slate-200 dark:border-slate-800 space-y-3 bg-slate-50 dark:bg-slate-950">
+      <div class="p-4 border-t space-y-3 bg-slate-50 dark:bg-slate-950">
         <div class="flex gap-2 items-center">
-          <input type="number" step="0.1" max="10" min="0" id="modalNota" placeholder="Nota Final (0-10)" class="w-36 p-2.5 rounded-xl bg-white dark:bg-slate-900 border text-sm font-bold">
-          <input type="text" id="modalFeedbackGeral" placeholder="Feedback Geral do Avaliado..." class="flex-1 p-2.5 rounded-xl bg-white dark:bg-slate-900 border text-sm">
-          <button onclick="salvarCorrecaoModal()" class="px-6 py-2.5 bg-brand-500 hover:bg-brand-600 text-black font-extrabold rounded-xl text-sm transition">Salvar Correção</button>
+          <input type="number" step="0.1" max="10" min="0" id="modalNota" placeholder="Nota" class="w-32 p-2.5 rounded-xl bg-white dark:bg-slate-900 border text-sm font-bold">
+          <input type="text" id="modalFeedbackGeral" placeholder="Feedback Geral..." class="flex-1 p-2.5 rounded-xl bg-white dark:bg-slate-900 border text-sm">
+          <button onclick="salvarCorrecaoModal()" class="px-6 py-2.5 bg-brand-500 text-black font-extrabold rounded-xl text-sm">Salvar Correção</button>
         </div>
       </div>
     </div>
@@ -171,7 +171,6 @@
     document.getElementById('userNick').innerText = user.nick;
     lucide.createIcons();
 
-    // ALGORITMO COMPARA RESPOSTA X GABARITO E GERA NOTA PRELIMINAR
     function calcularPontuacaoPreliminar(resposta, gabarito) {
       if (!resposta || !gabarito || gabarito === 'Gabarito não cadastrado') return 0;
       const respClean = resposta.toLowerCase().replace(/[^\w\s]/gi, '');
@@ -211,14 +210,15 @@
       if (aba === 'tokensEmitidos') carregarTokensEmitidos();
       if (aba === 'solicitacoes') carregarSolicitacoes();
       if (aba === 'provas') carregarProvas();
+      if (aba === 'praticasBbcode') carregarPraticasBBCodeAvaliador();
       if (aba === 'sugerir') carregarMinhasSugestoes();
       if (aba === 'duvidas') carregarDuvidas();
       if (aba === 'documentos') carregarDocumentos();
     }
 
-    async function gerarToken(e) {
+    async function gerarAvaliacao(e) {
       e.preventDefault();
-      const res = await fetch('/api/avaliador?action=gerarToken', {
+      const res = await fetch('/api/avaliador?action=gerarAvaliacao', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nickAvaliador: user.nick, nickCandidato: document.getElementById('candNick').value })
@@ -228,7 +228,7 @@
         document.getElementById('tokenResultado').innerHTML = `
           <div class="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-sm space-y-2">
             <p class="font-bold">${data.message}</p>
-            <p>Token: <code class="font-mono font-bold">${data.token}</code></p>
+            <p>ID da Avaliação: <code class="font-mono font-bold">${data.token}</code></p>
             ${data.senhaGerada ? `<p class="text-base font-bold bg-slate-900 p-2 rounded-lg text-amber-400">Senha Inicial do Candidato: <code>${data.senhaGerada}</code></p>` : ''}
           </div>
         `;
@@ -245,7 +245,7 @@
           <div class="flex items-center gap-3">
             <img src="https://www.habbo.com.br/habbo-imaging/avatarimage?user=${encodeURIComponent(p.candidatoNick)}&headonly=1&size=m" class="w-10 h-10 rounded-xl bg-slate-800">
             <div>
-              <h4 class="font-bold text-sm">${p.candidatoNick} <span class="text-xs text-slate-500">| Token: ${p.tokenUtilizado}</span></h4>
+              <h4 class="font-bold text-sm">${p.candidatoNick} <span class="text-xs text-slate-500">| ID: ${p.tokenUtilizado}</span></h4>
               <p class="text-xs text-slate-500">Status: <span class="text-brand-500 font-bold">${p.status}</span> ${p.nota !== undefined && p.nota !== null ? '| Nota: ' + p.nota : ''}</p>
             </div>
           </div>
@@ -269,7 +269,7 @@
       let somaPreliminar = 0;
 
       document.getElementById('modalTitulo').innerText = `Avaliação de ${p.candidatoNick}`;
-      document.getElementById('modalSubtitulo').innerText = `Token: ${p.tokenUtilizado} | Status: ${p.status}`;
+      document.getElementById('modalSubtitulo').innerText = `ID: ${p.tokenUtilizado} | Status: ${p.status}`;
       document.getElementById('modalFeedbackGeral').value = p.feedbackAvaliador || '';
 
       document.getElementById('modalCorpo').innerHTML = questoes.map((q, i) => {
@@ -298,7 +298,7 @@
 
             <div>
               <label class="text-[11px] font-bold text-slate-400">Feedback Individual desta Questão:</label>
-              <input type="text" data-fb-questao-id="${q.id}" value="${feedbacksQuestoes[q.id] || ''}" placeholder="Dica de melhoria ou justificativa da pontuação..." class="w-full p-2 mt-1 bg-slate-900 border border-slate-800 rounded-lg text-xs text-white">
+              <input type="text" data-fb-questao-id="${q.id}" value="${feedbacksQuestoes[q.id] || ''}" placeholder="Dica de melhoria ou justificativa..." class="w-full p-2 mt-1 bg-slate-900 border border-slate-800 rounded-lg text-xs text-white">
             </div>
           </div>
         `;
@@ -324,6 +324,59 @@
 
       fecharModal();
       carregarProvas();
+    }
+
+    async function carregarTokensEmitidos() {
+      const res = await fetch('/api/avaliador?action=listarTokens');
+      const data = await res.json();
+      document.getElementById('listaTokensEmitidos').innerHTML = (data.tokens || []).map(t => `
+        <div class="p-3 rounded-xl bg-white dark:bg-slate-900 border flex justify-between items-center">
+          <div>
+            <p class="font-mono font-bold text-amber-500 text-sm">${t.token_utilizado}</p>
+            <p class="text-xs text-slate-500">Aluno: <strong>${t.candidato_nick}</strong> | Avaliador: ${t.avaliador_nick}</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="px-2.5 py-1 text-xs font-bold rounded-full bg-slate-100 dark:bg-slate-800 text-brand-500">${t.status}</span>
+            <button onclick="revogarToken('${t.id}')" class="px-2.5 py-1 bg-red-500/10 text-red-500 text-xs font-bold rounded-lg hover:bg-red-500/20">Revogar</button>
+          </div>
+        </div>
+      `).join('') || '<p class="text-xs text-slate-500 py-4">Nenhuma avaliação gerada.</p>';
+    }
+
+    async function revogarToken(id) {
+      if (!confirm('Revogar avaliação?')) return;
+      await fetch('/api/avaliador?action=revogarToken', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+      carregarTokensEmitidos();
+    }
+
+    async function carregarSolicitacoes() {
+      const res = await fetch('/api/avaliador?action=listarSolicitacoes');
+      const data = await res.json();
+      document.getElementById('listaSolicitacoes').innerHTML = (data.solicitacoes || []).map(s => `
+        <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border flex justify-between items-center">
+          <p class="font-bold text-sm">${s.nickPolicial}</p>
+          <div class="flex items-center gap-2">
+            <select id="role-${s.id}" class="p-2 rounded-lg bg-slate-950 border text-xs">
+              <option value="candidato">Aluno / Candidato</option>
+              <option value="avaliador">Avaliador</option>
+              <option value="gestor">Gestor</option>
+            </select>
+            <button onclick="aprovar('${s.id}')" class="px-3 py-1.5 bg-emerald-500 text-white font-bold text-xs rounded-lg">Aprovar</button>
+            <button onclick="recusar('${s.id}')" class="px-3 py-1.5 bg-red-500 text-white font-bold text-xs rounded-lg">Recusar</button>
+          </div>
+        </div>
+      `).join('') || '<p class="text-xs text-slate-500 py-4">Nenhuma solicitação pendente.</p>';
+    }
+
+    async function aprovar(id) {
+      await fetch('/api/avaliador?action=aprovarSolicitacao', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, role: document.getElementById(`role-${id}`).value }) });
+      carregarSolicitacoes();
+    }
+
+    async function recusar(id) {
+      if (!confirm('Recusar solicitação?')) return;
+      await fetch('/api/avaliador?action=recusarSolicitacao', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+      carregarSolicitacoes();
     }
 
     async function cancelarProva(id) {
