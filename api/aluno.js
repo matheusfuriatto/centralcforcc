@@ -56,14 +56,14 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ duvidas });
     }
 
-    // 3. Listar TODAS as Dúvidas e Respostas (Comunidade de Alunos)
+    // 3. Listar TODAS as Dúvidas
     if (req.method === 'GET' && action === 'todasDuvidas') {
       const snap = await db.collection('duvidas').orderBy('criadoEm', 'desc').get();
       const duvidas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       return res.status(200).json({ duvidas });
     }
 
-    // 4. Listar Minhas Avaliações (Histórico)
+    // 4. Listar Minhas Avaliações
     if (req.method === 'GET' && action === 'minhasAvaliacoes') {
       const nick = req.query.nick || req.query.alunoNick;
       if (!nick) return res.status(400).json({ error: 'Nick não informado.' });
@@ -76,7 +76,7 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ provas });
     }
 
-    // 5. Listar Avaliações Disponíveis/Pendentes para Iniciar Rápido
+    // 5. Avaliações Disponíveis para Iniciar
     if (req.method === 'GET' && action === 'avaliacoesDisponiveis') {
       const nick = req.query.nick;
       if (!nick) return res.status(400).json({ error: 'Nick não informado.' });
@@ -90,7 +90,7 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ disponiveis });
     }
 
-    // 6. Buscar Avaliação pelo Token e Sortear Questões
+    // 6. Buscar Avaliação pelo Token
     if (req.method === 'GET' && action === 'buscarProva') {
       const token = req.query.token;
       if (!token) return res.status(400).json({ error: 'Informe o Token da Avaliação.' });
@@ -139,6 +139,40 @@ module.exports = async function handler(req, res) {
       await snap.docs[0].ref.update({ respostasJson: respostas, status: 'Submetido' });
 
       return res.status(200).json({ success: true, message: 'Avaliação entregue com sucesso!' });
+    }
+
+    // 8. NOVA: Enviar Prática de BBCode para os Avaliadores
+    if (req.method === 'POST' && action === 'enviarPraticaBBCode') {
+      const { nick, titulo, codigoBBCode } = body;
+      if (!nick || !codigoBBCode) {
+        return res.status(400).json({ error: 'Preencha o código BBCode.' });
+      }
+
+      const doc = await db.collection('praticas_bbcode').add({
+        alunoNick: String(nick).trim(),
+        alunoNickBusca: String(nick).trim().toLowerCase(),
+        titulo: titulo ? titulo.trim() : 'Exercício de BBCode',
+        codigoBBCode: codigoBBCode.trim(),
+        status: 'Pendente',
+        feedbackAvaliador: '',
+        avaliadorNick: '',
+        criadoEm: FieldValue.serverTimestamp()
+      });
+
+      return res.status(200).json({ success: true, message: 'Prática de BBCode enviada aos avaliadores!', id: doc.id });
+    }
+
+    // 9. NOVA: Listar Minhas Práticas de BBCode
+    if (req.method === 'GET' && action === 'minhasPraticasBBCode') {
+      const nick = req.query.nick;
+      if (!nick) return res.status(400).json({ error: 'Nick não informado.' });
+
+      const snap = await db.collection('praticas_bbcode')
+        .where('alunoNickBusca', '==', String(nick).trim().toLowerCase())
+        .get();
+
+      const praticas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      return res.status(200).json({ praticas });
     }
 
     return res.status(400).json({ error: 'Ação não reconhecida.' });

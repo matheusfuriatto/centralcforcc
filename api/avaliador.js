@@ -31,7 +31,7 @@ module.exports = async function handler(req, res) {
       }
     }
 
-    // 2. Gerar Token (CORRIGIDO: Não altera a senha de usuários já existentes)
+    // 2. Gerar Token e Senha
     if (req.method === 'POST' && action === 'gerarToken') {
       const { nickAvaliador, nickCandidato } = body;
       if (!nickCandidato || !String(nickCandidato).trim()) {
@@ -47,7 +47,6 @@ module.exports = async function handler(req, res) {
       const usuarioExistente = await db.collection('usuarios').where('nickBusca', '==', nickBusca).limit(1).get();
 
       if (usuarioExistente.empty) {
-        // Usuário NOVO: Cria a conta e gera uma senha inicial
         senhaGerada = gerarSenhaAleatoria();
         const senhaHash = await bcrypt.hash(senhaGerada, 10);
         await db.collection('usuarios').add({
@@ -60,7 +59,6 @@ module.exports = async function handler(req, res) {
           criadoEm: FieldValue.serverTimestamp()
         });
       }
-      // Se o usuário JÁ EXISTE, a senha NÃO é alterada!
 
       await db.collection('provas').add({
         tokenUtilizado: token,
@@ -74,7 +72,7 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({
         token,
         nick: nickLimpo,
-        senhaGerada, // Retorna a senha APENAS se a conta acabou de ser criada
+        senhaGerada,
         message: senhaGerada
           ? 'Nova conta criada e token liberado!'
           : 'Novo token liberado para candidato existente (a senha mantida é a cadastrada).'
@@ -162,7 +160,7 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ success: true });
     }
 
-    // 7. Enviar Sugestão de Questão pelo Avaliador
+    // 7. Enviar Sugestão de Questão
     if (req.method === 'POST' && action === 'sugerirQuestao') {
       const { avaliadorNick, categoria, titulo, enunciado, gabarito_esperado } = body;
       if (!enunciado || !gabarito_esperado) {
@@ -183,14 +181,34 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ success: true, message: 'Sugestão enviada à gestão!' });
     }
 
-    // 8. Listar Minhas Sugestões de Questão
     if (req.method === 'GET' && action === 'minhasSugestoes') {
       const nick = req.query.nick;
       const snap = await db.collection('sugestoes_questoes').where('avaliadorNick', '==', nick).get();
       return res.status(200).json({ sugestoes: snap.docs.map(d => ({ id: d.id, ...d.data() })) });
     }
 
-    // 9. Central de Dúvidas
+    // 8. NOVA: Listar Práticas de BBCode para Correção
+    if (req.method === 'GET' && action === 'listarPraticasBBCode') {
+      const snap = await db.collection('praticas_bbcode').orderBy('criadoEm', 'desc').get();
+      return res.status(200).json({ praticas: snap.docs.map(d => ({ id: d.id, ...d.data() })) });
+    }
+
+    // 9. NOVA: Avaliar e Enviar Feedback da Prática de BBCode
+    if (req.method === 'POST' && action === 'avaliarPraticaBBCode') {
+      const { id, avaliadorNick, feedback, status } = body;
+      if (!id || !feedback) return res.status(400).json({ error: 'Feedback é obrigatório.' });
+
+      await db.collection('praticas_bbcode').doc(id).update({
+        avaliadorNick: avaliadorNick || 'Avaliador',
+        feedbackAvaliador: feedback.trim(),
+        status: status || 'Avaliada',
+        avaliadoEm: FieldValue.serverTimestamp()
+      });
+
+      return res.status(200).json({ success: true, message: 'Feedback enviado com sucesso!' });
+    }
+
+    // 10. Central de Dúvidas
     if (req.method === 'GET' && action === 'listarDuvidas') {
       const snap = await db.collection('duvidas').orderBy('criadoEm', 'desc').get();
       return res.status(200).json({ duvidas: snap.docs.map(d => ({ id: d.id, ...d.data() })) });
@@ -206,7 +224,7 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ success: true });
     }
 
-    // 10. Documentos
+    // 11. Documentos
     if (req.method === 'GET' && action === 'listarDocumentos') {
       const snap = await db.collection('documentos').orderBy('titulo', 'asc').get();
       return res.status(200).json({ documentos: snap.docs.map(d => ({ id: d.id, ...d.data() })) });

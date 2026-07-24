@@ -43,6 +43,7 @@
       <button onclick="mudarAba('tokensEmitidos')" id="tab-tokensEmitidos" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Tokens Emitidos</button>
       <button onclick="mudarAba('solicitacoes')" id="tab-solicitacoes" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Solicitações de Acesso</button>
       <button onclick="mudarAba('provas')" id="tab-provas" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Provas & Correção</button>
+      <button onclick="mudarAba('praticasBbcode')" id="tab-praticasBbcode" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Práticas BBCode</button>
       <button onclick="mudarAba('sugerir')" id="tab-sugerir" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Sugerir Questão</button>
       <button onclick="mudarAba('duvidas')" id="tab-duvidas" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Central de Dúvidas</button>
       <button onclick="mudarAba('documentos')" id="tab-documentos" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Documentos</button>
@@ -60,22 +61,30 @@
       </div>
     </section>
 
-    <!-- TOKENS EMITIDOS COM BOTAO DE REVOGAR -->
+    <!-- TOKENS EMITIDOS -->
     <section id="content-tokensEmitidos" class="hidden space-y-4">
       <h2 class="text-lg font-bold">Tokens Emitidos no Sistema</h2>
       <div id="listaTokensEmitidos" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
     </section>
 
-    <!-- SOLICITAÇÕES PENDENTES -->
+    <!-- SOLICITAÇÕES -->
     <section id="content-solicitacoes" class="hidden space-y-4">
       <h2 class="text-lg font-bold">Solicitações de Acesso</h2>
       <div id="listaSolicitacoes" class="grid grid-cols-1 gap-3"></div>
     </section>
 
-    <!-- PROVAS APLICADAS (COM BOTAO DE CANCELAR E EXCLUIR) -->
+    <!-- PROVAS APLICADAS -->
     <section id="content-provas" class="hidden space-y-4">
       <h2 class="text-lg font-bold">Provas Aplicadas e em Correção</h2>
       <div id="listaProvas" class="grid grid-cols-1 gap-4"></div>
+    </section>
+
+    <!-- AVALIAÇÃO DE PRÁTICAS DE BBCODE (NOVA) -->
+    <section id="content-praticasBbcode" class="hidden space-y-4">
+      <h2 class="text-lg font-bold">Práticas de BBCode Submetidas pelos Alunos</h2>
+      <div id="listaPraticasBBCode" class="grid grid-cols-1 gap-4">
+        <p class="text-xs text-slate-500 py-4">Carregando práticas de BBCode...</p>
+      </div>
     </section>
 
     <!-- SUGERIR QUESTÃO -->
@@ -99,7 +108,7 @@
       </div>
     </section>
 
-    <!-- CENTRAL DE DÚVIDAS -->
+    <!-- DÚVIDAS -->
     <section id="content-duvidas" class="hidden space-y-4">
       <h2 class="text-lg font-bold">Central de Dúvidas</h2>
       <div id="listaDuvidas" class="grid grid-cols-1 gap-4"></div>
@@ -113,7 +122,7 @@
 
   </div>
 
-  <!-- MODAL DE CORREÇÃO -->
+  <!-- MODAL DE CORREÇÃO DE PROVA -->
   <div id="modalProva" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white dark:bg-slate-900 border max-w-4xl w-full max-h-[90vh] rounded-2xl flex flex-col overflow-hidden shadow-2xl">
       <div class="p-4 border-b flex justify-between items-center bg-slate-50 dark:bg-slate-950">
@@ -164,6 +173,23 @@
     document.getElementById('userNick').innerText = user.nick;
     lucide.createIcons();
 
+    function parseBBCode(str) {
+      if (!str) return '';
+      return str
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+        .replace(/\[b\](.*?)\[\/b\]/gi, "<b>$1</b>")
+        .replace(/\[i\](.*?)\[\/i\]/gi, "<i>$1</i>")
+        .replace(/\[u\](.*?)\[\/u\]/gi, "<u>$1</u>")
+        .replace(/\[s\](.*?)\[\/s\]/gi, "<s>$1</s>")
+        .replace(/\[center\](.*?)\[\/center\]/gi, "<div style='text-align:center;'>$1</div>")
+        .replace(/\[color=(.*?)\](.*?)\[\/color\]/gi, "<span style='color:$1;'>$2</span>")
+        .replace(/\[size=(.*?)\](.*?)\[\/size\]/gi, "<span style='font-size:$1px;'>$2</span>")
+        .replace(/\[quote\](.*?)\[\/quote\]/gi, "<blockquote class='p-3 my-2 border-l-4 border-brand-500 bg-slate-100 dark:bg-slate-900 rounded-r-xl italic'>$1</blockquote>")
+        .replace(/\[img\](.*?)\[\/img\]/gi, "<img src='$1' class='max-w-full h-auto my-2 rounded-lg inline-block border' alt='Imagem BBCode'>")
+        .replace(/\[url=(.*?)\](.*?)\[\/url\]/gi, "<a href='$1' target='_blank' class='text-brand-500 underline'>$2</a>")
+        .replace(/\n/g, "<br>");
+    }
+
     async function carregarHabboProfile() {
       try {
         const res = await fetch(`/api/avaliador?action=habboProfile&nick=${encodeURIComponent(user.nick)}`);
@@ -180,12 +206,13 @@
     function mudarAba(aba) {
       document.querySelectorAll('.tab-btn').forEach(b => b.className = "tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500");
       document.getElementById(`tab-${aba}`).className = "tab-btn px-4 py-2.5 rounded-xl text-xs font-bold bg-brand-500 text-black";
-      ['cadastros', 'tokensEmitidos', 'solicitacoes', 'provas', 'sugerir', 'duvidas', 'documentos'].forEach(a => document.getElementById(`content-${a}`).classList.add('hidden'));
+      ['cadastros', 'tokensEmitidos', 'solicitacoes', 'provas', 'praticasBbcode', 'sugerir', 'duvidas', 'documentos'].forEach(a => document.getElementById(`content-${a}`).classList.add('hidden'));
       document.getElementById(`content-${aba}`).classList.remove('hidden');
 
       if (aba === 'tokensEmitidos') carregarTokensEmitidos();
       if (aba === 'solicitacoes') carregarSolicitacoes();
       if (aba === 'provas') carregarProvas();
+      if (aba === 'praticasBbcode') carregarPraticasBBCodeAvaliador();
       if (aba === 'sugerir') carregarMinhasSugestoes();
       if (aba === 'duvidas') carregarDuvidas();
       if (aba === 'documentos') carregarDocumentos();
@@ -204,18 +231,69 @@
           <div class="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-sm space-y-2">
             <p class="font-bold">${data.message}</p>
             <p>Token: <code class="font-mono font-bold">${data.token}</code></p>
-            <p class="text-base font-bold bg-slate-900 p-2 rounded-lg text-amber-400">Senha do Candidato: <code>${data.senhaGerada}</code></p>
+            ${data.senhaGerada ? `<p class="text-base font-bold bg-slate-900 p-2 rounded-lg text-amber-400">Senha Inicial do Candidato: <code>${data.senhaGerada}</code></p>` : ''}
           </div>
         `;
         document.getElementById('candNick').value = '';
       }
     }
 
+    async function carregarPraticasBBCodeAvaliador() {
+      const res = await fetch('/api/avaliador?action=listarPraticasBBCode');
+      const data = await res.json();
+      const container = document.getElementById('listaPraticasBBCode');
+
+      container.innerHTML = (data.praticas || []).map(p => `
+        <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3">
+          <div class="flex justify-between items-center">
+            <div class="flex items-center gap-2">
+              <img src="https://www.habbo.com.br/habbo-imaging/avatarimage?user=${encodeURIComponent(p.alunoNick)}&headonly=1&size=s" class="w-8 h-8 rounded-full bg-slate-800">
+              <h4 class="font-bold text-sm text-slate-900 dark:text-white">${p.titulo || 'Prática BBCode'} <span class="text-xs font-normal text-slate-500">(${p.alunoNick})</span></h4>
+            </div>
+            <span class="px-2.5 py-1 text-xs font-bold rounded-full ${p.status === 'Avaliada' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-amber-500/10 text-amber-500'}">${p.status}</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
+            <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 text-xs font-mono">
+              <strong class="text-amber-400 block mb-1">Código BBCode Bruto enviado:</strong>
+              <pre class="whitespace-pre-wrap text-slate-300">${p.codigoBBCode}</pre>
+            </div>
+            <div class="p-3 bg-slate-50 dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 text-xs">
+              <strong class="text-brand-500 block mb-1">Resultado Renderizado:</strong>
+              <div class="pt-1">${parseBBCode(p.codigoBBCode)}</div>
+            </div>
+          </div>
+
+          <div class="p-3 bg-slate-50 dark:bg-slate-950 rounded-xl border space-y-2">
+            <label class="text-xs font-bold text-slate-400">Feedback e Dicas de Formatação para o Aluno:</label>
+            <input type="text" id="fb-bbcode-${p.id}" value="${p.feedbackAvaliador || ''}" placeholder="Ex: A alinhamento ficou ótimo, mas faltou fechar a tag [b]..." class="w-full p-2 rounded-lg bg-white dark:bg-slate-900 border text-xs">
+            <button onclick="avaliarPraticaBBCode('${p.id}')" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-lg transition">
+              Salvar Feedback do BBCode
+            </button>
+          </div>
+        </div>
+      `).join('') || '<p class="text-xs text-slate-500 py-4">Nenhuma prática enviada ainda.</p>';
+    }
+
+    async function avaliarPraticaBBCode(id) {
+      const feedback = document.getElementById(`fb-bbcode-${id}`).value;
+      if (!feedback.trim()) return alert('Digite um feedback.');
+
+      await fetch('/api/avaliador?action=avaliarPraticaBBCode', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, avaliadorNick: user.nick, feedback, status: 'Avaliada' })
+      });
+
+      alert('Feedback salvo!');
+      carregarPraticasBBCodeAvaliador();
+    }
+
     async function carregarTokensEmitidos() {
       const res = await fetch('/api/avaliador?action=listarTokens');
       const data = await res.json();
       document.getElementById('listaTokensEmitidos').innerHTML = (data.tokens || []).map(t => `
-        <div class="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex justify-between items-center">
+        <div class="p-3 rounded-xl bg-white dark:bg-slate-900 border flex justify-between items-center">
           <div>
             <p class="font-mono font-bold text-amber-500 text-sm">${t.token_utilizado}</p>
             <p class="text-xs text-slate-500">Aluno: <strong>${t.candidato_nick}</strong> | Avaliador: ${t.avaliador_nick}</p>
@@ -229,12 +307,8 @@
     }
 
     async function revogarToken(id) {
-      if (!confirm('Deseja realmente revogar este token?')) return;
-      await fetch('/api/avaliador?action=revogarToken', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id })
-      });
+      if (!confirm('Revogar token?')) return;
+      await fetch('/api/avaliador?action=revogarToken', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
       carregarTokensEmitidos();
     }
 
@@ -273,7 +347,7 @@
       const data = await res.json();
       window.provasCache = data.provas || [];
       document.getElementById('listaProvas').innerHTML = window.provasCache.map(p => `
-        <div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex justify-between items-center">
+        <div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border flex justify-between items-center">
           <div class="flex items-center gap-3">
             <img src="https://www.habbo.com.br/habbo-imaging/avatarimage?user=${encodeURIComponent(p.candidatoNick)}&headonly=1&size=m" class="w-10 h-10 rounded-xl bg-slate-800">
             <div>
@@ -291,13 +365,13 @@
     }
 
     async function cancelarProva(id) {
-      if (!confirm('Cancelar esta avaliação? O aluno não conseguirá mais responder.')) return;
+      if (!confirm('Cancelar esta avaliação?')) return;
       await fetch('/api/avaliador?action=cancelarProva', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
       carregarProvas();
     }
 
     async function excluirProva(id) {
-      if (!confirm('Excluir esta avaliação permanentemente?')) return;
+      if (!confirm('Excluir avaliação?')) return;
       await fetch('/api/avaliador?action=excluirProva', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
       carregarProvas();
     }

@@ -20,7 +20,7 @@
     <!-- BANNER SUPERIOR -->
     <div class="w-full h-32 rounded-2xl bg-cover bg-center border border-slate-200 dark:border-slate-800 shadow-sm" style="background-image: url('/assets/images/banner-cfo.png');"></div>
 
-    <!-- CABEÇALHO DA CONTA DO ALUNO -->
+    <!-- CABEÇALHO DE PERFIL DO ALUNO -->
     <header class="flex flex-wrap justify-between items-center gap-4 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
       <div class="flex items-center gap-4">
         <img id="habboAvatar" src="/assets/images/default-avatar.png" class="w-14 h-14 rounded-2xl border-2 border-brand-500 bg-slate-800">
@@ -40,18 +40,18 @@
       </div>
     </header>
 
-    <!-- MENU DE NAVEGAÇÃO -->
+    <!-- NAVEGAÇÃO -->
     <nav class="flex gap-2 overflow-x-auto pb-2 border-b border-slate-200 dark:border-slate-800">
-      <button onclick="mudarAba('realizar')" id="tab-realizar" class="tab-btn px-5 py-2.5 rounded-xl text-sm font-bold bg-brand-500 text-white">Realizar Prova</button>
-      <button onclick="mudarAba('avaliacoes')" id="tab-avaliacoes" class="tab-btn px-5 py-2.5 rounded-xl text-sm font-bold text-slate-500">Minhas Avaliações</button>
-      <button onclick="mudarAba('enviarDuvida')" id="tab-enviarDuvida" class="tab-btn px-5 py-2.5 rounded-xl text-sm font-bold text-slate-500">Enviar Dúvida</button>
-      <button onclick="mudarAba('comunidadeDuvidas')" id="tab-comunidadeDuvidas" class="tab-btn px-5 py-2.5 rounded-xl text-sm font-bold text-slate-500">Central de Dúvidas (Todos)</button>
-      <button onclick="mudarAba('documentos')" id="tab-documentos" class="tab-btn px-5 py-2.5 rounded-xl text-sm font-bold text-slate-500">Documentos Oficiais</button>
+      <button onclick="mudarAba('realizar')" id="tab-realizar" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold bg-brand-500 text-white">Realizar Prova</button>
+      <button onclick="mudarAba('avaliacoes')" id="tab-avaliacoes" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Minhas Avaliações</button>
+      <button onclick="mudarAba('estudoBbcode')" id="tab-estudoBbcode" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Estudo BBCode</button>
+      <button onclick="mudarAba('enviarDuvida')" id="tab-enviarDuvida" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Enviar Dúvida</button>
+      <button onclick="mudarAba('comunidadeDuvidas')" id="tab-comunidadeDuvidas" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Dúvidas (Todos)</button>
+      <button onclick="mudarAba('documentos')" id="tab-documentos" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Documentos</button>
     </nav>
 
     <!-- ABA 1: REALIZAR AVALIAÇÃO -->
     <section id="content-realizar" class="space-y-6">
-      <!-- ÁREA DE PROVAS PENDENTES / AVISO AUTOMÁTICO -->
       <div id="areaProvasPendentes" class="space-y-4">
         <h2 class="text-lg font-bold">Avaliação Disponível para Você</h2>
         <div id="listaProvasDisponiveis" class="grid grid-cols-1 gap-4">
@@ -59,7 +59,6 @@
         </div>
       </div>
 
-      <!-- BUSCA MANUAL DE TOKEN (Apenas como alternativa secundária) -->
       <div id="boxBuscaToken" class="hidden max-w-md mx-auto p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-4 shadow-sm">
         <h3 class="text-sm font-bold">Digitar Token Manualmente</h3>
         <form onsubmit="buscarProva(event)" class="space-y-3">
@@ -69,7 +68,6 @@
         <p id="tokenErro" class="text-xs text-red-500 hidden"></p>
       </div>
 
-      <!-- FORMULÁRIO DAS QUESTÕES DA PROVA -->
       <div id="boxProva" class="hidden space-y-6">
         <div class="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-500 text-xs flex justify-between items-center">
           <span>Token Ativo: <strong id="provaToken" class="font-mono text-sm"></strong></span>
@@ -85,7 +83,84 @@
       <div id="listaAvaliacoes" class="grid grid-cols-1 gap-4"></div>
     </section>
 
-    <!-- ABA 3: ENVIAR DÚVIDA -->
+    <!-- ABA 3: ESTUDO E TESTE DE BBCODE (NOVA) -->
+    <section id="content-estudoBbcode" class="hidden space-y-6">
+      <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-4 shadow-sm">
+        <h2 class="text-lg font-black text-brand-500 flex items-center gap-2">📘 Guia Rápido e Comandos BBCode</h2>
+        <p class="text-xs text-slate-500">O BBCode é a linguagem oficial utilizada para formatação de tópicos no Fórum. Teste suas habilidades abaixo!</p>
+
+        <!-- CHEATSHEET BBCODE -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+          <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-mono">
+            <strong class="text-brand-500 block">[b]Texto[/b]</strong>
+            <span class="text-[11px] text-slate-400">Negrito</span>
+          </div>
+          <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-mono">
+            <strong class="text-brand-500 block">[i]Texto[/i]</strong>
+            <span class="text-[11px] text-slate-400">Itálico</span>
+          </div>
+          <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-mono">
+            <strong class="text-brand-500 block">[center]Texto[/center]</strong>
+            <span class="text-[11px] text-slate-400">Centralizar</span>
+          </div>
+          <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-mono">
+            <strong class="text-brand-500 block">[color=red]Texto[/color]</strong>
+            <span class="text-[11px] text-slate-400">Cor do Texto</span>
+          </div>
+          <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-mono">
+            <strong class="text-brand-500 block">[img]URL[/img]</strong>
+            <span class="text-[11px] text-slate-400">Exibir Imagem</span>
+          </div>
+          <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-mono">
+            <strong class="text-brand-500 block">[quote]Texto[/quote]</strong>
+            <span class="text-[11px] text-slate-400">Citação/Caixa</span>
+          </div>
+          <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-mono">
+            <strong class="text-brand-500 block">[size=16]Texto[/size]</strong>
+            <span class="text-[11px] text-slate-400">Tamanho da Fonte</span>
+          </div>
+          <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-mono">
+            <strong class="text-brand-500 block">[url=Link]Texto[/url]</strong>
+            <span class="text-[11px] text-slate-400">Hiperlink</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- PLAYGROUND INTERATIVO COM PREVIEW EM TEMPO REAL -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- EDITOR DE CÓDIGO -->
+        <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3">
+          <div class="flex justify-between items-center">
+            <h3 class="font-bold text-sm">✍️ Escreva seu BBCode</h3>
+            <span class="text-[11px] text-slate-400">Pratique a formatação de relatórios</span>
+          </div>
+          <input type="text" id="bbcodeTitulo" placeholder="Título da Prática (ex: Relatório de Ação)" class="w-full p-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-bold">
+          <textarea id="bbcodeEditor" rows="12" oninput="atualizarPreviewBBCode()" placeholder="[center][b][color=gold]RELATÓRIO POLICIAL[/color][/b][/center]&#10;&#10;[b]Oficial:[/b] Matheus&#10;[b]Data:[/b] 24/07/2026&#10;[quote]Ação realizada com sucesso sem alterações.[/quote]" class="w-full p-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl font-mono text-xs focus:outline-none focus:border-brand-500"></textarea>
+
+          <button onclick="enviarPraticaBBCode()" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold rounded-xl text-xs transition">
+            Enviar Prática aos Avaliadores
+          </button>
+        </div>
+
+        <!-- PRÉ-VISUALIZAÇÃO AO VIVO -->
+        <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3 flex flex-col">
+          <h3 class="font-bold text-sm text-slate-400">👁️ Pré-visualização Renderizada em Tempo Real</h3>
+          <div id="bbcodePreview" class="flex-1 p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs min-h-[220px] overflow-y-auto space-y-2">
+            <span class="text-slate-500 italic">O resultado da formatação aparecerá aqui instantaneamente...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- MINHAS PRÁTICAS ENVIADAS & FEEDBACKS -->
+      <div class="space-y-3">
+        <h3 class="font-bold text-sm">📋 Histórico de Práticas Enviadas e Feedback dos Avaliadores</h3>
+        <div id="listaMinhasPraticasBBCode" class="grid grid-cols-1 gap-3">
+          <p class="text-xs text-slate-500 py-4">Carregando histórico...</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABA 4: ENVIAR DÚVIDA -->
     <section id="content-enviarDuvida" class="hidden space-y-4">
       <div class="max-w-xl mx-auto p-6 rounded-2xl bg-white dark:bg-slate-900 border space-y-4">
         <h2 class="text-lg font-bold">Nova Dúvida para os Avaliadores</h2>
@@ -97,13 +172,13 @@
       </div>
     </section>
 
-    <!-- ABA 4: COMUNIDADE DE DÚVIDAS -->
+    <!-- ABA 5: COMUNIDADE DE DÚVIDAS -->
     <section id="content-comunidadeDuvidas" class="hidden space-y-4">
       <h2 class="text-lg font-bold">Central de Dúvidas da Comunidade CFO</h2>
       <div id="listaComunidadeDuvidas" class="grid grid-cols-1 gap-4"></div>
     </section>
 
-    <!-- ABA 5: DOCUMENTOS -->
+    <!-- ABA 6: DOCUMENTOS -->
     <section id="content-documentos" class="hidden space-y-4">
       <h2 class="text-lg font-bold">Documentos e Regimentos Oficiais</h2>
       <div id="listaDocumentos" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
@@ -142,6 +217,31 @@
     document.getElementById('userNick').innerText = user.nick;
     lucide.createIcons();
 
+    // RENDERIZADOR DE BBCODE JS
+    function parseBBCode(str) {
+      if (!str) return '';
+      let html = str
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+        .replace(/\[b\](.*?)\[\/b\]/gi, "<b>$1</b>")
+        .replace(/\[i\](.*?)\[\/i\]/gi, "<i>$1</i>")
+        .replace(/\[u\](.*?)\[\/u\]/gi, "<u>$1</u>")
+        .replace(/\[s\](.*?)\[\/s\]/gi, "<s>$1</s>")
+        .replace(/\[center\](.*?)\[\/center\]/gi, "<div style='text-align:center;'>$1</div>")
+        .replace(/\[color=(.*?)\](.*?)\[\/color\]/gi, "<span style='color:$1;'>$2</span>")
+        .replace(/\[size=(.*?)\](.*?)\[\/size\]/gi, "<span style='font-size:$1px;'>$2</span>")
+        .replace(/\[quote\](.*?)\[\/quote\]/gi, "<blockquote class='p-3 my-2 border-l-4 border-brand-500 bg-slate-100 dark:bg-slate-900 rounded-r-xl italic'>$1</blockquote>")
+        .replace(/\[img\](.*?)\[\/img\]/gi, "<img src='$1' class='max-w-full h-auto my-2 rounded-lg inline-block border' alt='Imagem BBCode'>")
+        .replace(/\[url=(.*?)\](.*?)\[\/url\]/gi, "<a href='$1' target='_blank' class='text-brand-500 underline'>$2</a>")
+        .replace(/\n/g, "<br>");
+      return html;
+    }
+
+    function atualizarPreviewBBCode() {
+      const codigo = document.getElementById('bbcodeEditor').value;
+      const preview = document.getElementById('bbcodePreview');
+      preview.innerHTML = parseBBCode(codigo) || '<span class="text-slate-500 italic">O resultado da formatação aparecerá aqui instantaneamente...</span>';
+    }
+
     async function carregarHabboProfile() {
       try {
         const res = await fetch(`/api/avaliador?action=habboProfile&nick=${encodeURIComponent(user.nick)}`);
@@ -156,18 +256,63 @@
     carregarHabboProfile();
 
     function mudarAba(aba) {
-      document.querySelectorAll('.tab-btn').forEach(b => b.className = "tab-btn px-5 py-2.5 rounded-xl text-sm font-bold text-slate-500");
-      document.getElementById(`tab-${aba}`).className = "tab-btn px-5 py-2.5 rounded-xl text-sm font-bold bg-brand-500 text-white";
-      ['realizar', 'avaliacoes', 'enviarDuvida', 'comunidadeDuvidas', 'documentos'].forEach(a => document.getElementById(`content-${a}`).classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.className = "tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500");
+      document.getElementById(`tab-${aba}`).className = "tab-btn px-4 py-2.5 rounded-xl text-xs font-bold bg-brand-500 text-white";
+      ['realizar', 'avaliacoes', 'estudoBbcode', 'enviarDuvida', 'comunidadeDuvidas', 'documentos'].forEach(a => document.getElementById(`content-${a}`).classList.add('hidden'));
       document.getElementById(`content-${aba}`).classList.remove('hidden');
 
       if (aba === 'realizar') carregarAvaliacoesDisponiveis();
       if (aba === 'avaliacoes') carregarMinhasAvaliacoes();
+      if (aba === 'estudoBbcode') carregarMinhasPraticasBBCode();
       if (aba === 'comunidadeDuvidas') carregarComunidadeDuvidas();
       if (aba === 'documentos') carregarDocumentos();
     }
 
-    // LISTA AUTOMÁTICA DE AVALIAÇÕES DISPONÍVEIS
+    async function enviarPraticaBBCode() {
+      const titulo = document.getElementById('bbcodeTitulo').value;
+      const codigoBBCode = document.getElementById('bbcodeEditor').value;
+
+      if (!codigoBBCode.trim()) return alert('Digite o código BBCode para enviar.');
+
+      const res = await fetch('/api/aluno?action=enviarPraticaBBCode', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nick: user.nick, titulo, codigoBBCode })
+      });
+
+      if (res.ok) {
+        alert('Prática de BBCode enviada com sucesso aos avaliadores!');
+        document.getElementById('bbcodeTitulo').value = '';
+        document.getElementById('bbcodeEditor').value = '';
+        atualizarPreviewBBCode();
+        carregarMinhasPraticasBBCode();
+      }
+    }
+
+    async function carregarMinhasPraticasBBCode() {
+      const res = await fetch(`/api/aluno?action=minhasPraticasBBCode&nick=${encodeURIComponent(user.nick)}`);
+      const data = await res.json();
+      const container = document.getElementById('listaMinhasPraticasBBCode');
+
+      container.innerHTML = (data.praticas || []).map(p => `
+        <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2">
+          <div class="flex justify-between items-center">
+            <h4 class="font-bold text-xs text-slate-900 dark:text-white">${p.titulo || 'Exercício BBCode'}</h4>
+            <span class="px-2.5 py-0.5 text-xs font-bold rounded-full ${p.status === 'Avaliada' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-amber-500/10 text-amber-500'}">${p.status}</span>
+          </div>
+          <div class="p-3 bg-slate-50 dark:bg-slate-950 rounded-lg border text-xs overflow-x-auto">
+            ${parseBBCode(p.codigoBBCode)}
+          </div>
+          ${p.feedbackAvaliador ? `
+            <div class="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-xs">
+              <strong class="text-emerald-500 block">Feedback de ${p.avaliadorNick || 'Avaliador'}:</strong>
+              <p class="text-slate-800 dark:text-slate-200 mt-1">${p.feedbackAvaliador}</p>
+            </div>
+          ` : '<p class="text-[11px] text-slate-500">Aguardando avaliação dos instrutores...</p>'}
+        </div>
+      `).join('') || '<p class="text-xs text-slate-500 py-4">Nenhuma prática enviada ainda.</p>';
+    }
+
     async function carregarAvaliacoesDisponiveis() {
       const container = document.getElementById('listaProvasDisponiveis');
       const boxBuscaManual = document.getElementById('boxBuscaToken');
@@ -183,17 +328,16 @@
               <p class="text-xs text-slate-500">Solicite um token de prova ao seu avaliador.</p>
             </div>
           `;
-          boxBuscaManual.classList.remove('hidden'); // Exibe a busca manual se não houver prova pendente
+          boxBuscaManual.classList.remove('hidden');
           return;
         }
 
-        // Caso haja prova liberada, exibe o Card de Início Imediato!
         container.innerHTML = data.disponiveis.map(p => `
           <div class="p-6 rounded-2xl bg-gradient-to-br from-brand-500/10 to-blue-600/5 border-2 border-brand-500/40 shadow-lg flex flex-wrap justify-between items-center gap-4">
             <div class="space-y-1">
               <span class="px-3 py-1 text-xs font-black rounded-full bg-brand-500 text-white uppercase tracking-wider">Avaliação Liberada</span>
               <h3 class="text-lg font-black text-slate-900 dark:text-white pt-1">Token: ${p.token_utilizado}</h3>
-              <p class="text-xs text-slate-500">Avaliador Responsável: <strong>${p.avaliador_nick || 'Corpo Docente CFO'}</strong></p>
+              <p class="text-xs text-slate-500">Avaliador Responsável: <strong>${p.avaliador_nick || 'CFO'}</strong></p>
             </div>
             <button onclick="iniciarProvaDireto('${p.token_utilizado}')" class="px-6 py-3 bg-brand-500 hover:bg-brand-600 text-white font-black rounded-xl text-sm shadow-md transition transform hover:scale-105">
               Iniciar Avaliação Agora →
@@ -201,7 +345,7 @@
           </div>
         `).join('');
 
-        boxBuscaManual.classList.add('hidden'); // Oculta a caixa manual para evitar confusão
+        boxBuscaManual.classList.add('hidden');
       } catch (err) {
         container.innerHTML = `<p class="text-xs text-red-400">Erro ao buscar avaliações.</p>`;
         boxBuscaManual.classList.remove('hidden');
@@ -342,7 +486,6 @@
       if (res.ok) { alert('Senha alterada com sucesso!'); fecharModalTrocarSenha(); }
     }
 
-    // Inicialização
     carregarAvaliacoesDisponiveis();
   </script>
 </body>
