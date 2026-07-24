@@ -22,7 +22,7 @@
       <div>
         <label class="text-xs font-semibold text-slate-300">Usuário / Nick Policial</label>
         <div class="relative mt-1">
-          <input type="text" id="user" required placeholder="Ex: gestor1" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl p-3 pl-10 text-sm focus:border-amber-500 focus:outline-none text-white">
+          <input type="text" id="user" required placeholder="Ex: gestor1" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl p-3 pl-10 text-sm text-white focus:border-amber-500 focus:outline-none">
           <i data-lucide="user" class="w-4 h-4 text-slate-500 absolute left-3 top-3.5"></i>
         </div>
       </div>
@@ -30,7 +30,7 @@
       <div>
         <label class="text-xs font-semibold text-slate-300">Senha</label>
         <div class="relative mt-1">
-          <input type="password" id="pass" required placeholder="••••••••" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl p-3 pl-10 text-sm focus:border-amber-500 focus:outline-none text-white">
+          <input type="password" id="pass" required placeholder="••••••••" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl p-3 pl-10 text-sm text-white focus:border-amber-500 focus:outline-none">
           <i data-lucide="lock" class="w-4 h-4 text-slate-500 absolute left-3 top-3.5"></i>
         </div>
       </div>
@@ -41,6 +41,37 @@
         ACESSAR SISTEMA
       </button>
     </form>
+
+    <div class="text-center pt-2 border-t border-slate-800">
+      <button onclick="abrirModalSolicitar()" class="text-xs font-bold text-amber-400 hover:underline">
+        Não tem acesso? Solicitar Acesso
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL SOLICITAR ACESSO -->
+  <div id="modalSolicitar" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-amber-500/30 max-w-md w-full p-6 rounded-2xl space-y-4 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+        <h3 class="font-bold text-amber-400 text-sm">Solicitar Acesso à Central CFO</h3>
+        <button onclick="fecharModalSolicitar()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <form onsubmit="enviarSolicitacaoAcesso(event)" class="space-y-3">
+        <div>
+          <label class="text-xs font-semibold text-slate-300">Nick Policial</label>
+          <input type="text" id="solicitarNick" required placeholder="Digite seu Nick exato" class="mt-1 w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm text-white focus:border-amber-500 focus:outline-none">
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-slate-300">Crie uma Senha</label>
+          <input type="password" id="solicitarSenha" required placeholder="••••••••" class="mt-1 w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm text-white focus:border-amber-500 focus:outline-none">
+        </div>
+        <button type="submit" class="w-full py-3 bg-amber-500 hover:bg-amber-600 text-black font-extrabold rounded-xl text-sm transition">
+          Enviar Solicitação
+        </button>
+      </form>
+      <p id="solicitarResultado" class="text-xs text-center hidden"></p>
+    </div>
   </div>
 
   <script src="/assets/js/auth-guard.js"></script>
@@ -54,11 +85,7 @@
       const usuario = document.getElementById('user').value;
       const senha = document.getElementById('pass').value;
       const erroEl = document.getElementById('loginErro');
-      const btn = document.getElementById('btnLogin');
-
       erroEl.classList.add('hidden');
-      btn.disabled = true;
-      btn.innerText = 'Verificando...';
 
       try {
         const res = await fetch('/api/auth', {
@@ -67,19 +94,38 @@
           body: JSON.stringify({ usuario, senha })
         });
         const data = await res.json();
-        if (!res.ok || data.error) {
-          erroEl.innerText = data.error || 'Erro ao entrar.';
-          erroEl.classList.remove('hidden');
-          return;
-        }
+        if (!res.ok) { erroEl.innerText = data.error; erroEl.classList.remove('hidden'); return; }
         sessionStorage.setItem('cfo_user', JSON.stringify(data.user));
         redirecionarPorRole(data.user.role);
       } catch (err) {
         erroEl.innerText = 'Falha de conexão com o servidor.';
         erroEl.classList.remove('hidden');
-      } finally {
-        btn.disabled = false;
-        btn.innerText = 'ACESSAR SISTEMA';
+      }
+    }
+
+    function abrirModalSolicitar() { document.getElementById('modalSolicitar').classList.remove('hidden'); }
+    function fecharModalSolicitar() { document.getElementById('modalSolicitar').classList.add('hidden'); }
+
+    async function enviarSolicitacaoAcesso(e) {
+      e.preventDefault();
+      const nick = document.getElementById('solicitarNick').value;
+      const senha = document.getElementById('solicitarSenha').value;
+      const resEl = document.getElementById('solicitarResultado');
+
+      const res = await fetch('/api/auth?action=solicitarAcesso', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nick, senha })
+      });
+      const data = await res.json();
+      resEl.classList.remove('hidden');
+      if (res.ok) {
+        resEl.className = "text-xs text-emerald-400 font-bold text-center";
+        resEl.innerText = data.message;
+        setTimeout(fecharModalSolicitar, 2500);
+      } else {
+        resEl.className = "text-xs text-red-400 font-bold text-center";
+        resEl.innerText = data.error;
       }
     }
   </script>
