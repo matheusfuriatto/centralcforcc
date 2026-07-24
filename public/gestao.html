@@ -6,7 +6,6 @@
   <title>Central CFO - Painel do Gestor</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- Biblioteca para manipulação de Excel / CSV -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script>
     tailwind.config = {
@@ -36,12 +35,12 @@
     <!-- NAVEGAÇÃO -->
     <div class="flex justify-center border-b border-slate-800 pb-4 gap-2 flex-wrap">
       <button onclick="mudarAbaGestor('usuarios')" id="btnUsuarios" class="px-4 py-2 rounded-xl font-semibold bg-purple-600 text-white text-xs">Usuários & Senhas</button>
-      <button onclick="mudarAbaGestor('questoes')" id="btnQuestoes" class="px-4 py-2 rounded-xl font-semibold bg-slate-800 text-slate-400 text-xs">Banco de Questões</button>
-      <button onclick="mudarAbaGestor('simuladores')" id="btnSimuladores" class="px-4 py-2 rounded-xl font-semibold bg-slate-800 text-slate-400 text-xs">🎮 Gerenciar Simuladores</button>
-      <button onclick="mudarAbaGestor('importacaoLote')" id="btnImportacaoLote" class="px-4 py-2 rounded-xl font-semibold bg-slate-800 text-slate-400 text-xs">📊 Importação Excel / Lote</button>
-      <button onclick="mudarAbaGestor('sugestoes')" id="btnSugestoes" class="px-4 py-2 rounded-xl font-semibold bg-slate-800 text-slate-400 text-xs">Aprovar Sugestões</button>
-      <button onclick="mudarAbaGestor('tokens')" id="btnTokens" class="px-4 py-2 rounded-xl font-semibold bg-slate-800 text-slate-400 text-xs">Avaliações Geradas</button>
-      <button onclick="mudarAbaGestor('documentos')" id="btnDocumentos" class="px-4 py-2 rounded-xl font-semibold bg-slate-800 text-slate-400 text-xs">Documentos</button>
+      <button onclick="mudarAbaGestor('questoes')" id="btnQuestoes" class="px-4 py-2 rounded-xl font-semibold bg-slate-800 text-slate-400 hover:text-white text-xs">Banco de Questões</button>
+      <button onclick="mudarAbaGestor('simuladores')" id="btnSimuladores" class="px-4 py-2 rounded-xl font-semibold bg-slate-800 text-slate-400 hover:text-white text-xs">🎮 Gerenciar Simuladores</button>
+      <button onclick="mudarAbaGestor('sugestoes')" id="btnSugestoes" class="px-4 py-2 rounded-xl font-semibold bg-slate-800 text-slate-400 hover:text-white text-xs">Aprovar Sugestões</button>
+      <button onclick="mudarAbaGestor('importacaoLote')" id="btnImportacaoLote" class="px-4 py-2 rounded-xl font-semibold bg-slate-800 text-slate-400 hover:text-white text-xs">📊 Importação Excel</button>
+      <button onclick="mudarAbaGestor('tokens')" id="btnTokens" class="px-4 py-2 rounded-xl font-semibold bg-slate-800 text-slate-400 hover:text-white text-xs">Avaliações Geradas</button>
+      <button onclick="mudarAbaGestor('documentos')" id="btnDocumentos" class="px-4 py-2 rounded-xl font-semibold bg-slate-800 text-slate-400 hover:text-white text-xs">Documentos</button>
     </div>
 
     <!-- ABA USUÁRIOS -->
@@ -70,21 +69,23 @@
     <!-- ABA QUESTÕES -->
     <div id="abaQuestoes" class="hidden space-y-6">
       <section class="bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-4">
-        <h2 class="text-xl font-bold text-purple-400">Cadastrar Nova Questão</h2>
+        <h2 class="text-xl font-bold text-purple-400">Cadastrar Nova Questão Oficial</h2>
         <div class="space-y-3">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <input type="text" id="questCategoria" placeholder="Categoria" class="bg-slate-800 border border-slate-700 rounded-xl p-3 text-white text-sm">
+            <input type="text" id="questCategoria" placeholder="Categoria (ex: Penal)" class="bg-slate-800 border border-slate-700 rounded-xl p-3 text-white text-sm">
             <input type="text" id="questTitulo" placeholder="Título" class="bg-slate-800 border border-slate-700 rounded-xl p-3 text-white text-sm">
           </div>
-          <textarea id="questEnunciado" rows="3" placeholder="Enunciado..." class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white text-sm"></textarea>
-          <textarea id="questGabarito" rows="2" placeholder="Gabarito oficial..." class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white text-sm"></textarea>
+          <textarea id="questEnunciado" rows="3" placeholder="Enunciado da questão..." class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white text-sm"></textarea>
+          <textarea id="questGabarito" rows="2" placeholder="Gabarito esperado para a correção..." class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white text-sm"></textarea>
           <button onclick="cadastrarQuestao()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-6 py-2.5 rounded-xl text-sm">Salvar Questão</button>
         </div>
       </section>
 
       <section class="bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-4">
-        <h2 class="text-xl font-bold text-white">Questões Cadastradas</h2>
-        <div id="listaQuestoes" class="space-y-3"></div>
+        <h2 class="text-xl font-bold text-white">Questões Cadastradas no Banco</h2>
+        <div id="listaQuestoes" class="space-y-3">
+          <p class="text-xs text-slate-500 py-4 text-center">Carregando questões...</p>
+        </div>
       </section>
     </div>
 
@@ -113,24 +114,21 @@
 
           <div>
             <label class="text-xs font-bold text-slate-400">Fala do NPC (Situação do Cenário)</label>
-            <textarea id="simFalaNpc" rows="2" required placeholder="Ex: Senhor, estou com acúmulo de 5 relatórios..." class="mt-1 w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white text-sm"></textarea>
+            <textarea id="simFalaNpc" rows="2" required placeholder="Ex: Senhor, cometi um erro na postagem do relatório..." class="mt-1 w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white text-sm"></textarea>
           </div>
 
           <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-3">
             <h3 class="font-bold text-xs text-purple-300 uppercase">Ações de Escolha do Aluno:</h3>
-
             <div class="space-y-2">
-              <input type="text" id="opt1Texto" placeholder="Opção 1: Ação Correta (Pulso Firme/Eficiente)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-xs text-white">
+              <input type="text" id="opt1Texto" placeholder="Opção 1: Ação Correta (Pulso/Eficiente)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-xs text-white">
               <input type="text" id="opt1Feedback" placeholder="Feedback da Opção 1" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-xs text-white">
             </div>
-
             <div class="space-y-2 pt-2 border-t border-slate-800">
-              <input type="text" id="opt2Texto" placeholder="Opção 2: Ação Incorreta (Excesso/Rudeza/Procrastinação)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-xs text-white">
+              <input type="text" id="opt2Texto" placeholder="Opção 2: Ação Incorreta (Excesso/Rudeza)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-xs text-white">
               <input type="text" id="opt2Feedback" placeholder="Feedback da Opção 2" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-xs text-white">
             </div>
-
             <div class="space-y-2 pt-2 border-t border-slate-800">
-              <input type="text" id="opt3Texto" placeholder="Opção 3: Ação Fraca (Omissão/Passividade/Atraso)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-xs text-white">
+              <input type="text" id="opt3Texto" placeholder="Opção 3: Ação Fraca (Omissão/Passividade)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-xs text-white">
               <input type="text" id="opt3Feedback" placeholder="Feedback da Opção 3" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-xs text-white">
             </div>
           </div>
@@ -147,82 +145,116 @@
       </section>
     </div>
 
-    <!-- ABA NOVI: CENTRAL DE IMPORTAÇÃO/EXPORTAÇÃO EXCEL EM LOTE -->
+    <!-- ABA APROVAÇÃO DE SUGESTÕES (QUESTÕES + SIMULADORES) -->
+    <div id="abaSugestoes" class="hidden space-y-6">
+      <section class="bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-4">
+        <h2 class="text-xl font-bold text-purple-400">Sugestões de Questões dos Avaliadores</h2>
+        <div id="listaSugestoesGestor" class="space-y-4">
+          <p class="text-xs text-slate-500 py-4 text-center">Carregando sugestões de questões...</p>
+        </div>
+      </section>
+
+      <section class="bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-4">
+        <h2 class="text-xl font-bold text-purple-400">Sugestões de Cenários de Simuladores</h2>
+        <div id="listaSugestoesSimuladoresGestor" class="space-y-4">
+          <p class="text-xs text-slate-500 py-4 text-center">Carregando sugestões de simuladores...</p>
+        </div>
+      </section>
+    </div>
+
+    <!-- ABA IMPORTAÇÃO EXCEL -->
     <div id="abaImportacaoLote" class="hidden space-y-6">
       <section class="bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-4">
         <h2 class="text-xl font-bold text-purple-400">📊 Alimentação em Lote via Excel (.xlsx / .csv)</h2>
-        <p class="text-xs text-slate-400">Baixe a planilha modelo da categoria desejada, preencha as linhas mantendo os nomes exatos das colunas e faça o upload para cadastrar tudo automaticamente.</p>
+        <p class="text-xs text-slate-400">Baixe o modelo correspondente, preencha mantendo o nome das colunas e faça o upload.</p>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
-
-          <!-- MODELO 1: DOCUMENTOS -->
           <div class="p-4 rounded-xl bg-slate-800 border border-slate-700 space-y-3 flex flex-col justify-between">
             <div>
               <h3 class="font-bold text-sm text-white">1. Documentos Oficiais</h3>
               <p class="text-[11px] text-slate-400 mt-1">Colunas: <code>titulo</code>, <code>url</code>, <code>categoria</code></p>
             </div>
             <div class="space-y-2">
-              <button onclick="baixarModeloExcel('documentos')" class="w-full py-2 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-lg text-xs">Baixar Modelo Excel</button>
-              <label class="block w-full py-2 bg-purple-600 hover:bg-purple-700 text-white text-center font-bold rounded-lg text-xs cursor-pointer">
+              <button onclick="baixarModeloExcel('documentos')" class="w-full py-2 bg-slate-700 text-white font-bold rounded-lg text-xs">Baixar Modelo</button>
+              <label class="block w-full py-2 bg-purple-600 text-white text-center font-bold rounded-lg text-xs cursor-pointer">
                 Importar Arquivo
                 <input type="file" accept=".xlsx, .xls, .csv" onchange="processarArquivoExcel(event, 'documentos')" class="hidden">
               </label>
             </div>
           </div>
 
-          <!-- MODELO 2: QUESTÕES -->
           <div class="p-4 rounded-xl bg-slate-800 border border-slate-700 space-y-3 flex flex-col justify-between">
             <div>
               <h3 class="font-bold text-sm text-white">2. Banco de Questões</h3>
               <p class="text-[11px] text-slate-400 mt-1">Colunas: <code>categoria</code>, <code>titulo</code>, <code>enunciado</code>, <code>gabarito_esperado</code></p>
             </div>
             <div class="space-y-2">
-              <button onclick="baixarModeloExcel('questoes')" class="w-full py-2 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-lg text-xs">Baixar Modelo Excel</button>
-              <label class="block w-full py-2 bg-purple-600 hover:bg-purple-700 text-white text-center font-bold rounded-lg text-xs cursor-pointer">
+              <button onclick="baixarModeloExcel('questoes')" class="w-full py-2 bg-slate-700 text-white font-bold rounded-lg text-xs">Baixar Modelo</button>
+              <label class="block w-full py-2 bg-purple-600 text-white text-center font-bold rounded-lg text-xs cursor-pointer">
                 Importar Arquivo
                 <input type="file" accept=".xlsx, .xls, .csv" onchange="processarArquivoExcel(event, 'questoes')" class="hidden">
               </label>
             </div>
           </div>
 
-          <!-- MODELO 3: SIMULADORES -->
           <div class="p-4 rounded-xl bg-slate-800 border border-slate-700 space-y-3 flex flex-col justify-between">
             <div>
-              <h3 class="font-bold text-sm text-white">3. Cenários de Simuladores</h3>
-              <p class="text-[11px] text-slate-400 mt-1">Colunas: <code>tipoSimulador</code>, <code>npcNick</code>, <code>npcAvatar</code>, <code>falaNpc</code>, <code>opt1Texto</code>, <code>opt1Feedback</code>...</p>
+              <h3 class="font-bold text-sm text-white">3. Simuladores</h3>
+              <p class="text-[11px] text-slate-400 mt-1">Colunas: <code>tipoSimulador</code>, <code>npcNick</code>, <code>falaNpc</code>, <code>opt1Texto</code>...</p>
             </div>
             <div class="space-y-2">
-              <button onclick="baixarModeloExcel('simuladores')" class="w-full py-2 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-lg text-xs">Baixar Modelo Excel</button>
-              <label class="block w-full py-2 bg-purple-600 hover:bg-purple-700 text-white text-center font-bold rounded-lg text-xs cursor-pointer">
+              <button onclick="baixarModeloExcel('simuladores')" class="w-full py-2 bg-slate-700 text-white font-bold rounded-lg text-xs">Baixar Modelo</button>
+              <label class="block w-full py-2 bg-purple-600 text-white text-center font-bold rounded-lg text-xs cursor-pointer">
                 Importar Arquivo
                 <input type="file" accept=".xlsx, .xls, .csv" onchange="processarArquivoExcel(event, 'simuladores')" class="hidden">
               </label>
             </div>
           </div>
 
-          <!-- MODELO 4: USUÁRIOS -->
           <div class="p-4 rounded-xl bg-slate-800 border border-slate-700 space-y-3 flex flex-col justify-between">
             <div>
-              <h3 class="font-bold text-sm text-white">4. Usuários & Acessos</h3>
+              <h3 class="font-bold text-sm text-white">4. Usuários</h3>
               <p class="text-[11px] text-slate-400 mt-1">Colunas: <code>nome</code>, <code>nick</code>, <code>senha</code>, <code>role</code></p>
             </div>
             <div class="space-y-2">
-              <button onclick="baixarModeloExcel('usuarios')" class="w-full py-2 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-lg text-xs">Baixar Modelo Excel</button>
-              <label class="block w-full py-2 bg-purple-600 hover:bg-purple-700 text-white text-center font-bold rounded-lg text-xs cursor-pointer">
+              <button onclick="baixarModeloExcel('usuarios')" class="w-full py-2 bg-slate-700 text-white font-bold rounded-lg text-xs">Baixar Modelo</button>
+              <label class="block w-full py-2 bg-purple-600 text-white text-center font-bold rounded-lg text-xs cursor-pointer">
                 Importar Arquivo
                 <input type="file" accept=".xlsx, .xls, .csv" onchange="processarArquivoExcel(event, 'usuarios')" class="hidden">
               </label>
             </div>
           </div>
-
         </div>
       </section>
     </div>
 
-    <!-- OUTRAS ABAS -->
-    <div id="abaSugestoes" class="hidden space-y-6"><div id="listaSugestoesGestor"></div></div>
-    <div id="abaTokens" class="hidden space-y-6"><div id="listaTokensGestor"></div></div>
-    <div id="abaDocumentos" class="hidden space-y-6"><div id="listaDocumentosGestor"></div></div>
+    <!-- ABA TOKENS / AVALIAÇÕES EMITIDAS -->
+    <div id="abaTokens" class="hidden space-y-6">
+      <section class="bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-4">
+        <h2 class="text-xl font-bold text-white">Todas as Avaliações Geradas</h2>
+        <div id="listaTokensGestor" class="space-y-2"></div>
+      </section>
+    </div>
+
+    <!-- ABA DOCUMENTOS -->
+    <div id="abaDocumentos" class="hidden space-y-6">
+      <section class="bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-4">
+        <h2 class="text-xl font-bold text-purple-400">Gerenciar Documentos Oficiais</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <input type="text" id="docTitulo" placeholder="Título do Documento" class="bg-slate-800 border border-slate-700 rounded-xl p-3 text-white text-sm">
+          <input type="url" id="docUrl" placeholder="Link Completo (https://...)" class="bg-slate-800 border border-slate-700 rounded-xl p-3 text-white text-sm">
+          <input type="text" id="docCategoria" placeholder="Categoria (ex: Penal)" class="bg-slate-800 border border-slate-700 rounded-xl p-3 text-white text-sm">
+        </div>
+        <button onclick="cadastrarDocumento()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-6 py-2.5 rounded-xl text-sm">Adicionar Documento</button>
+      </section>
+
+      <section class="bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-4">
+        <h2 class="text-xl font-bold text-white">Links Ativos</h2>
+        <div id="listaDocumentosGestor" class="space-y-2">
+          <p class="text-xs text-slate-500 py-4 text-center">Carregando documentos...</p>
+        </div>
+      </section>
+    </div>
 
   </div>
 
@@ -247,11 +279,339 @@
       if (aba === 'usuarios') carregarUsuariosGestao();
       if (aba === 'questoes') carregarQuestoes();
       if (aba === 'simuladores') carregarCenariosSimuladores();
+      if (aba === 'sugestoes') { carregarSugestoesGestor(); carregarSugestoesSimuladoresGestor(); }
+      if (aba === 'tokens') carregarTokensGestor();
+      if (aba === 'documentos') carregarDocumentosGestor();
     }
 
-    // ======================================================
+    async function cadastrarUsuario() {
+      await fetch('/api/gestor?action=cadastrarUsuario', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nome: document.getElementById('usrNome').value,
+          nick: document.getElementById('usrNick').value,
+          senha: document.getElementById('usrSenha').value,
+          role: document.getElementById('usrRole').value
+        })
+      });
+      alert('Usuário cadastrado com sucesso!');
+      carregarUsuariosGestao();
+    }
+
+    async function carregarUsuariosGestao() {
+      const res = await fetch('/api/gestor?action=listarUsuarios');
+      const data = await res.json();
+      document.getElementById('listaUsuariosGestao').innerHTML = (data.usuarios || []).map(u => `
+        <div class="bg-slate-800 p-4 rounded-xl flex justify-between items-center flex-wrap gap-3">
+          <div>
+            <p class="font-bold text-white">${u.nome} <span class="text-slate-400">(${u.nick_policial})</span></p>
+            <span class="text-xs px-2 py-0.5 rounded bg-slate-700 text-purple-300">Cargo: ${u.role}</span>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <select id="role-select-${u.id}" class="bg-slate-900 text-xs p-2 rounded-lg border border-slate-700 text-white">
+              <option value="candidato" ${u.role === 'candidato' ? 'selected' : ''}>Aluno / Candidato</option>
+              <option value="avaliador" ${u.role === 'avaliador' ? 'selected' : ''}>Avaliador</option>
+              <option value="gestor" ${u.role === 'gestor' ? 'selected' : ''}>Gestor</option>
+            </select>
+            <button onclick="alterarCargo('${u.id}')" class="px-3 py-1.5 bg-purple-600 text-white text-xs font-bold rounded-lg">Alterar Cargo</button>
+            <button onclick="redefinirSenhaUsuario('${u.nick_policial}')" class="px-3 py-1.5 bg-amber-500 text-black text-xs font-bold rounded-lg">Resetar Senha</button>
+            <button onclick="removerUsuario('${u.id}')" class="px-3 py-1.5 bg-red-600 text-white text-xs font-bold rounded-lg">Excluir</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function alterarCargo(id) {
+      await fetch('/api/avaliador?action=aprovarSolicitacao', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, role: document.getElementById(`role-select-${id}`).value })
+      });
+      alert('Cargo atualizado!');
+      carregarUsuariosGestao();
+    }
+
+    async function redefinirSenhaUsuario(nick) {
+      const novaSenha = prompt(`Digite a nova senha para ${nick}:`);
+      if (!novaSenha) return;
+      const res = await fetch('/api/auth?action=alterarMinhaSenha', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nick, novaSenha })
+      });
+      if (res.ok) alert(`Senha de ${nick} redefinida!`);
+    }
+
+    async function removerUsuario(id) {
+      if (!confirm('Excluir usuário permanentemente?')) return;
+      await fetch('/api/gestor?action=removerUsuario', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+      carregarUsuariosGestao();
+    }
+
+    async function cadastrarQuestao() {
+      await fetch('/api/gestor?action=cadastrarQuestao', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          categoria: document.getElementById('questCategoria').value,
+          titulo: document.getElementById('questTitulo').value,
+          enunciado: document.getElementById('questEnunciado').value,
+          gabarito_esperado: document.getElementById('questGabarito').value
+        })
+      });
+      alert('Questão cadastrada no banco!');
+      carregarQuestoes();
+    }
+
+    async function carregarQuestoes() {
+      const container = document.getElementById('listaQuestoes');
+      try {
+        const res = await fetch('/api/gestor?action=listarQuestoes');
+        const data = await res.json();
+
+        if (!data.questoes || data.questoes.length === 0) {
+          container.innerHTML = '<p class="text-xs text-slate-500 py-4 text-center">Nenhuma questão cadastrada.</p>';
+          return;
+        }
+
+        container.innerHTML = data.questoes.map(q => `
+          <div class="bg-slate-800 p-4 rounded-xl space-y-2 border border-slate-700">
+            <div class="flex justify-between items-start">
+              <p class="font-bold text-white text-sm">[${q.categoria || 'Geral'}] ${q.enunciado || q.titulo}</p>
+              <button onclick="excluirQuestao('${q.id}')" class="text-red-400 hover:text-red-300 text-xs font-bold">Excluir</button>
+            </div>
+            <p class="text-emerald-400 text-xs"><strong>Gabarito Oficial:</strong> ${q.gabarito_esperado || 'Não informado'}</p>
+          </div>
+        `).join('');
+      } catch (err) {
+        container.innerHTML = '<p class="text-xs text-red-500 py-4 text-center">Erro ao carregar questões.</p>';
+      }
+    }
+
+    async function excluirQuestao(id) {
+      if (!confirm('Excluir esta questão?')) return;
+      await fetch('/api/gestor?action=excluirQuestao', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+      carregarQuestoes();
+    }
+
+    async function cadastrarCenarioSimulador(e) {
+      e.preventDefault();
+      const tipoSimulador = document.getElementById('simTipo').value;
+      const npcNick = document.getElementById('simNpcNick').value;
+      const npcAvatar = document.getElementById('simNpcAvatar').value;
+      const falaNpc = document.getElementById('simFalaNpc').value;
+
+      const opcoes = [
+        { texto: document.getElementById('opt1Texto').value, tipo: "pulso", falaPlayer: document.getElementById('opt1Texto').value, feedback: document.getElementById('opt1Feedback').value },
+        { texto: document.getElementById('opt2Texto').value, tipo: "rudeza", falaPlayer: document.getElementById('opt2Texto').value, feedback: document.getElementById('opt2Feedback').value },
+        { texto: document.getElementById('opt3Texto').value, tipo: "passividade", falaPlayer: document.getElementById('opt3Texto').value, feedback: document.getElementById('opt3Feedback').value }
+      ];
+
+      const res = await fetch('/api/gestor?action=cadastrarCenarioSimulador', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tipoSimulador, npcNick, npcAvatar, falaNpc, opcoes })
+      });
+
+      if (res.ok) {
+        alert('Cenário cadastrado no simulador!');
+        e.target.reset();
+        carregarCenariosSimuladores();
+      }
+    }
+
+    async function carregarCenariosSimuladores() {
+      const container = document.getElementById('listaCenariosSimuladores');
+      try {
+        const res = await fetch('/api/gestor?action=listarCenariosSimuladores');
+        const data = await res.json();
+
+        if (!data.cenarios || data.cenarios.length === 0) {
+          container.innerHTML = '<p class="text-xs text-slate-500 py-4 text-center">Nenhum cenário cadastrado.</p>';
+          return;
+        }
+
+        container.innerHTML = data.cenarios.map(c => `
+          <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 flex justify-between items-start">
+            <div class="space-y-1">
+              <span class="px-2.5 py-0.5 rounded-full bg-purple-500/10 text-purple-300 font-bold text-[11px] uppercase">${c.tipoSimulador === 'pulso' ? 'Pulso Firme' : 'Tempo & Produtividade'}</span>
+              <p class="font-bold text-sm text-white">NPC: ${c.npcNick}</p>
+              <p class="text-xs text-slate-300">"${c.falaNpc}"</p>
+            </div>
+            <button onclick="excluirCenario('${c.id}')" class="text-red-400 hover:text-red-300 text-xs font-bold">Excluir</button>
+          </div>
+        `).join('');
+      } catch (e) {
+        container.innerHTML = '<p class="text-xs text-red-500 py-4 text-center">Erro ao carregar cenários.</p>';
+      }
+    }
+
+    async function excluirCenario(id) {
+      if (!confirm('Excluir este cenário?')) return;
+      await fetch('/api/gestor?action=excluirCenarioSimulador', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+      carregarCenariosSimuladores();
+    }
+
+    async function carregarSugestoesGestor() {
+      const container = document.getElementById('listaSugestoesGestor');
+      try {
+        const res = await fetch('/api/gestor?action=listarSugestoes');
+        const data = await res.json();
+
+        if (!data.sugestoes || data.sugestoes.length === 0) {
+          container.innerHTML = '<p class="text-xs text-slate-500 py-4 text-center">Nenhuma sugestão de questão recebida.</p>';
+          return;
+        }
+
+        container.innerHTML = data.sugestoes.map(s => `
+          <div class="bg-slate-800 p-4 rounded-xl space-y-3 border border-slate-700">
+            <div class="flex justify-between items-center">
+              <p class="font-bold text-sm text-purple-300">Sugerida por: ${s.avaliadorNick} [${s.categoria || 'Geral'}]</p>
+              <span class="text-xs px-2.5 py-0.5 rounded-full font-bold bg-slate-700 text-white">${s.status}</span>
+            </div>
+            <p class="text-xs text-white"><strong>Enunciado:</strong> ${s.enunciado}</p>
+            <p class="text-xs text-emerald-400"><strong>Gabarito Sugerido:</strong> ${s.gabarito_esperado}</p>
+
+            ${s.status === 'Pendente' ? `
+              <div class="space-y-2 pt-2 border-t border-slate-700">
+                <input type="text" id="obs-sug-${s.id}" placeholder="Observação para o avaliador..." class="w-full p-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white">
+                <div class="flex gap-2">
+                  <button onclick="avaliarSugestao('${s.id}', 'aprovar')" class="px-4 py-2 bg-emerald-500 text-white font-bold text-xs rounded-lg">Aprovar & Injetar no Banco</button>
+                  <button onclick="avaliarSugestao('${s.id}', 'reprovar')" class="px-4 py-2 bg-red-600 text-white font-bold text-xs rounded-lg">Reprovar</button>
+                </div>
+              </div>
+            ` : `<p class="text-xs text-slate-400"><strong>Retorno da Gestão:</strong> ${s.observacaoGestor || '-'}</p>`}
+          </div>
+        `).join('');
+      } catch (err) {
+        container.innerHTML = '<p class="text-xs text-red-500 py-4 text-center">Erro ao carregar sugestões de questões.</p>';
+      }
+    }
+
+    async function carregarSugestoesSimuladoresGestor() {
+      const container = document.getElementById('listaSugestoesSimuladoresGestor');
+      try {
+        const res = await fetch('/api/gestor?action=listarSugestoesSimuladores');
+        const data = await res.json();
+
+        if (!data.sugestoes || data.sugestoes.length === 0) {
+          container.innerHTML = '<p class="text-xs text-slate-500 py-4 text-center">Nenhuma sugestão de simulador recebida.</p>';
+          return;
+        }
+
+        container.innerHTML = data.sugestoes.map(s => `
+          <div class="bg-slate-800 p-4 rounded-xl space-y-3 border border-slate-700">
+            <div class="flex justify-between items-center">
+              <p class="font-bold text-sm text-purple-300">Sugerido por: ${s.avaliadorNick} [${s.tipoSimulador === 'pulso' ? 'Pulso Firme' : 'Tempo'}]</p>
+              <span class="text-xs px-2.5 py-0.5 rounded-full font-bold bg-slate-700 text-white">${s.status}</span>
+            </div>
+            <p class="text-xs text-white"><strong>NPC (${s.npcNick}):</strong> "${s.falaNpc}"</p>
+
+            ${s.status === 'Pendente' ? `
+              <div class="space-y-2 pt-2 border-t border-slate-700">
+                <input type="text" id="obs-sug-sim-${s.id}" placeholder="Observação..." class="w-full p-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white">
+                <div class="flex gap-2">
+                  <button onclick="avaliarSugestaoSimulador('${s.id}', 'aprovar')" class="px-4 py-2 bg-emerald-500 text-white font-bold text-xs rounded-lg">Aprovar & Injetar no Simulador</button>
+                  <button onclick="avaliarSugestaoSimulador('${s.id}', 'reprovar')" class="px-4 py-2 bg-red-600 text-white font-bold text-xs rounded-lg">Reprovar</button>
+                </div>
+              </div>
+            ` : `<p class="text-xs text-slate-400"><strong>Retorno:</strong> ${s.observacaoGestor || '-'}</p>`}
+          </div>
+        `).join('');
+      } catch (err) {
+        container.innerHTML = '<p class="text-xs text-red-500 py-4 text-center">Erro ao carregar sugestões de simuladores.</p>';
+      }
+    }
+
+    async function avaliarSugestao(id, acao) {
+      const obs = document.getElementById(`obs-sug-${id}`).value;
+      await fetch('/api/gestor?action=avaliarSugestao', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, acao, observacao: obs })
+      });
+      alert(`Sugestão ${acao === 'aprovar' ? 'Aprovada' : 'Reprovada'}!`);
+      carregarSugestoesGestor();
+    }
+
+    async function avaliarSugestaoSimulador(id, acao) {
+      const obs = document.getElementById(`obs-sug-sim-${id}`).value;
+      await fetch('/api/gestor?action=avaliarSugestaoSimulador', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, acao, observacao: obs })
+      });
+      alert(`Sugestão de simulador ${acao === 'aprovar' ? 'Aprovada' : 'Reprovada'}!`);
+      carregarSugestoesSimuladoresGestor();
+    }
+
+    async function carregarTokensGestor() {
+      const res = await fetch('/api/avaliador?action=listarTokens');
+      const data = await res.json();
+      document.getElementById('listaTokensGestor').innerHTML = (data.tokens || []).map(t => `
+        <div class="bg-slate-800 p-3 rounded-xl flex justify-between items-center border border-slate-700">
+          <div>
+            <p class="font-mono font-bold text-amber-400 text-sm">${t.token_utilizado}</p>
+            <p class="text-xs text-slate-400">Aluno: ${t.candidato_nick} | Avaliador: ${t.avaliador_nick || 'Sistema'}</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs px-2.5 py-1 rounded-full bg-slate-700 text-slate-300 font-bold">${t.status}</span>
+            <button onclick="revogarTokenGestor('${t.id}')" class="px-2.5 py-1 bg-red-600 text-white text-xs font-bold rounded-lg">Revogar</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function revogarTokenGestor(id) {
+      if (!confirm('Revogar este token?')) return;
+      await fetch('/api/avaliador?action=revogarToken', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+      carregarTokensGestor();
+    }
+
+    async function cadastrarDocumento() {
+      await fetch('/api/gestor?action=cadastrarDocumento', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ titulo: document.getElementById('docTitulo').value, url: document.getElementById('docUrl').value, categoria: document.getElementById('docCategoria').value })
+      });
+      alert('Documento cadastrado!');
+      carregarDocumentosGestor();
+    }
+
+    async function carregarDocumentosGestor() {
+      const container = document.getElementById('listaDocumentosGestor');
+      try {
+        const res = await fetch('/api/gestor?action=listarDocumentos');
+        const data = await res.json();
+
+        if (!data.documentos || data.documentos.length === 0) {
+          container.innerHTML = '<p class="text-xs text-slate-500 py-4 text-center">Nenhum documento cadastrado.</p>';
+          return;
+        }
+
+        container.innerHTML = data.documentos.map(d => `
+          <div class="bg-slate-800 p-3 rounded-xl flex justify-between items-center border border-slate-700">
+            <div>
+              <p class="font-bold text-white text-sm">${d.titulo} <span class="text-xs text-purple-400">(${d.categoria || 'Geral'})</span></p>
+              <a href="${d.url}" target="_blank" class="text-xs text-slate-400 hover:underline">${d.url}</a>
+            </div>
+            <button onclick="excluirDocumento('${d.id}')" class="text-red-400 text-xs font-bold">Remover</button>
+          </div>
+        `).join('');
+      } catch (err) {
+        container.innerHTML = '<p class="text-xs text-red-500 py-4 text-center">Erro ao carregar documentos.</p>';
+      }
+    }
+
+    async function excluirDocumento(id) {
+      if (!confirm('Remover documento?')) return;
+      await fetch('/api/gestor?action=excluirDocumento', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+      carregarDocumentosGestor();
+    }
+
     // GERAÇÃO DE MODELOS EXCEL PARA DOWNLOAD
-    // ======================================================
     function baixarModeloExcel(tipo) {
       let dadosExemplo = [];
       let nomeArquivo = "";
@@ -265,8 +625,7 @@
       } else if (tipo === 'questoes') {
         nomeArquivo = "Modelo_Importacao_Questoes_CFO.xlsx";
         dadosExemplo = [
-          { categoria: "Direito Penal", titulo: "Abandono de Posto", enunciado: "Qual a consequência do abandono de posto sem autorização superior?", gabarito_esperado: "Punição com rebaixamento ou desligamento a depender da gravidade." },
-          { categoria: "CCM", titulo: "Regra de Visibilidade Zzz", enunciado: "Qual o tempo limite permitido em modo Zzz no corredor principal?", gabarito_esperado: "Apresentar-armas de 15 minutos em função principal ou 10 minutos fora de atividade." }
+          { categoria: "Direito Penal", titulo: "Abandono de Posto", enunciado: "Qual a consequência do abandono de posto sem autorização superior?", gabarito_esperado: "Punição com rebaixamento ou desligamento a depender da gravidade." }
         ];
       } else if (tipo === 'simuladores') {
         nomeArquivo = "Modelo_Importacao_Simuladores_CFO.xlsx";
@@ -276,19 +635,18 @@
             npcNick: "Recruta_Pérez",
             npcAvatar: "Habbo",
             falaNpc: "Esqueci de colocar o emblema correto no perfil.",
-            opt1Texto: "Atenção Recruta. Corrija o emblema imediatamente no seu perfil.",
-            opt1Feedback: "Pulso Firme Exemplar com liderança educativa.",
-            opt2Texto: "Você é um incompetente! Está rebaixado agora mesmo!",
-            opt2Feedback: "Rudeza e abuso de poder.",
-            opt3Texto: "Tudo bem recruta, pode deixar sem emblema mesmo.",
-            opt3Feedback: "Omissão e passividade regimental."
+            opt1Texto: "Atenção Recruta. Corrija o emblema imediatamente.",
+            opt1Feedback: "Pulso Firme Exemplar.",
+            opt2Texto: "Você é um incompetente!",
+            opt2Feedback: "Rudeza e abuso.",
+            opt3Texto: "Tudo bem, pode deixar sem.",
+            opt3Feedback: "Omissão e passividade."
           }
         ];
       } else if (tipo === 'usuarios') {
         nomeArquivo = "Modelo_Importacao_Usuarios_CFO.xlsx";
         dadosExemplo = [
-          { nome: "Matheus Furiatto", nick: "Popricard88", senha: "cfo123password", role: "candidato" },
-          { nome: "Avaliador Exemplo", nick: "Avaliador1", senha: "cfo123password", role: "avaliador" }
+          { nome: "Matheus Furiatto", nick: "Popricard88", senha: "cfo123password", role: "candidato" }
         ];
       }
 
@@ -298,9 +656,6 @@
       XLSX.writeFile(wb, nomeArquivo);
     }
 
-    // ======================================================
-    // LEITURA DO ARQUIVO EXCEL/CSV E ENVIO EM LOTE
-    // ======================================================
     function processarArquivoExcel(event, tipo) {
       const file = event.target.files[0];
       if (!file) return;
@@ -331,7 +686,7 @@
           const resData = await res.json();
           if (res.ok) {
             alert(resData.message);
-            event.target.value = ''; // reseta file input
+            event.target.value = '';
           } else {
             alert(resData.error || 'Erro na importação.');
           }

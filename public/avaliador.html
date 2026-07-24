@@ -44,7 +44,7 @@
       <button onclick="mudarAba('solicitacoes')" id="tab-solicitacoes" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Solicitações de Acesso</button>
       <button onclick="mudarAba('provas')" id="tab-provas" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Provas & Correção</button>
       <button onclick="mudarAba('simuladoresResultados')" id="tab-simuladoresResultados" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">🎮 Relatórios dos Simuladores</button>
-      <button onclick="mudarAba('sugerir')" id="tab-sugerir" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Sugerir Questão</button>
+      <button onclick="mudarAba('sugerir')" id="tab-sugerir" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">💡 Sugerir Conteúdo</button>
       <button onclick="mudarAba('duvidas')" id="tab-duvidas" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Central de Dúvidas</button>
       <button onclick="mudarAba('documentos')" id="tab-documentos" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Documentos</button>
     </nav>
@@ -79,18 +79,26 @@
       <div id="listaProvas" class="grid grid-cols-1 gap-4"></div>
     </section>
 
-    <!-- RELATÓRIOS DOS SIMULADORES (NOVO) -->
+    <!-- RELATÓRIOS DOS SIMULADORES -->
     <section id="content-simuladoresResultados" class="hidden space-y-4">
       <h2 class="text-lg font-bold">Desempenho dos Alunos nos Simuladores Virtuais</h2>
-      <div id="listaResultadosSimuladores" class="grid grid-cols-1 gap-4">
-        <p class="text-xs text-slate-500 py-4">Carregando relatórios de simulação...</p>
-      </div>
+      <div id="listaResultadosSimuladores" class="grid grid-cols-1 gap-4"></div>
     </section>
 
-    <!-- SUGERIR QUESTÃO -->
+    <!-- SUGERIR CONTEÚDO (QUESTÕES E SIMULADORES) -->
     <section id="content-sugerir" class="space-y-6 hidden">
-      <div class="max-w-2xl mx-auto p-6 rounded-2xl bg-white dark:bg-slate-900 border space-y-4">
-        <h2 class="text-lg font-bold">Enviar Sugestão de Questão para a Gestão</h2>
+      <div class="flex gap-2">
+        <button onclick="toggleTipoSugestao('questao')" id="btnSugQuestao" class="px-4 py-2 rounded-xl text-xs font-bold bg-brand-500 text-black">
+          📝 Sugerir Questão
+        </button>
+        <button onclick="toggleTipoSugestao('simulador')" id="btnSugSimulador" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-400">
+          🎮 Sugerir Cenário de Simulador
+        </button>
+      </div>
+
+      <!-- FORMULÁRIO 1: SUGERIR QUESTÃO -->
+      <div id="formSugestaoQuestaoBox" class="max-w-2xl mx-auto p-6 rounded-2xl bg-white dark:bg-slate-900 border space-y-4">
+        <h2 class="text-lg font-bold">Enviar Sugestão de Questão de Prova</h2>
         <form onsubmit="enviarSugestaoQuestao(event)" class="space-y-3">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
             <input type="text" id="sugCategoria" placeholder="Categoria (ex: Penal)" class="p-3 bg-slate-50 dark:bg-slate-950 border rounded-xl text-sm">
@@ -98,7 +106,50 @@
           </div>
           <textarea id="sugEnunciado" rows="3" placeholder="Enunciado da questão..." required class="w-full p-3 bg-slate-50 dark:bg-slate-950 border rounded-xl text-sm"></textarea>
           <textarea id="sugGabarito" rows="2" placeholder="Gabarito esperado..." required class="w-full p-3 bg-slate-50 dark:bg-slate-950 border rounded-xl text-sm"></textarea>
-          <button type="submit" class="w-full py-3 bg-brand-500 text-black font-extrabold rounded-xl text-sm">Enviar Sugestão</button>
+          <button type="submit" class="w-full py-3 bg-brand-500 text-black font-extrabold rounded-xl text-sm">Enviar Sugestão de Questão</button>
+        </form>
+      </div>
+
+      <!-- FORMULÁRIO 2: SUGERIR SIMULADOR -->
+      <div id="formSugestaoSimuladorBox" class="hidden max-w-2xl mx-auto p-6 rounded-2xl bg-white dark:bg-slate-900 border space-y-4">
+        <h2 class="text-lg font-bold">Enviar Sugestão de Cenário para Simulador</h2>
+        <form onsubmit="enviarSugestaoSimulador(event)" class="space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div>
+              <label class="text-xs font-bold text-slate-400">Tipo de Simulador</label>
+              <select id="sugSimTipo" class="mt-1 w-full p-3 bg-slate-50 dark:bg-slate-950 border rounded-xl text-sm">
+                <option value="pulso">Gestão de Pulso Firme</option>
+                <option value="tempo">Gestão de Tempo & Produtividade</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-xs font-bold text-slate-400">Nick do NPC Subordinado</label>
+              <input type="text" id="sugSimNpcNick" required placeholder="Ex: Recruta_Lima" class="mt-1 w-full p-3 bg-slate-50 dark:bg-slate-950 border rounded-xl text-sm">
+            </div>
+            <div>
+              <label class="text-xs font-bold text-slate-400">Avatar Habbo do NPC</label>
+              <input type="text" id="sugSimNpcAvatar" placeholder="Habbo" class="mt-1 w-full p-3 bg-slate-50 dark:bg-slate-950 border rounded-xl text-sm">
+            </div>
+          </div>
+
+          <div>
+            <label class="text-xs font-bold text-slate-400">Fala do NPC (Situação)</label>
+            <textarea id="sugSimFalaNpc" rows="2" required placeholder="Ex: Senhor, cometi um erro na postagem do relatório..." class="mt-1 w-full p-3 bg-slate-50 dark:bg-slate-950 border rounded-xl text-sm"></textarea>
+          </div>
+
+          <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-3">
+            <h3 class="font-bold text-xs text-amber-400 uppercase">3 Escolhas do Aluno:</h3>
+            <input type="text" id="sugOpt1Texto" placeholder="Opção 1 (Correta - Pulso/Eficiência)" class="w-full p-2 bg-slate-900 border border-slate-800 rounded-lg text-xs text-white">
+            <input type="text" id="sugOpt1Feedback" placeholder="Feedback 1" class="w-full p-2 bg-slate-900 border border-slate-800 rounded-lg text-xs text-white">
+
+            <input type="text" id="sugOpt2Texto" placeholder="Opção 2 (Incorreta - Rudeza/Erro)" class="w-full p-2 bg-slate-900 border border-slate-800 rounded-lg text-xs text-white">
+            <input type="text" id="sugOpt2Feedback" placeholder="Feedback 2" class="w-full p-2 bg-slate-900 border border-slate-800 rounded-lg text-xs text-white">
+
+            <input type="text" id="sugOpt3Texto" placeholder="Opção 3 (Fraca - Passividade/Omissão)" class="w-full p-2 bg-slate-900 border border-slate-800 rounded-lg text-xs text-white">
+            <input type="text" id="sugOpt3Feedback" placeholder="Feedback 3" class="w-full p-2 bg-slate-900 border border-slate-800 rounded-lg text-xs text-white">
+          </div>
+
+          <button type="submit" class="w-full py-3 bg-brand-500 text-black font-extrabold rounded-xl text-sm">Enviar Sugestão de Cenário</button>
         </form>
       </div>
 
@@ -122,7 +173,7 @@
 
   </div>
 
-  <!-- MODAL DE CORREÇÃO COM NOTAS POR QUESTÃO -->
+  <!-- MODAL DE CORREÇÃO -->
   <div id="modalProva" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white dark:bg-slate-900 border max-w-4xl w-full max-h-[90vh] rounded-2xl flex flex-col overflow-hidden shadow-2xl">
       <div class="p-4 border-b flex justify-between items-center bg-slate-50 dark:bg-slate-950">
@@ -139,7 +190,7 @@
             <input type="number" step="0.1" max="10" min="0" id="modalNota" placeholder="0-10" class="w-28 p-2.5 rounded-xl bg-white dark:bg-slate-900 border text-sm font-bold text-brand-500">
           </div>
           <input type="text" id="modalFeedbackGeral" placeholder="Feedback Geral do Avaliado..." class="flex-1 p-2.5 rounded-xl bg-white dark:bg-slate-900 border text-sm">
-          <button onclick="salvarCorrecaoModal()" class="px-6 py-2.5 bg-brand-500 text-black font-extrabold rounded-xl text-sm transition">Salvar Correção</button>
+          <button onclick="salvarCorrecaoModal()" class="px-6 py-2.5 bg-brand-500 text-black font-extrabold rounded-xl text-sm">Salvar Correção</button>
         </div>
       </div>
     </div>
@@ -239,6 +290,19 @@
       if (aba === 'sugerir') carregarMinhasSugestoes();
       if (aba === 'duvidas') carregarDuvidas();
       if (aba === 'documentos') carregarDocumentos();
+    }
+
+    function toggleTipoSugestao(tipo) {
+      document.getElementById('btnSugQuestao').className = tipo === 'questao' ? "px-4 py-2 rounded-xl text-xs font-bold bg-brand-500 text-black" : "px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-400";
+      document.getElementById('btnSugSimulador').className = tipo === 'simulador' ? "px-4 py-2 rounded-xl text-xs font-bold bg-brand-500 text-black" : "px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-400";
+
+      if (tipo === 'questao') {
+        document.getElementById('formSugestaoQuestaoBox').classList.remove('hidden');
+        document.getElementById('formSugestaoSimuladorBox').classList.add('hidden');
+      } else {
+        document.getElementById('formSugestaoQuestaoBox').classList.add('hidden');
+        document.getElementById('formSugestaoSimuladorBox').classList.remove('hidden');
+      }
     }
 
     async function gerarAvaliacao(e) {
@@ -488,16 +552,41 @@
       carregarMinhasSugestoes();
     }
 
+    async function enviarSugestaoSimulador(e) {
+      e.preventDefault();
+      const opcoes = [
+        { texto: document.getElementById('sugOpt1Texto').value, tipo: "pulso", falaPlayer: document.getElementById('sugOpt1Texto').value, feedback: document.getElementById('sugOpt1Feedback').value },
+        { texto: document.getElementById('sugOpt2Texto').value, tipo: "rudeza", falaPlayer: document.getElementById('sugOpt2Texto').value, feedback: document.getElementById('sugOpt2Feedback').value },
+        { texto: document.getElementById('sugOpt3Texto').value, tipo: "passividade", falaPlayer: document.getElementById('sugOpt3Texto').value, feedback: document.getElementById('sugOpt3Feedback').value }
+      ];
+
+      await fetch('/api/avaliador?action=sugerirCenarioSimulador', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          avaliadorNick: user.nick,
+          tipoSimulador: document.getElementById('sugSimTipo').value,
+          npcNick: document.getElementById('sugSimNpcNick').value,
+          npcAvatar: document.getElementById('sugSimNpcAvatar').value,
+          falaNpc: document.getElementById('sugSimFalaNpc').value,
+          opcoes
+        })
+      });
+      alert('Sugestão de cenário enviada!');
+      e.target.reset();
+      carregarMinhasSugestoes();
+    }
+
     async function carregarMinhasSugestoes() {
       const res = await fetch(`/api/avaliador?action=minhasSugestoes&nick=${encodeURIComponent(user.nick)}`);
       const data = await res.json();
       document.getElementById('listaMinhasSugestoes').innerHTML = (data.sugestoes || []).map(s => `
         <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border space-y-2">
           <div class="flex justify-between items-center">
-            <span class="text-xs font-bold text-slate-400">[${s.categoria}] ${s.titulo}</span>
+            <span class="text-xs font-bold text-slate-400">[${s.tipoConteudo === 'simulador' ? 'Cenário Simulador' : 'Questão'}] ${s.titulo || s.npcNick || 'Sugestão'}</span>
             <span class="px-2.5 py-0.5 text-xs font-bold rounded-full ${s.status === 'Aprovada' ? 'bg-emerald-500/10 text-emerald-500' : s.status === 'Reprovada' ? 'bg-red-500/10 text-red-500' : 'bg-amber-500/10 text-amber-500'}">${s.status}</span>
           </div>
-          <p class="text-xs font-bold">${s.enunciado}</p>
+          <p class="text-xs font-bold">${s.enunciado || s.falaNpc}</p>
           ${s.observacaoGestor ? `<p class="text-xs text-purple-400 bg-slate-950 p-2 rounded-lg"><strong>Retorno da Gestão:</strong> ${s.observacaoGestor}</p>` : ''}
         </div>
       `).join('') || '<p class="text-xs text-slate-500 py-4">Nenhuma sugestão enviada.</p>';
@@ -554,7 +643,7 @@
         const data = await res.json();
 
         if (!data.documentos || data.documentos.length === 0) {
-          container.innerHTML = '<p class="text-xs text-slate-500 py-4 col-span-2 text-center">Nenum documento cadastrado.</p>';
+          container.innerHTML = '<p class="text-xs text-slate-500 py-4 col-span-2 text-center">Nenhum documento cadastrado.</p>';
           return;
         }
 

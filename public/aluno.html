@@ -39,7 +39,7 @@
     <!-- BANNER SUPERIOR -->
     <div class="w-full h-32 rounded-2xl bg-cover bg-center border border-slate-200 dark:border-slate-800 shadow-sm" style="background-image: url('/assets/images/banner-cfo.png');"></div>
 
-    <!-- CABEÇALHO DA CONTA DO ALUNO -->
+    <!-- CABEÇALHO -->
     <header class="flex flex-wrap justify-between items-center gap-4 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
       <div class="flex items-center gap-4">
         <img id="habboAvatar" src="/assets/images/default-avatar.png" class="w-14 h-14 rounded-2xl border-2 border-brand-500 bg-slate-800">
@@ -87,13 +87,12 @@
       </div>
     </section>
 
-    <!-- ABA 2: SIMULADORES VIRTUAIS (PULSO FIRME E GESTÃO DE TEMPO) -->
+    <!-- ABA 2: SIMULADORES VIRTUAIS -->
     <section id="content-simulador" class="hidden space-y-6">
       <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3">
         <h2 class="text-lg font-black text-brand-500 flex items-center gap-2">🎮 Simuladores Táticos da Doutrina CFO</h2>
         <p class="text-xs text-slate-500">Selecione a matéria do simulador para testar suas atitudes operacionais no Habbo Batalhão.</p>
 
-        <!-- BOTOES DE SELEÇÃO DE SIMULADOR -->
         <div class="flex gap-2 pt-2">
           <button onclick="selecionarTipoSimulador('pulso')" id="btnSimPulso" class="px-4 py-2 rounded-xl text-xs font-bold bg-brand-500 text-white shadow-md">
             🛡️ Gestão de Pulso Firme
@@ -104,7 +103,7 @@
         </div>
       </div>
 
-      <!-- TELA DO SIMULADOR (ARENA HABBO) -->
+      <!-- TELA DO SIMULADOR HABBO -->
       <div class="p-6 rounded-3xl habbo-room border-2 border-slate-700 shadow-2xl space-y-6">
         <div class="flex justify-between items-center text-xs font-bold text-slate-300 border-b border-slate-800 pb-3">
           <span id="simuladorEtapaTexto">Cenário 1 de 3</span>
@@ -113,7 +112,6 @@
           </div>
         </div>
 
-        <!-- PALCO INTERATIVO HABBO -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center my-4 min-h-[180px]">
           <!-- SUBORDINADO / NPC -->
           <div class="flex items-center gap-3">
@@ -138,13 +136,11 @@
           </div>
         </div>
 
-        <!-- OPÇÕES DE AÇÃO -->
         <div id="simuladorCaixaOpcoes" class="space-y-3 pt-2">
           <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Qual ação você tomará como Líder?</h3>
           <div id="simuladorBotoesOpcoes" class="grid grid-cols-1 gap-2"></div>
         </div>
 
-        <!-- LAUDO FINAL -->
         <div id="simuladorResultadoContainer" class="hidden p-6 rounded-2xl bg-slate-900/90 border-2 border-emerald-500/40 text-slate-100 space-y-4">
           <div class="text-center space-y-1">
             <span class="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 font-bold text-xs border border-emerald-500/30 uppercase">Simulação Concluída</span>
@@ -153,15 +149,15 @@
 
           <div class="grid grid-cols-3 gap-3 text-center py-2">
             <div class="p-3 bg-slate-950 rounded-xl border border-emerald-500/30">
-              <p id="labelScore1" class="text-[11px] text-slate-400 font-bold">Pulso / Eficiência</p>
+              <p class="text-[11px] text-slate-400 font-bold">Pulso / Eficiência</p>
               <p id="scorePulsoFirme" class="text-lg font-black text-emerald-400">0%</p>
             </div>
             <div class="p-3 bg-slate-950 rounded-xl border border-red-500/30">
-              <p id="labelScore2" class="text-[11px] text-slate-400 font-bold">Rudeza / Erros</p>
+              <p class="text-[11px] text-slate-400 font-bold">Rudeza / Erros</p>
               <p id="scoreRudeza" class="text-lg font-black text-red-400">0%</p>
             </div>
             <div class="p-3 bg-slate-950 rounded-xl border border-amber-500/30">
-              <p id="labelScore3" class="text-[11px] text-slate-400 font-bold">Passividade / Atraso</p>
+              <p class="text-[11px] text-slate-400 font-bold">Passividade / Atraso</p>
               <p id="scorePassividade" class="text-lg font-black text-amber-400">0%</p>
             </div>
           </div>
@@ -254,9 +250,7 @@
     document.getElementById('userNick').innerText = user.nick;
     lucide.createIcons();
 
-    // ======================================================
-    // MÁQUINA DO SIMULADOR VIRTUAL DE PULSO FIRME E TEMPO
-    // ======================================================
+    // LÓGICA DOS SIMULADORES
     let tipoSimuladorAtivo = 'pulso';
     let cenariosCarregados = [];
     let simuladorEtapaAtual = 0;
@@ -266,27 +260,12 @@
     const cenariosPadraoPulso = [
       {
         npcNick: "Recruta_Pérez",
-        npcAvatar: "https://www.habbo.com.br/habbo-imaging/avatarimage?user=Habbo&direction=2&head_direction=2&action=std&gesture=sml&size=m",
+        npcAvatar: "Habbo",
         falaNpc: "Senhor Oficial, cometi um erro na postagem do relatório do batalhão e esqueci de incluir o horário. O que faço?",
         opcoes: [
-          {
-            texto: "Gritar com o recruta, chamá-lo de incompetente e aplicar rebaixamento na hora.",
-            tipo: "rudeza",
-            falaPlayer: "Você é incompetente! Está rebaixado de cargo agora mesmo!",
-            feedback: "Rudeza e Excesso de Poder. O Oficial não deve agir por exaltação emocional."
-          },
-          {
-            texto: "Dizer que não tem problema, deixar o relatório errado no fórum para não chateá-lo.",
-            tipo: "passividade",
-            falaPlayer: "Tudo bem recruta, deixa para lá. Ninguém vai reparar nesse erro.",
-            feedback: "Omissão e Passividade. O Oficial tem o dever de manter a correção técnica nos registros."
-          },
-          {
-            texto: "Explicar a importância do horário, orientar a edição imediata e cobrar atenção futura.",
-            tipo: "pulso",
-            falaPlayer: "Atenção Recruta. O horário é essencial. Edite o tópico imediatamente e mantenha o foco nos próximos.",
-            feedback: "Pulso Firme Exemplar. Uniu rigor regimental com liderança educativa."
-          }
+          { texto: "Gritar com o recruta, chamá-lo de incompetente e aplicar rebaixamento na hora.", tipo: "rudeza", falaPlayer: "Você é incompetente! Está rebaixado de cargo agora mesmo!", feedback: "Rudeza e Excesso de Poder." },
+          { texto: "Dizer que não tem problema, deixar o relatório errado para não chateá-lo.", tipo: "passividade", falaPlayer: "Tudo bem recruta, deixa para lá.", feedback: "Omissão e Passividade Regimental." },
+          { texto: "Explicar a importância do horário, orientar a edição imediata e cobrar atenção.", tipo: "pulso", falaPlayer: "Atenção Recruta. Edite o tópico imediatamente e mantenha o foco nos próximos.", feedback: "Pulso Firme Exemplar com liderança educativa." }
         ]
       }
     ];
@@ -294,27 +273,12 @@
     const cenariosPadraoTempo = [
       {
         npcNick: "Auxiliar_Lucas",
-        npcAvatar: "https://www.habbo.com.br/habbo-imaging/avatarimage?user=Popricard88&direction=2&head_direction=2&action=std&gesture=sml&size=m",
+        npcAvatar: "Popricard88",
         falaNpc: "Senhor, temos 3 requerimentos urgentes e uma lista de presença para atualizar em 30 minutos. Por onde começamos?",
         opcoes: [
-          {
-            texto: "Priorizar os requerimentos urgentes com base em prazos regimentais e delegar a lista com acompanhamento.",
-            tipo: "pulso",
-            falaPlayer: "Aplicando a Matriz de Prioridade: resolvemos os 3 requerimentos urgentes primeiro devido ao prazo limiar.",
-            feedback: "Alta Produtividade e Gestão de Tempo Eficiente."
-          },
-          {
-            texto: "Fazer tudo ao mesmo tempo sem ordem de prioridade.",
-            tipo: "rudeza",
-            falaPlayer: "Abre tudo aí e vamos fazendo de qualquer jeito rápido!",
-            feedback: "Desorganização e Risco de Erros Operacionais."
-          },
-          {
-            texto: "Deixar para depois do horário de pico e ir conversar no chat.",
-            tipo: "passividade",
-            falaPlayer: "Depois a gente vê isso, vamos conversar um pouco primeiro.",
-            feedback: "Procrastinação e Negligência com Prazos."
-          }
+          { texto: "Priorizar os requerimentos urgentes com base em prazos regimentais e delegar a lista.", tipo: "pulso", falaPlayer: "Resolvemos os 3 requerimentos urgentes primeiro devido ao prazo limiar.", feedback: "Alta Produtividade e Gestão de Tempo Eficiente." },
+          { texto: "Fazer tudo ao mesmo tempo sem ordem de prioridade.", tipo: "rudeza", falaPlayer: "Abre tudo aí e vamos fazendo de qualquer jeito rápido!", feedback: "Desorganização Operacional." },
+          { texto: "Deixar para depois do horário de pico e ir conversar no chat.", tipo: "passividade", falaPlayer: "Depois a gente vê isso, vamos conversar um pouco primeiro.", feedback: "Procrastinação e Negligência." }
         ]
       }
     ];
