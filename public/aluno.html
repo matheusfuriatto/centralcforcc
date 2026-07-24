@@ -12,6 +12,40 @@
       theme: { extend: { colors: { brand: { 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' } } } }
     }
   </script>
+  <style>
+    /* Estilização da Toolbar SCEditor */
+    .sceditor-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      padding: 8px;
+      background-color: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px 12px 0 0;
+    }
+    .sceditor-group {
+      display: flex;
+      gap: 2px;
+      padding-right: 6px;
+      border-right: 1px solid #475569;
+    }
+    .sceditor-button {
+      padding: 4px 8px;
+      font-size: 11px;
+      font-weight: bold;
+      color: #cbd5e1;
+      background-color: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .sceditor-button:hover {
+      background-color: #3b82f6;
+      color: #ffffff;
+      border-color: #3b82f6;
+    }
+  </style>
 </head>
 <body class="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-colors duration-200">
 
@@ -20,7 +54,7 @@
     <!-- BANNER SUPERIOR -->
     <div class="w-full h-32 rounded-2xl bg-cover bg-center border border-slate-200 dark:border-slate-800 shadow-sm" style="background-image: url('/assets/images/banner-cfo.png');"></div>
 
-    <!-- CABEÇALHO DE PERFIL DO ALUNO -->
+    <!-- CABEÇALHO -->
     <header class="flex flex-wrap justify-between items-center gap-4 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
       <div class="flex items-center gap-4">
         <img id="habboAvatar" src="/assets/images/default-avatar.png" class="w-14 h-14 rounded-2xl border-2 border-brand-500 bg-slate-800">
@@ -50,7 +84,7 @@
       <button onclick="mudarAba('documentos')" id="tab-documentos" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Documentos</button>
     </nav>
 
-    <!-- ABA 1: REALIZAR AVALIAÇÃO -->
+    <!-- ABA 1: REALIZAR AVALIAÇÃO (SEM DIGITAÇÃO MANUAL DE TOKEN) -->
     <section id="content-realizar" class="space-y-6">
       <div id="areaProvasPendentes" class="space-y-4">
         <h2 class="text-lg font-bold">Avaliação Disponível para Você</h2>
@@ -59,15 +93,7 @@
         </div>
       </div>
 
-      <div id="boxBuscaToken" class="hidden max-w-md mx-auto p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-4 shadow-sm">
-        <h3 class="text-sm font-bold">Digitar Token Manualmente</h3>
-        <form onsubmit="buscarProva(event)" class="space-y-3">
-          <input type="text" id="tokenInput" placeholder="Ex: CFO-AB12CD" class="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border text-sm font-mono">
-          <button type="submit" class="w-full py-2.5 bg-slate-800 text-white font-bold rounded-xl text-xs">Buscar Token</button>
-        </form>
-        <p id="tokenErro" class="text-xs text-red-500 hidden"></p>
-      </div>
-
+      <!-- FORMULÁRIO DE QUESTÕES -->
       <div id="boxProva" class="hidden space-y-6">
         <div class="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-500 text-xs flex justify-between items-center">
           <span>Token Ativo: <strong id="provaToken" class="font-mono text-sm"></strong></span>
@@ -83,75 +109,69 @@
       <div id="listaAvaliacoes" class="grid grid-cols-1 gap-4"></div>
     </section>
 
-    <!-- ABA 3: ESTUDO E TESTE DE BBCODE (NOVA) -->
+    <!-- ABA 3: ESTUDO E PRÁTICA DE BBCODE -->
     <section id="content-estudoBbcode" class="hidden space-y-6">
       <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-4 shadow-sm">
-        <h2 class="text-lg font-black text-brand-500 flex items-center gap-2">📘 Guia Rápido e Comandos BBCode</h2>
-        <p class="text-xs text-slate-500">O BBCode é a linguagem oficial utilizada para formatação de tópicos no Fórum. Teste suas habilidades abaixo!</p>
-
-        <!-- CHEATSHEET BBCODE -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
-          <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-mono">
-            <strong class="text-brand-500 block">[b]Texto[/b]</strong>
-            <span class="text-[11px] text-slate-400">Negrito</span>
-          </div>
-          <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-mono">
-            <strong class="text-brand-500 block">[i]Texto[/i]</strong>
-            <span class="text-[11px] text-slate-400">Itálico</span>
-          </div>
-          <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-mono">
-            <strong class="text-brand-500 block">[center]Texto[/center]</strong>
-            <span class="text-[11px] text-slate-400">Centralizar</span>
-          </div>
-          <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-mono">
-            <strong class="text-brand-500 block">[color=red]Texto[/color]</strong>
-            <span class="text-[11px] text-slate-400">Cor do Texto</span>
-          </div>
-          <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-mono">
-            <strong class="text-brand-500 block">[img]URL[/img]</strong>
-            <span class="text-[11px] text-slate-400">Exibir Imagem</span>
-          </div>
-          <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-mono">
-            <strong class="text-brand-500 block">[quote]Texto[/quote]</strong>
-            <span class="text-[11px] text-slate-400">Citação/Caixa</span>
-          </div>
-          <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-mono">
-            <strong class="text-brand-500 block">[size=16]Texto[/size]</strong>
-            <span class="text-[11px] text-slate-400">Tamanho da Fonte</span>
-          </div>
-          <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-mono">
-            <strong class="text-brand-500 block">[url=Link]Texto[/url]</strong>
-            <span class="text-[11px] text-slate-400">Hiperlink</span>
-          </div>
-        </div>
+        <h2 class="text-lg font-black text-brand-500 flex items-center gap-2">📘 Editor & Prática de BBCode</h2>
+        <p class="text-xs text-slate-500">Utilize os botões da barra de ferramentas abaixo para formatar o seu texto. Clique no botão de pré-visualização para checar o resultado antes de enviar.</p>
       </div>
 
-      <!-- PLAYGROUND INTERATIVO COM PREVIEW EM TEMPO REAL -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <!-- EDITOR DE CÓDIGO -->
-        <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3">
-          <div class="flex justify-between items-center">
-            <h3 class="font-bold text-sm">✍️ Escreva seu BBCode</h3>
-            <span class="text-[11px] text-slate-400">Pratique a formatação de relatórios</span>
-          </div>
-          <input type="text" id="bbcodeTitulo" placeholder="Título da Prática (ex: Relatório de Ação)" class="w-full p-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-bold">
-          <textarea id="bbcodeEditor" rows="12" oninput="atualizarPreviewBBCode()" placeholder="[center][b][color=gold]RELATÓRIO POLICIAL[/color][/b][/center]&#10;&#10;[b]Oficial:[/b] Matheus&#10;[b]Data:[/b] 24/07/2026&#10;[quote]Ação realizada com sucesso sem alterações.[/quote]" class="w-full p-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl font-mono text-xs focus:outline-none focus:border-brand-500"></textarea>
+      <!-- EDITOR BBCODE COM TOOLBAR SCEDITOR -->
+      <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-4">
+        <input type="text" id="bbcodeTitulo" placeholder="Título da Prática (ex: Relatório de Patrulhamento)" class="w-full p-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-bold">
 
-          <button onclick="enviarPraticaBBCode()" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold rounded-xl text-xs transition">
-            Enviar Prática aos Avaliadores
+        <!-- TOOLBAR DE BOTÕES DE BBCODE -->
+        <div class="sceditor-container">
+          <div class="sceditor-toolbar">
+            <div class="sceditor-group">
+              <button type="button" class="sceditor-button" onclick="insertBBCode('[b]', '[/b]')">Negrito</button>
+              <button type="button" class="sceditor-button" onclick="insertBBCode('[i]', '[/i]')">Itál.</button>
+              <button type="button" class="sceditor-button" onclick="insertBBCode('[u]', '[/u]')">Sublinhar</button>
+              <button type="button" class="sceditor-button" onclick="insertBBCode('[s]', '[/s]')">Riscado</button>
+            </div>
+            <div class="sceditor-group">
+              <button type="button" class="sceditor-button" onclick="insertBBCode('[left]', '[/left]')">Esquerda</button>
+              <button type="button" class="sceditor-button" onclick="insertBBCode('[center]', '[/center]')">Centrado</button>
+              <button type="button" class="sceditor-button" onclick="insertBBCode('[right]', '[/right]')">Direita</button>
+              <button type="button" class="sceditor-button" onclick="insertBBCode('[justify]', '[/justify]')">Justificado</button>
+            </div>
+            <div class="sceditor-group">
+              <button type="button" class="sceditor-button" onclick="insertBBCode('[quote]', '[/quote]')">Citar</button>
+              <button type="button" class="sceditor-button" onclick="insertBBCode('[code]', '[/code]')">Code</button>
+              <button type="button" class="sceditor-button" onclick="insertBBCode('[spoiler]', '[/spoiler]')">Spoiler</button>
+              <button type="button" class="sceditor-button" onclick="insertBBCode('[hide]', '[/hide]')">Escondido</button>
+              <button type="button" class="sceditor-button" onclick="insertBBCode('[hr]', '')">Linha</button>
+            </div>
+            <div class="sceditor-group">
+              <button type="button" class="sceditor-button" onclick="insertBBCode('[img]', '[/img]')">Imagem</button>
+              <button type="button" class="sceditor-button" onclick="insertBBCode('[url=https://Link]', '[/url]')">Link</button>
+              <button type="button" class="sceditor-button" onclick="insertBBCode('[color=red]', '[/color]')">Cor</button>
+              <button type="button" class="sceditor-button" onclick="insertBBCode('[size=16]', '[/size]')">Tamanho</button>
+              <button type="button" class="sceditor-button" onclick="insertBBCode('[font=Arial]', '[/font]')">Fonte</button>
+            </div>
+          </div>
+          <textarea id="bbcodeEditor" rows="10" placeholder="Digite seu texto formatado aqui..." class="w-full p-4 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-b-xl font-mono text-xs focus:outline-none focus:border-brand-500"></textarea>
+        </div>
+
+        <!-- BOTÕES DE AÇÃO: PRÉ-VISUALIZAR E ENVIAR -->
+        <div class="flex flex-wrap gap-3">
+          <button type="button" onclick="gerarPreVisualizacaoBBCode()" class="flex-1 py-3 bg-slate-800 hover:bg-slate-700 text-white font-extrabold rounded-xl text-xs transition">
+            🔍 Gerar Pré-visualização
+          </button>
+          <button type="button" onclick="enviarPraticaBBCode()" class="flex-1 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold rounded-xl text-xs transition">
+            📤 Enviar Prática aos Avaliadores
           </button>
         </div>
+      </div>
 
-        <!-- PRÉ-VISUALIZAÇÃO AO VIVO -->
-        <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3 flex flex-col">
-          <h3 class="font-bold text-sm text-slate-400">👁️ Pré-visualização Renderizada em Tempo Real</h3>
-          <div id="bbcodePreview" class="flex-1 p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs min-h-[220px] overflow-y-auto space-y-2">
-            <span class="text-slate-500 italic">O resultado da formatação aparecerá aqui instantaneamente...</span>
-          </div>
+      <!-- ÁREA DE PREVIEW RENDERIZADO -->
+      <div id="boxPreviewContainer" class="hidden p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3">
+        <h3 class="font-bold text-sm text-brand-500">👁️ Pré-visualização Renderizada</h3>
+        <div id="bbcodePreview" class="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs min-h-[150px] overflow-x-auto space-y-2">
         </div>
       </div>
 
-      <!-- MINHAS PRÁTICAS ENVIADAS & FEEDBACKS -->
+      <!-- HISTÓRICO DE PRÁTICAS ENVIADAS -->
       <div class="space-y-3">
         <h3 class="font-bold text-sm">📋 Histórico de Práticas Enviadas e Feedback dos Avaliadores</h3>
         <div id="listaMinhasPraticasBBCode" class="grid grid-cols-1 gap-3">
@@ -217,7 +237,19 @@
     document.getElementById('userNick').innerText = user.nick;
     lucide.createIcons();
 
-    // RENDERIZADOR DE BBCODE JS
+    // INSERIR TAGS NO EDITOR DE TEXTO VIA BOTAO
+    function insertBBCode(openTag, closeTag) {
+      const txt = document.getElementById('bbcodeEditor');
+      const start = txt.selectionStart;
+      const end = txt.selectionEnd;
+      const sel = txt.value.substring(start, end);
+      const replacement = openTag + sel + closeTag;
+      txt.value = txt.value.substring(0, start) + replacement + txt.value.substring(end);
+      txt.focus();
+      txt.setSelectionRange(start + openTag.length, start + openTag.length + sel.length);
+    }
+
+    // PARSER AVANÇADO DE BBCODE COMPATÍVEL COM FÓRUM
     function parseBBCode(str) {
       if (!str) return '';
       let html = str
@@ -226,20 +258,34 @@
         .replace(/\[i\](.*?)\[\/i\]/gi, "<i>$1</i>")
         .replace(/\[u\](.*?)\[\/u\]/gi, "<u>$1</u>")
         .replace(/\[s\](.*?)\[\/s\]/gi, "<s>$1</s>")
+        .replace(/\[left\](.*?)\[\/left\]/gi, "<div style='text-align:left;'>$1</div>")
         .replace(/\[center\](.*?)\[\/center\]/gi, "<div style='text-align:center;'>$1</div>")
+        .replace(/\[right\](.*?)\[\/right\]/gi, "<div style='text-align:right;'>$1</div>")
+        .replace(/\[justify\](.*?)\[\/justify\]/gi, "<div style='text-align:justify;'>$1</div>")
         .replace(/\[color=(.*?)\](.*?)\[\/color\]/gi, "<span style='color:$1;'>$2</span>")
         .replace(/\[size=(.*?)\](.*?)\[\/size\]/gi, "<span style='font-size:$1px;'>$2</span>")
+        .replace(/\[font=(.*?)\](.*?)\[\/font\]/gi, "<span style='font-family:$1;'>$2</span>")
         .replace(/\[quote\](.*?)\[\/quote\]/gi, "<blockquote class='p-3 my-2 border-l-4 border-brand-500 bg-slate-100 dark:bg-slate-900 rounded-r-xl italic'>$1</blockquote>")
+        .replace(/\[code\](.*?)\[\/code\]/gi, "<pre class='p-3 my-2 bg-slate-950 text-emerald-400 font-mono text-xs rounded-xl border border-slate-800 overflow-x-auto'>$1</pre>")
+        .replace(/\[spoiler\](.*?)\[\/spoiler\]/gi, "<details class='p-2 bg-slate-800 rounded-lg my-2'><summary class='cursor-pointer text-amber-400 font-bold'>Spoiler (Clique para abrir)</summary><div class='mt-2 p-2 border-t border-slate-700'>$1</div></details>")
+        .replace(/\[hide\](.*?)\[\/hide\]/gi, "<div class='p-2 bg-slate-800 text-slate-400 rounded-lg my-2 italic'>Conteúdo Oculto: $1</div>")
+        .replace(/\[hr\]/gi, "<hr class='my-3 border-slate-700'>")
         .replace(/\[img\](.*?)\[\/img\]/gi, "<img src='$1' class='max-w-full h-auto my-2 rounded-lg inline-block border' alt='Imagem BBCode'>")
         .replace(/\[url=(.*?)\](.*?)\[\/url\]/gi, "<a href='$1' target='_blank' class='text-brand-500 underline'>$2</a>")
         .replace(/\n/g, "<br>");
       return html;
     }
 
-    function atualizarPreviewBBCode() {
+    // GERAR PRE-VISUALIZACAO MANUALMENTE VIA BOTAO
+    function gerarPreVisualizacaoBBCode() {
       const codigo = document.getElementById('bbcodeEditor').value;
       const preview = document.getElementById('bbcodePreview');
-      preview.innerHTML = parseBBCode(codigo) || '<span class="text-slate-500 italic">O resultado da formatação aparecerá aqui instantaneamente...</span>';
+      const box = document.getElementById('boxPreviewContainer');
+
+      if (!codigo.trim()) return alert('Digite algum código BBCode para pré-visualizar.');
+
+      preview.innerHTML = parseBBCode(codigo);
+      box.classList.remove('hidden');
     }
 
     async function carregarHabboProfile() {
@@ -284,7 +330,7 @@
         alert('Prática de BBCode enviada com sucesso aos avaliadores!');
         document.getElementById('bbcodeTitulo').value = '';
         document.getElementById('bbcodeEditor').value = '';
-        atualizarPreviewBBCode();
+        document.getElementById('boxPreviewContainer').classList.add('hidden');
         carregarMinhasPraticasBBCode();
       }
     }
@@ -313,9 +359,9 @@
       `).join('') || '<p class="text-xs text-slate-500 py-4">Nenhuma prática enviada ainda.</p>';
     }
 
+    // CARREGAMENTO AUTOMÁTICO DA PROVA DISPONÍVEL
     async function carregarAvaliacoesDisponiveis() {
       const container = document.getElementById('listaProvasDisponiveis');
-      const boxBuscaManual = document.getElementById('boxBuscaToken');
 
       try {
         const res = await fetch(`/api/aluno?action=avaliacoesDisponiveis&nick=${encodeURIComponent(user.nick)}`);
@@ -325,10 +371,9 @@
           container.innerHTML = `
             <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center space-y-2">
               <p class="text-sm font-bold text-slate-400">Nenhuma avaliação pendente no momento.</p>
-              <p class="text-xs text-slate-500">Solicite um token de prova ao seu avaliador.</p>
+              <p class="text-xs text-slate-500">Quando um avaliador liberar uma prova para você, ela aparecerá aqui automaticamente.</p>
             </div>
           `;
-          boxBuscaManual.classList.remove('hidden');
           return;
         }
 
@@ -344,34 +389,22 @@
             </button>
           </div>
         `).join('');
-
-        boxBuscaManual.classList.add('hidden');
       } catch (err) {
         container.innerHTML = `<p class="text-xs text-red-400">Erro ao buscar avaliações.</p>`;
-        boxBuscaManual.classList.remove('hidden');
       }
     }
 
     async function iniciarProvaDireto(token) {
-      document.getElementById('tokenInput').value = token;
-      buscarProva();
-    }
-
-    async function buscarProva(e) {
-      if (e) e.preventDefault();
-      const token = document.getElementById('tokenInput').value.trim();
       const res = await fetch(`/api/aluno?action=buscarProva&token=${encodeURIComponent(token)}`);
       const data = await res.json();
 
       if (!res.ok) {
-        document.getElementById('tokenErro').innerText = data.error;
-        document.getElementById('tokenErro').classList.remove('hidden');
+        alert(data.error || 'Erro ao carregar prova.');
         return;
       }
 
       provaAtual = data.prova;
       document.getElementById('areaProvasPendentes').classList.add('hidden');
-      document.getElementById('boxBuscaToken').classList.add('hidden');
       document.getElementById('boxProva').classList.remove('hidden');
       document.getElementById('provaToken').innerText = provaAtual.token_utilizado;
 
@@ -486,6 +519,7 @@
       if (res.ok) { alert('Senha alterada com sucesso!'); fecharModalTrocarSenha(); }
     }
 
+    // Inicialização
     carregarAvaliacoesDisponiveis();
   </script>
 </body>
