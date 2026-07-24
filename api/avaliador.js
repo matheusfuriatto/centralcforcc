@@ -41,7 +41,7 @@ module.exports = async function handler(req, res) {
       }
     }
 
-    // 2. Gerar Avaliação (Senha preservada para existentes)
+    // 2. Gerar Avaliação (Garantia de Não Alterar Senha Existente)
     if (req.method === 'POST' && (action === 'gerarAvaliacao' || action === 'gerarToken')) {
       const { nickAvaliador, nickCandidato } = body;
       if (!nickCandidato || !String(nickCandidato).trim()) {
@@ -89,7 +89,7 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    // 3. Listar e Revogar
+    // 3. Listar e Revogar Avaliações
     if (req.method === 'GET' && action === 'listarTokens') {
       const snap = await db.collection('provas').orderBy('criadoEm', 'desc').get();
       const tokens = snap.docs.map(d => ({
@@ -106,7 +106,7 @@ module.exports = async function handler(req, res) {
     if (req.method === 'DELETE' && action === 'revogarToken') {
       const { id } = body;
       await db.collection('provas').doc(id).delete();
-      return res.status(200).json({ success: true, message: 'Avaliação revogada!' });
+      return res.status(200).json({ success: true, message: 'Avaliação revogada com sucesso!' });
     }
 
     // 4. Solicitações de Acesso
@@ -128,16 +128,18 @@ module.exports = async function handler(req, res) {
 
     // 5. Cancelar ou Excluir Prova
     if (req.method === 'POST' && action === 'cancelarProva') {
-      await db.collection('provas').doc(body.id).update({ status: 'Cancelada', canceladoEm: FieldValue.serverTimestamp() });
+      const { id } = body;
+      await db.collection('provas').doc(id).update({ status: 'Cancelada', canceladoEm: FieldValue.serverTimestamp() });
       return res.status(200).json({ success: true });
     }
 
     if (req.method === 'DELETE' && action === 'excluirProva') {
-      await db.collection('provas').doc(body.id).delete();
+      const { id } = body;
+      await db.collection('provas').doc(id).delete();
       return res.status(200).json({ success: true });
     }
 
-    // 6. Provas e Correção Detalhada por Questão
+    // 6. Provas e Correção
     if (req.method === 'GET' && action === 'listarProvas') {
       const snap = await db.collection('provas').orderBy('criadoEm', 'desc').get();
       return res.status(200).json({
@@ -161,7 +163,6 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    // SALVAR CORREÇÃO COM NOTAS POR QUESTÃO E FEEDBACK GERAL
     if (req.method === 'POST' && action === 'corrigir') {
       const { provaId, nota, feedbackGeral, feedbacksQuestoes, notasQuestoes } = body;
       await db.collection('provas').doc(provaId).update({
@@ -172,12 +173,16 @@ module.exports = async function handler(req, res) {
         status: 'Corrigido',
         corrigidoEm: FieldValue.serverTimestamp()
       });
-      return res.status(200).json({ success: true, message: 'Correção registrada!' });
+      return res.status(200).json({ success: true, message: 'Correção gravada!' });
     }
 
-    // 7. Sugestões de Questão
+    // 7. Sugestão de Questão
     if (req.method === 'POST' && action === 'sugerirQuestao') {
       const { avaliadorNick, categoria, titulo, enunciado, gabarito_esperado } = body;
+      if (!enunciado || !gabarito_esperado) {
+        return res.status(400).json({ error: 'Preencha enunciado e gabarito.' });
+      }
+
       await db.collection('sugestoes_questoes').add({
         avaliadorNick: avaliadorNick || 'Avaliador',
         categoria: categoria || 'Geral',
@@ -188,6 +193,7 @@ module.exports = async function handler(req, res) {
         observacaoGestor: '',
         criadoEm: FieldValue.serverTimestamp()
       });
+
       return res.status(200).json({ success: true, message: 'Sugestão enviada à gestão!' });
     }
 
@@ -197,7 +203,24 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ sugestoes: snap.docs.map(d => ({ id: d.id, ...d.data() })) });
     }
 
-    // 8. Dúvidas
+    // 8. Relatório dos Simuladores dos Alunos
+    if (req.method === 'GET' && action === 'listarResultadosSimuladores') {
+      const snap = await db.collection('simulacoes_resultados').orderBy('realizadoEm', 'desc').get();
+      const resultados = snap.docs.map(d => ({
+        id: d.id,
+        alunoNick: d.data().alunoNick,
+        tipoSimulador: d.data().tipoSimulador || 'pulso',
+        perfilGeral: d.data().perfilGeral,
+        scorePulso: d.data().scorePulso,
+        scoreRudeza: d.data().scoreRudeza,
+        scorePassividade: d.data().scorePassividade,
+        relatorio: d.data().relatorio,
+        realizadoEm: d.data().realizadoEm
+      }));
+      return res.status(200).json({ resultados });
+    }
+
+    // 9. Central de Dúvidas
     if (req.method === 'GET' && action === 'listarDuvidas') {
       const snap = await db.collection('duvidas').orderBy('criadoEm', 'desc').get();
       return res.status(200).json({
@@ -223,7 +246,7 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ success: true });
     }
 
-    // 9. Documentos
+    // 10. Documentos
     if (req.method === 'GET' && action === 'listarDocumentos') {
       const snap = await db.collection('documentos').get();
       return res.status(200).json({ documentos: snap.docs.map(d => ({ id: d.id, ...d.data() })) });

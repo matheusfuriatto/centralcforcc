@@ -43,6 +43,7 @@
       <button onclick="mudarAba('tokensEmitidos')" id="tab-tokensEmitidos" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Avaliações Geradas</button>
       <button onclick="mudarAba('solicitacoes')" id="tab-solicitacoes" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Solicitações de Acesso</button>
       <button onclick="mudarAba('provas')" id="tab-provas" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Provas & Correção</button>
+      <button onclick="mudarAba('simuladoresResultados')" id="tab-simuladoresResultados" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">🎮 Relatórios dos Simuladores</button>
       <button onclick="mudarAba('sugerir')" id="tab-sugerir" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Sugerir Questão</button>
       <button onclick="mudarAba('duvidas')" id="tab-duvidas" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Central de Dúvidas</button>
       <button onclick="mudarAba('documentos')" id="tab-documentos" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Documentos</button>
@@ -76,6 +77,14 @@
     <section id="content-provas" class="hidden space-y-4">
       <h2 class="text-lg font-bold">Provas Aplicadas e em Correção</h2>
       <div id="listaProvas" class="grid grid-cols-1 gap-4"></div>
+    </section>
+
+    <!-- RELATÓRIOS DOS SIMULADORES (NOVO) -->
+    <section id="content-simuladoresResultados" class="hidden space-y-4">
+      <h2 class="text-lg font-bold">Desempenho dos Alunos nos Simuladores Virtuais</h2>
+      <div id="listaResultadosSimuladores" class="grid grid-cols-1 gap-4">
+        <p class="text-xs text-slate-500 py-4">Carregando relatórios de simulação...</p>
+      </div>
     </section>
 
     <!-- SUGERIR QUESTÃO -->
@@ -113,24 +122,24 @@
 
   </div>
 
-  <!-- MODAL DE CORREÇÃO COM NOTAS INDIVIDUAIS POR QUESTÃO -->
+  <!-- MODAL DE CORREÇÃO COM NOTAS POR QUESTÃO -->
   <div id="modalProva" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 max-w-4xl w-full max-h-[90vh] rounded-2xl flex flex-col overflow-hidden shadow-2xl">
-      <div class="p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-950">
-        <div><h3 id="modalTitulo" class="font-black text-slate-900 dark:text-white">Correção de Avaliação</h3><p id="modalSubtitulo" class="text-xs text-slate-500"></p></div>
+    <div class="bg-white dark:bg-slate-900 border max-w-4xl w-full max-h-[90vh] rounded-2xl flex flex-col overflow-hidden shadow-2xl">
+      <div class="p-4 border-b flex justify-between items-center bg-slate-50 dark:bg-slate-950">
+        <div><h3 id="modalTitulo" class="font-black">Correção de Avaliação</h3><p id="modalSubtitulo" class="text-xs text-slate-500"></p></div>
         <button onclick="fecharModal()" class="p-2 text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
 
       <div id="modalCorpo" class="p-6 overflow-y-auto space-y-6 flex-1"></div>
 
-      <div class="p-4 border-t border-slate-200 dark:border-slate-800 space-y-3 bg-slate-50 dark:bg-slate-950">
+      <div class="p-4 border-t space-y-3 bg-slate-50 dark:bg-slate-950">
         <div class="flex gap-3 items-center flex-wrap">
           <div class="flex items-center gap-2">
             <label class="text-xs font-bold text-slate-400">Nota Final da Prova:</label>
-            <input type="number" step="0.1" max="10" min="0" id="modalNota" placeholder="0-10" class="w-28 p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-sm font-bold text-brand-500">
+            <input type="number" step="0.1" max="10" min="0" id="modalNota" placeholder="0-10" class="w-28 p-2.5 rounded-xl bg-white dark:bg-slate-900 border text-sm font-bold text-brand-500">
           </div>
-          <input type="text" id="modalFeedbackGeral" placeholder="Feedback Geral do Avaliado..." class="flex-1 p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-sm">
-          <button onclick="salvarCorrecaoModal()" class="px-6 py-2.5 bg-brand-500 hover:bg-brand-600 text-black font-extrabold rounded-xl text-sm transition">Salvar Correção</button>
+          <input type="text" id="modalFeedbackGeral" placeholder="Feedback Geral do Avaliado..." class="flex-1 p-2.5 rounded-xl bg-white dark:bg-slate-900 border text-sm">
+          <button onclick="salvarCorrecaoModal()" class="px-6 py-2.5 bg-brand-500 text-black font-extrabold rounded-xl text-sm transition">Salvar Correção</button>
         </div>
       </div>
     </div>
@@ -184,7 +193,6 @@
       return Math.min(10, Math.max(0, taxa * 10));
     }
 
-    // CALCULA A SOMA/MÉDIA AUTOMÁTICA DAS NOTAS DIGITADAS NAS QUESTÕES
     function recalcularNotaFinalGeral() {
       const inputs = document.querySelectorAll('[data-nota-questao-id]');
       if (inputs.length === 0) return;
@@ -201,8 +209,7 @@
       });
 
       if (preenchidos > 0) {
-        const mediaFinal = (soma / inputs.length).toFixed(1);
-        document.getElementById('modalNota').value = mediaFinal;
+        document.getElementById('modalNota').value = (soma / inputs.length).toFixed(1);
       }
     }
 
@@ -222,12 +229,13 @@
     function mudarAba(aba) {
       document.querySelectorAll('.tab-btn').forEach(b => b.className = "tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500");
       document.getElementById(`tab-${aba}`).className = "tab-btn px-4 py-2.5 rounded-xl text-xs font-bold bg-brand-500 text-black";
-      ['cadastros', 'tokensEmitidos', 'solicitacoes', 'provas', 'sugerir', 'duvidas', 'documentos'].forEach(a => document.getElementById(`content-${a}`).classList.add('hidden'));
+      ['cadastros', 'tokensEmitidos', 'solicitacoes', 'provas', 'simuladoresResultados', 'sugerir', 'duvidas', 'documentos'].forEach(a => document.getElementById(`content-${a}`).classList.add('hidden'));
       document.getElementById(`content-${aba}`).classList.remove('hidden');
 
       if (aba === 'tokensEmitidos') carregarTokensEmitidos();
       if (aba === 'solicitacoes') carregarSolicitacoes();
       if (aba === 'provas') carregarProvas();
+      if (aba === 'simuladoresResultados') carregarResultadosSimuladores();
       if (aba === 'sugerir') carregarMinhasSugestoes();
       if (aba === 'duvidas') carregarDuvidas();
       if (aba === 'documentos') carregarDocumentos();
@@ -253,12 +261,50 @@
       }
     }
 
+    async function carregarResultadosSimuladores() {
+      const container = document.getElementById('listaResultadosSimuladores');
+      try {
+        const res = await fetch('/api/avaliador?action=listarResultadosSimuladores');
+        const data = await res.json();
+
+        if (!data.resultados || data.resultados.length === 0) {
+          container.innerHTML = '<p class="text-xs text-slate-500 py-4 text-center">Nenhum simulador realizado ainda.</p>';
+          return;
+        }
+
+        container.innerHTML = data.resultados.map(r => `
+          <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3 shadow-sm">
+            <div class="flex justify-between items-center">
+              <div class="flex items-center gap-2">
+                <img src="https://www.habbo.com.br/habbo-imaging/avatarimage?user=${encodeURIComponent(r.alunoNick)}&headonly=1&size=s" class="w-8 h-8 rounded-full bg-slate-800">
+                <h4 class="font-bold text-sm">${r.alunoNick} <span class="text-xs font-normal text-slate-500">(${r.tipoSimulador === 'pulso' ? 'Pulso Firme' : 'Tempo & Produtividade'})</span></h4>
+              </div>
+              <span class="px-3 py-1 text-xs font-bold rounded-full bg-brand-500/10 text-brand-500 border border-brand-500/20">${r.perfilGeral}</span>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2 text-center text-xs py-1">
+              <div class="p-2 bg-slate-50 dark:bg-slate-950 rounded-lg">Pulso/Eficiência: <strong>${r.scorePulso}%</strong></div>
+              <div class="p-2 bg-slate-50 dark:bg-slate-950 rounded-lg text-red-400">Rudeza/Erro: <strong>${r.scoreRudeza}%</strong></div>
+              <div class="p-2 bg-slate-50 dark:bg-slate-950 rounded-lg text-amber-400">Omissão/Atraso: <strong>${r.scorePassividade}%</strong></div>
+            </div>
+
+            <div class="p-3 bg-slate-50 dark:bg-slate-950 rounded-xl border text-xs">
+              <strong class="text-slate-400 block mb-1">Relatório das Decisões Tomadas:</strong>
+              <p class="whitespace-pre-wrap text-slate-300">${r.relatorio}</p>
+            </div>
+          </div>
+        `).join('');
+      } catch (e) {
+        container.innerHTML = '<p class="text-xs text-red-500 text-center py-4">Erro ao carregar relatórios.</p>';
+      }
+    }
+
     async function carregarProvas() {
       const res = await fetch(`/api/avaliador?action=listarProvas`);
       const data = await res.json();
       window.provasCache = data.provas || [];
       document.getElementById('listaProvas').innerHTML = window.provasCache.map(p => `
-        <div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex justify-between items-center">
+        <div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border flex justify-between items-center">
           <div class="flex items-center gap-3">
             <img src="https://www.habbo.com.br/habbo-imaging/avatarimage?user=${encodeURIComponent(p.candidatoNick)}&headonly=1&size=m" class="w-10 h-10 rounded-xl bg-slate-800">
             <div>
@@ -302,8 +348,6 @@
           <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-3">
             <div class="flex justify-between items-center flex-wrap gap-2">
               <span class="text-xs font-bold text-brand-500 uppercase">Questão ${i + 1} - ${q.categoria || 'Geral'}</span>
-
-              <!-- CAMPO DE NOTA INDIVIDUAL DA QUESTÃO -->
               <div class="flex items-center gap-2">
                 <span class="text-[11px] font-bold text-slate-400">Nota da Questão (0-10):</span>
                 <input type="number" step="0.1" max="10" min="0" data-nota-questao-id="${q.id}" value="${notaAtualQuestao}" oninput="recalcularNotaFinalGeral()" class="w-20 p-1.5 bg-slate-900 border border-slate-700 rounded-lg text-xs font-bold text-emerald-400 text-center">
@@ -324,7 +368,7 @@
 
             <div>
               <label class="text-[11px] font-bold text-slate-400">Feedback Individual desta Questão:</label>
-              <input type="text" data-fb-questao-id="${q.id}" value="${feedbacksQuestoes[q.id] || ''}" placeholder="Dica de melhoria ou justificativa da pontuação..." class="w-full p-2 mt-1 bg-slate-900 border border-slate-800 rounded-lg text-xs text-white">
+              <input type="text" data-fb-questao-id="${q.id}" value="${feedbacksQuestoes[q.id] || ''}" placeholder="Dica de melhoria ou justificativa..." class="w-full p-2 mt-1 bg-slate-900 border border-slate-800 rounded-lg text-xs text-white">
             </div>
           </div>
         `;
@@ -510,7 +554,7 @@
         const data = await res.json();
 
         if (!data.documentos || data.documentos.length === 0) {
-          container.innerHTML = '<p class="text-xs text-slate-500 py-4 col-span-2 text-center">Nenhum documento cadastrado.</p>';
+          container.innerHTML = '<p class="text-xs text-slate-500 py-4 col-span-2 text-center">Nenum documento cadastrado.</p>';
           return;
         }
 

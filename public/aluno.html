@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Central CFO - Portal do Aluno & Simulador</title>
+  <title>Central CFO - Portal do Aluno & Simuladores</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script>
@@ -13,51 +13,22 @@
     }
   </script>
   <style>
-    /* Estilização Retrô Habbo Hotel */
     .habbo-room {
       background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
       background-image: radial-gradient(#334155 1px, transparent 1px);
-      background-size: 16px 1px;
+      background-size: 16px 16px;
     }
-
     .habbo-dialog-left {
-      position: relative;
-      background: #ffffff;
-      color: #000000;
-      border: 2px solid #000000;
-      border-radius: 12px;
-      padding: 12px 16px;
-      box-shadow: 0 4px 0px rgba(0,0,0,0.4);
+      position: relative; background: #ffffff; color: #000000; border: 2px solid #000000; border-radius: 12px; padding: 12px 16px; box-shadow: 0 4px 0px rgba(0,0,0,0.4);
     }
     .habbo-dialog-left::after {
-      content: '';
-      position: absolute;
-      left: -10px;
-      top: 50%;
-      transform: translateY(-50%);
-      border-width: 6px 10px 6px 0;
-      border-style: solid;
-      border-color: transparent #ffffff transparent transparent;
+      content: ''; position: absolute; left: -10px; top: 50%; transform: translateY(-50%); border-width: 6px 10px 6px 0; border-style: solid; border-color: transparent #ffffff transparent transparent;
     }
-
     .habbo-dialog-right {
-      position: relative;
-      background: #3b82f6;
-      color: #ffffff;
-      border: 2px solid #000000;
-      border-radius: 12px;
-      padding: 12px 16px;
-      box-shadow: 0 4px 0px rgba(0,0,0,0.4);
+      position: relative; background: #3b82f6; color: #ffffff; border: 2px solid #000000; border-radius: 12px; padding: 12px 16px; box-shadow: 0 4px 0px rgba(0,0,0,0.4);
     }
     .habbo-dialog-right::after {
-      content: '';
-      position: absolute;
-      right: -10px;
-      top: 50%;
-      transform: translateY(-50%);
-      border-width: 6px 0 6px 10px;
-      border-style: solid;
-      border-color: transparent transparent transparent #3b82f6;
+      content: ''; position: absolute; right: -10px; top: 50%; transform: translateY(-50%); border-width: 6px 0 6px 10px; border-style: solid; border-color: transparent transparent transparent #3b82f6;
     }
   </style>
 </head>
@@ -68,7 +39,7 @@
     <!-- BANNER SUPERIOR -->
     <div class="w-full h-32 rounded-2xl bg-cover bg-center border border-slate-200 dark:border-slate-800 shadow-sm" style="background-image: url('/assets/images/banner-cfo.png');"></div>
 
-    <!-- CABEÇALHO DA CONTA -->
+    <!-- CABEÇALHO DA CONTA DO ALUNO -->
     <header class="flex flex-wrap justify-between items-center gap-4 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
       <div class="flex items-center gap-4">
         <img id="habboAvatar" src="/assets/images/default-avatar.png" class="w-14 h-14 rounded-2xl border-2 border-brand-500 bg-slate-800">
@@ -88,10 +59,10 @@
       </div>
     </header>
 
-    <!-- NAVEGAÇÃO -->
+    <!-- MENU DE NAVEGAÇÃO -->
     <nav class="flex gap-2 overflow-x-auto pb-2 border-b border-slate-200 dark:border-slate-800">
       <button onclick="mudarAba('realizar')" id="tab-realizar" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold bg-brand-500 text-white">Realizar Avaliação</button>
-      <button onclick="mudarAba('simulador')" id="tab-simulador" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">🎮 Simulador Pulso Firme</button>
+      <button onclick="mudarAba('simulador')" id="tab-simulador" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">🎮 Simuladores Virtuais</button>
       <button onclick="mudarAba('avaliacoes')" id="tab-avaliacoes" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Minhas Avaliações</button>
       <button onclick="mudarAba('enviarDuvida')" id="tab-enviarDuvida" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Enviar Dúvida</button>
       <button onclick="mudarAba('comunidadeDuvidas')" id="tab-comunidadeDuvidas" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Dúvidas (Todos)</button>
@@ -103,7 +74,7 @@
       <div id="areaProvasPendentes" class="space-y-4">
         <h2 class="text-lg font-bold">Avaliação Liberada para Você</h2>
         <div id="listaProvasDisponiveis" class="grid grid-cols-1 gap-4">
-          <p class="text-xs text-slate-500 py-4">Verificando avaliações liberadas...</p>
+          <p class="text-xs text-slate-500 py-4">Verificando se há avaliações liberadas...</p>
         </div>
       </div>
 
@@ -116,17 +87,25 @@
       </div>
     </section>
 
-    <!-- ABA 2: SIMULADOR DE PULSO FIRME (NOVO) -->
+    <!-- ABA 2: SIMULADORES VIRTUAIS (PULSO FIRME E GESTÃO DE TEMPO) -->
     <section id="content-simulador" class="hidden space-y-6">
-      <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2">
-        <h2 class="text-lg font-black text-brand-500 flex items-center gap-2">🎮 Simulador Tático de Gestão & Pulso Firme</h2>
-        <p class="text-xs text-slate-500">Enfrente situações do cotidiano policial no Batalhão. Suas escolhas determinarão se sua postura é de <strong>Pulso Firme</strong>, <strong>Rudeza/Abuso</strong> ou <strong>Passividade/Omissão</strong>.</p>
+      <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3">
+        <h2 class="text-lg font-black text-brand-500 flex items-center gap-2">🎮 Simuladores Táticos da Doutrina CFO</h2>
+        <p class="text-xs text-slate-500">Selecione a matéria do simulador para testar suas atitudes operacionais no Habbo Batalhão.</p>
+
+        <!-- BOTOES DE SELEÇÃO DE SIMULADOR -->
+        <div class="flex gap-2 pt-2">
+          <button onclick="selecionarTipoSimulador('pulso')" id="btnSimPulso" class="px-4 py-2 rounded-xl text-xs font-bold bg-brand-500 text-white shadow-md">
+            🛡️ Gestão de Pulso Firme
+          </button>
+          <button onclick="selecionarTipoSimulador('tempo')" id="btnSimTempo" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-400">
+            ⏱️ Gestão de Tempo & Produtividade
+          </button>
+        </div>
       </div>
 
       <!-- TELA DO SIMULADOR (ARENA HABBO) -->
       <div class="p-6 rounded-3xl habbo-room border-2 border-slate-700 shadow-2xl space-y-6">
-
-        <!-- BARRA DE PROGRESSO DO ETAPA -->
         <div class="flex justify-between items-center text-xs font-bold text-slate-300 border-b border-slate-800 pb-3">
           <span id="simuladorEtapaTexto">Cenário 1 de 3</span>
           <div class="w-48 bg-slate-800 rounded-full h-2.5 overflow-hidden">
@@ -134,21 +113,20 @@
           </div>
         </div>
 
-        <!-- PALCO INTERATIVO DE AVATARES -->
+        <!-- PALCO INTERATIVO HABBO -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center my-4 min-h-[180px]">
-
-          <!-- LADO ESQUERDO: SUBORDINADO / NPC HABBO -->
+          <!-- SUBORDINADO / NPC -->
           <div class="flex items-center gap-3">
             <div class="relative bg-slate-900/80 p-2 rounded-2xl border border-slate-700 shrink-0">
               <img id="simuladorNpcAvatar" src="https://www.habbo.com.br/habbo-imaging/avatarimage?user=Habbo&headonly=0&direction=2&head_direction=2&action=std&gesture=sml&size=m" class="w-16 h-auto">
             </div>
             <div class="habbo-dialog-left max-w-xs">
               <strong id="simuladorNpcNick" class="block text-[11px] font-black text-slate-500 uppercase">Recruta / Subordinado</strong>
-              <p id="simuladorNpcFala" class="text-xs font-semibold leading-relaxed">Sinto muito Senhor, esqueci de colocar o emblema correto no meu perfil antes de assumir a recepção.</p>
+              <p id="simuladorNpcFala" class="text-xs font-semibold leading-relaxed">Carregando situação do Batalhão...</p>
             </div>
           </div>
 
-          <!-- LADO DIREITO: VOCÊ (OFICIAL) -->
+          <!-- PLAYER / OFICIAL -->
           <div class="flex items-center gap-3 justify-end md:flex-row-reverse">
             <div class="relative bg-slate-900/80 p-2 rounded-2xl border border-brand-500 shrink-0">
               <img id="simuladorPlayerAvatar" src="/assets/images/default-avatar.png" class="w-16 h-auto">
@@ -158,49 +136,45 @@
               <p id="simuladorPlayerFala" class="text-xs font-semibold leading-relaxed">Aguardando sua tomada de decisão...</p>
             </div>
           </div>
-
         </div>
 
-        <!-- PAINEL DE AÇÕES / DECISÕES -->
+        <!-- OPÇÕES DE AÇÃO -->
         <div id="simuladorCaixaOpcoes" class="space-y-3 pt-2">
           <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Qual ação você tomará como Líder?</h3>
           <div id="simuladorBotoesOpcoes" class="grid grid-cols-1 gap-2"></div>
         </div>
 
-        <!-- RELATÓRIO FINAL (INICIALMENTE OCULTO) -->
+        <!-- LAUDO FINAL -->
         <div id="simuladorResultadoContainer" class="hidden p-6 rounded-2xl bg-slate-900/90 border-2 border-emerald-500/40 text-slate-100 space-y-4">
           <div class="text-center space-y-1">
             <span class="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 font-bold text-xs border border-emerald-500/30 uppercase">Simulação Concluída</span>
-            <h3 id="simuladorPerfilTitulo" class="text-xl font-black text-white">Perfil: Oficial com Pulso Firme Exemplar</h3>
+            <h3 id="simuladorPerfilTitulo" class="text-xl font-black text-white">Perfil Calculado</h3>
           </div>
 
-          <!-- MÉTRIBAS DOS 3 PILARES -->
           <div class="grid grid-cols-3 gap-3 text-center py-2">
             <div class="p-3 bg-slate-950 rounded-xl border border-emerald-500/30">
-              <p class="text-[11px] text-slate-400 font-bold">Pulso Firme</p>
+              <p id="labelScore1" class="text-[11px] text-slate-400 font-bold">Pulso / Eficiência</p>
               <p id="scorePulsoFirme" class="text-lg font-black text-emerald-400">0%</p>
             </div>
             <div class="p-3 bg-slate-950 rounded-xl border border-red-500/30">
-              <p class="text-[11px] text-slate-400 font-bold">Rudeza / Abuso</p>
+              <p id="labelScore2" class="text-[11px] text-slate-400 font-bold">Rudeza / Erros</p>
               <p id="scoreRudeza" class="text-lg font-black text-red-400">0%</p>
             </div>
             <div class="p-3 bg-slate-950 rounded-xl border border-amber-500/30">
-              <p class="text-[11px] text-slate-400 font-bold">Omissão / Passividade</p>
+              <p id="labelScore3" class="text-[11px] text-slate-400 font-bold">Passividade / Atraso</p>
               <p id="scorePassividade" class="text-lg font-black text-amber-400">0%</p>
             </div>
           </div>
 
-          <!-- LAUDO E FUNDAMENTAÇÃO DOCTRINÁRIA -->
           <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2 text-xs">
-            <strong class="text-brand-500 block font-bold">Análise Detalhada das Suas Atitudes:</strong>
+            <strong class="text-brand-500 block font-bold">Análise Detalhada das Atitudes:</strong>
             <p id="simuladorLaudoTexto" class="text-slate-300 leading-relaxed"></p>
           </div>
 
-          <button onclick="reiniciarSimulador()" class="w-full py-3 bg-brand-500 hover:bg-brand-600 text-white font-black rounded-xl text-xs transition">
+          <button onclick="carregarCenariosEIniciar()" class="w-full py-3 bg-brand-500 hover:bg-brand-600 text-white font-black rounded-xl text-xs transition">
             Refazer Simulação
           </button>
         </div>
-
       </div>
     </section>
 
@@ -221,7 +195,7 @@
         <i data-lucide="alert-triangle" class="w-5 h-5 shrink-0 mt-0.5"></i>
         <div>
           <strong class="font-bold block text-sm mb-1">Aviso Importante sobre Dúvidas</strong>
-          <span>Esta seção é destinada exclusivamente para dúvidas sobre <strong>simulados do sistema</strong>. Dúvidas sobre conteúdo oficial do CFO devem ser retiradas na <a href="https://www.policiarcc.com/t38447-cfo-central-de-ajuda" target="_blank" class="underline font-bold text-brand-500">Central de Ajuda do CFO</a>.</span>
+          <span>Esta seção é destinada exclusivamente para dúvidas sobre <strong>simulados do sistema</strong>. Dúvidas sobre questões oficiais do CFO devem ser retiradas na <a href="https://www.policiarcc.com/t38447-cfo-central-de-ajuda" target="_blank" class="underline font-bold text-brand-500">Central de Ajuda do CFO</a>.</span>
         </div>
       </div>
 
@@ -229,7 +203,7 @@
         <h2 class="text-lg font-bold">Nova Dúvida do Simulado</h2>
         <form onsubmit="enviarDuvida(event)" class="space-y-4">
           <input type="text" id="duvidaTitulo" required placeholder="Título da Dúvida" class="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border text-sm focus:outline-none focus:border-brand-500">
-          <textarea id="duvidaPergunta" rows="4" required placeholder="Escreva sua pergunta sobre o simulado..." class="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border text-sm focus:outline-none focus:border-brand-500"></textarea>
+          <textarea id="duvidaPergunta" rows="4" required placeholder="Escreva sua pergunta..." class="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border text-sm focus:outline-none focus:border-brand-500"></textarea>
           <button type="submit" class="w-full py-3 bg-brand-500 text-white font-extrabold rounded-xl text-sm transition hover:bg-brand-600">Enviar Dúvida</button>
         </form>
       </div>
@@ -281,89 +255,93 @@
     lucide.createIcons();
 
     // ======================================================
-    // MÁQUINA DO SIMULADOR DE PULSO FIRME (HABBO STYLE)
+    // MÁQUINA DO SIMULADOR VIRTUAL DE PULSO FIRME E TEMPO
     // ======================================================
-    const cenariosSimulador = [
+    let tipoSimuladorAtivo = 'pulso';
+    let cenariosCarregados = [];
+    let simuladorEtapaAtual = 0;
+    let simuladorPontos = { pulso: 0, rudeza: 0, passividade: 0 };
+    let simuladorHistoricoLaudo = [];
+
+    const cenariosPadraoPulso = [
       {
         npcNick: "Recruta_Pérez",
         npcAvatar: "https://www.habbo.com.br/habbo-imaging/avatarimage?user=Habbo&direction=2&head_direction=2&action=std&gesture=sml&size=m",
-        falaNpc: "Senhor Oficial, cometi um erro na postagem do relatório do batalhão e esqueci de incluir o horário de atendimento. O que faço?",
+        falaNpc: "Senhor Oficial, cometi um erro na postagem do relatório do batalhão e esqueci de incluir o horário. O que faço?",
         opcoes: [
           {
-            texto: "Gritar com o recruta, chamá-lo de incompetente e aplicar imediatamente uma punição severa no fórum.",
+            texto: "Gritar com o recruta, chamá-lo de incompetente e aplicar rebaixamento na hora.",
             tipo: "rudeza",
-            falaPlayer: "Você é incompetente! Como erra algo tão básico? Está punido com rebaixamento agora mesmo!",
-            feedback: "Ação caracterizada como **Rudeza e Excesso de Poder**. O líder não deve agir por ego ou exaltação emocional."
+            falaPlayer: "Você é incompetente! Está rebaixado de cargo agora mesmo!",
+            feedback: "Rudeza e Excesso de Poder. O Oficial não deve agir por exaltação emocional."
           },
           {
-            texto: "Dizer que não tem problema, deixar o relatório errado no fórum sem corrigir para não chateá-lo.",
+            texto: "Dizer que não tem problema, deixar o relatório errado no fórum para não chateá-lo.",
             tipo: "passividade",
             falaPlayer: "Tudo bem recruta, deixa para lá. Ninguém vai reparar nesse erro.",
-            feedback: "Ação caracterizada como **Omissão e Passividade**. O Oficial tem o dever de manter o rigor e a correção nos documentos militares."
+            feedback: "Omissão e Passividade. O Oficial tem o dever de manter a correção técnica nos registros."
           },
           {
-            texto: "Explicar calmamente a importância do horário, instruí-lo a editar o relatório no prazo permitido e orientar para atenção futura.",
+            texto: "Explicar a importância do horário, orientar a edição imediata e cobrar atenção futura.",
             tipo: "pulso",
-            falaPlayer: "Atenção Recruta. O horário é essencial para a transparência. Edite o tópico imediatamente e mantenha o foco nos próximos.",
-            feedback: "Ação caracterizada como **Pulso Firme Exemplar**. Uniu Rigidez com Ensino, mantendo a disciplina sem faltar com o respeito."
-          }
-        ]
-      },
-      {
-        npcNick: "Cabo_Jhonny",
-        npcAvatar: "https://www.habbo.com.br/habbo-imaging/avatarimage?user=Popricard88&direction=2&head_direction=2&action=std&gesture=sad&size=m",
-        falaNpc: "Senhor, não concordo com a ordem dada para eu assumir a guarda agora. Estou cansado!",
-        opcoes: [
-          {
-            texto: "Ouvir a reclamação, concordar com o cansaço dele e assumir a função no lugar dele sem cobrar o dever.",
-            tipo: "passividade",
-            falaPlayer: "Entendo Cabo. Pode ir descansar, eu fico na guarda para você.",
-            feedback: "Ação caracterizada como **Quebra de Hierarquia por Passividade**. Ordens legais devem ser cumpridas sem favoritismo."
-          },
-          {
-            texto: "Relembrar firmemente a ele a hierarquia e o dever da função, exigir o cumprimento imediato da ordem e advertir sobre insubordinação.",
-            tipo: "pulso",
-            falaPlayer: "Cabo, a ordem foi dada com base nas necessidades do Batalhão. Assuma seu posto imediatamente. Insubordinação não será tolerada.",
-            feedback: "Ação caracterizada como **Pulso Firme Doutrinário**. Garantia do cumprimento de ordens legais com base no CCM."
-          },
-          {
-            texto: "Exonerar o Cabo imediatamente sem direito a defesa no tribunal militar.",
-            tipo: "rudeza",
-            falaPlayer: "Está exonerado da polícia agora mesmo! Fora do meu batalhão!",
-            feedback: "Ação caracterizada como **Abuso de Autoridade**. Demissões/Exonerações exigem rito próprio previsto no Código Penal Militar."
-          }
-        ]
-      },
-      {
-        npcNick: "Sargento_Rios",
-        npcAvatar: "https://www.habbo.com.br/habbo-imaging/avatarimage?user=MatheusLatrel&direction=2&head_direction=2&action=std&gesture=agr&size=m",
-        falaNpc: "Oficial! Um policial está ausente em estado 'Zzz' no corredor principal do Batalhão há mais de 10 minutos.",
-        opcoes: [
-          {
-            texto: "Determinar imediatamente a aplicação de apresentar-armas por 15 minutos conforme a regra de visibilidade do CCM.",
-            tipo: "pulso",
-            falaPlayer: "Sargento, aplique a norma do CCM: apresentar-armas por 15 minutos e oriente o militar.",
-            feedback: "Ação caracterizada como **Pulso Firme e Aplicação Fiel do Regulamento (CCM)**."
-          },
-          {
-            texto: "Fingir que não viu para não arrumar confusão com o policial que é seu amigo.",
-            tipo: "passividade",
-            falaPlayer: "Deixa ele quieto Rios, é meu amigo pessoal. Não precisa aplicar punição.",
-            feedback: "Ação caracterizada como **Parcialidade e Omissão Grave de Dever**."
-          },
-          {
-            texto: "Aplicar rebaixamento direto no policial sem dar o tempo de ordem de alerta.",
-            tipo: "rudeza",
-            falaPlayer: "Rebaixe esse policial agora mesmo sem conversa!",
-            feedback: "Ação caracterizada como **Desproporcionalidade da Punição (Rudeza)**."
+            falaPlayer: "Atenção Recruta. O horário é essencial. Edite o tópico imediatamente e mantenha o foco nos próximos.",
+            feedback: "Pulso Firme Exemplar. Uniu rigor regimental com liderança educativa."
           }
         ]
       }
     ];
 
-    let simuladorEtapaAtual = 0;
-    let simuladorPontos = { pulso: 0, rudeza: 0, passividade: 0 };
-    let simuladorHistoricoLaudo = [];
+    const cenariosPadraoTempo = [
+      {
+        npcNick: "Auxiliar_Lucas",
+        npcAvatar: "https://www.habbo.com.br/habbo-imaging/avatarimage?user=Popricard88&direction=2&head_direction=2&action=std&gesture=sml&size=m",
+        falaNpc: "Senhor, temos 3 requerimentos urgentes e uma lista de presença para atualizar em 30 minutos. Por onde começamos?",
+        opcoes: [
+          {
+            texto: "Priorizar os requerimentos urgentes com base em prazos regimentais e delegar a lista com acompanhamento.",
+            tipo: "pulso",
+            falaPlayer: "Aplicando a Matriz de Prioridade: resolvemos os 3 requerimentos urgentes primeiro devido ao prazo limiar.",
+            feedback: "Alta Produtividade e Gestão de Tempo Eficiente."
+          },
+          {
+            texto: "Fazer tudo ao mesmo tempo sem ordem de prioridade.",
+            tipo: "rudeza",
+            falaPlayer: "Abre tudo aí e vamos fazendo de qualquer jeito rápido!",
+            feedback: "Desorganização e Risco de Erros Operacionais."
+          },
+          {
+            texto: "Deixar para depois do horário de pico e ir conversar no chat.",
+            tipo: "passividade",
+            falaPlayer: "Depois a gente vê isso, vamos conversar um pouco primeiro.",
+            feedback: "Procrastinação e Negligência com Prazos."
+          }
+        ]
+      }
+    ];
+
+    async function selecionarTipoSimulador(tipo) {
+      tipoSimuladorAtivo = tipo;
+      document.getElementById('btnSimPulso').className = tipo === 'pulso' ? "px-4 py-2 rounded-xl text-xs font-bold bg-brand-500 text-white shadow-md" : "px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-400";
+      document.getElementById('btnSimTempo').className = tipo === 'tempo' ? "px-4 py-2 rounded-xl text-xs font-bold bg-brand-500 text-white shadow-md" : "px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-400";
+
+      await carregarCenariosEIniciar();
+    }
+
+    async function carregarCenariosEIniciar() {
+      try {
+        const res = await fetch('/api/gestor?action=listarCenariosSimuladores');
+        const data = await res.json();
+
+        cenariosCarregados = (data.cenarios || []).filter(c => c.tipoSimulador === tipoSimuladorAtivo);
+        if (cenariosCarregados.length === 0) {
+          cenariosCarregados = tipoSimuladorAtivo === 'pulso' ? cenariosPadraoPulso : cenariosPadraoTempo;
+        }
+      } catch (e) {
+        cenariosCarregados = tipoSimuladorAtivo === 'pulso' ? cenariosPadraoPulso : cenariosPadraoTempo;
+      }
+
+      iniciarSimuladorUI();
+    }
 
     function iniciarSimuladorUI() {
       simuladorEtapaAtual = 0;
@@ -380,12 +358,12 @@
     }
 
     function carregarEtapaSimulador(index) {
-      const c = cenariosSimulador[index];
-      document.getElementById('simuladorEtapaTexto').innerText = `Cenário ${index + 1} de ${cenariosSimulador.length}`;
-      document.getElementById('simuladorBarraProgresso').style.width = `${((index + 1) / cenariosSimulador.length) * 100}%`;
+      const c = cenariosCarregados[index];
+      document.getElementById('simuladorEtapaTexto').innerText = `Cenário ${index + 1} de ${cenariosCarregados.length}`;
+      document.getElementById('simuladorBarraProgresso').style.width = `${((index + 1) / cenariosCarregados.length) * 100}%`;
 
       document.getElementById('simuladorNpcNick').innerText = c.npcNick;
-      document.getElementById('simuladorNpcAvatar').src = c.npcAvatar;
+      document.getElementById('simuladorNpcAvatar').src = c.npcAvatar.startsWith('http') ? c.npcAvatar : `https://www.habbo.com.br/habbo-imaging/avatarimage?user=${encodeURIComponent(c.npcAvatar)}&direction=2&head_direction=2&action=std&size=m`;
       document.getElementById('simuladorNpcFala').innerText = c.falaNpc;
       document.getElementById('simuladorPlayerFala').innerText = "Aguardando sua tomada de decisão...";
 
@@ -398,15 +376,15 @@
     }
 
     function escolherAcaoSimulador(cenarioIdx, opcaoIndex) {
-      const c = cenariosSimulador[cenarioIdx];
+      const c = cenariosCarregados[cenarioIdx];
       const opt = c.opcoes[opcaoIndex];
 
       document.getElementById('simuladorPlayerFala').innerText = opt.falaPlayer;
       simuladorPontos[opt.tipo]++;
-      simuladorHistoricoLaudo.push(`• **Cenário ${cenarioIdx + 1}:** ${opt.feedback}`);
+      simuladorHistoricoLaudo.push(`• <strong>Cenário ${cenarioIdx + 1}:</strong> ${opt.feedback}`);
 
       setTimeout(() => {
-        if (cenarioIdx + 1 < cenariosSimulador.length) {
+        if (cenarioIdx + 1 < cenariosCarregados.length) {
           simuladorEtapaAtual++;
           carregarEtapaSimulador(simuladorEtapaAtual);
         } else {
@@ -418,7 +396,7 @@
     async function finalizarSimulador() {
       document.getElementById('simuladorCaixaOpcoes').classList.add('hidden');
 
-      const total = cenariosSimulador.length;
+      const total = cenariosCarregados.length;
       const pctPulso = Math.round((simuladorPontos.pulso / total) * 100);
       const pctRudeza = Math.round((simuladorPontos.rudeza / total) * 100);
       const pctPassividade = Math.round((simuladorPontos.passividade / total) * 100);
@@ -428,21 +406,21 @@
       document.getElementById('scorePassividade').innerText = `${pctPassividade}%`;
 
       let perfil = "";
-      if (pctPulso >= 66) perfil = "Oficial com Pulso Firme Exemplar 🛡️";
-      else if (pctRudeza >= 50) perfil = "Perfil Abusivo / Rigidez Excessiva (Rudeza) ⚡";
-      else perfil = "Perfil Omisso / Passividade Hierárquica 💤";
+      if (pctPulso >= 66) perfil = tipoSimuladorAtivo === 'pulso' ? "Líder Exemplar com Pulso Firme 🛡️" : "Gestor de Alta Produtividade ⏱️";
+      else if (pctRudeza >= 50) perfil = tipoSimuladorAtivo === 'pulso' ? "Perfil Abusivo / Rudeza ⚡" : "Perfil Desorganizado ⚡";
+      else perfil = tipoSimuladorAtivo === 'pulso' ? "Perfil Omisso / Passividade 💤" : "Perfil Procrastinador 💤";
 
       document.getElementById('simuladorPerfilTitulo').innerText = `Resultado: ${perfil}`;
       document.getElementById('simuladorLaudoTexto').innerHTML = simuladorHistoricoLaudo.join('<br><br>');
 
       document.getElementById('simuladorResultadoContainer').classList.remove('hidden');
 
-      // Salva a simulação no Firestore
       await fetch('/api/aluno?action=salvarSimulacaoPulsoFirme', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           nick: user.nick,
+          tipoSimulador: tipoSimuladorAtivo,
           perfilGeral: perfil,
           scorePulso: pctPulso,
           scoreRudeza: pctRudeza,
@@ -450,10 +428,6 @@
           relatorio: simuladorHistoricoLaudo.join('\n')
         })
       });
-    }
-
-    function reiniciarSimulador() {
-      iniciarSimuladorUI();
     }
 
     async function carregarHabboProfile() {
@@ -476,7 +450,7 @@
       document.getElementById(`content-${aba}`).classList.remove('hidden');
 
       if (aba === 'realizar') carregarAvaliacoesDisponiveis();
-      if (aba === 'simulador') iniciarSimuladorUI();
+      if (aba === 'simulador') carregarCenariosEIniciar();
       if (aba === 'avaliacoes') carregarMinhasAvaliacoes();
       if (aba === 'comunidadeDuvidas') carregarComunidadeDuvidas();
       if (aba === 'documentos') carregarDocumentos();
@@ -590,6 +564,9 @@
             andamentoTexto = "Avaliação Cancelada";
           }
 
+          const notasQuestoes = p.notasQuestoes || {};
+          const feedbacksQuestoes = p.feedbacks_questoes || {};
+
           return `
             <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-4 shadow-sm">
               <div class="flex justify-between items-center flex-wrap gap-2">
@@ -616,6 +593,26 @@
                 <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs">
                   <strong class="text-brand-500 block mb-1">Feedback Geral do Avaliador:</strong>
                   <p class="text-slate-700 dark:text-slate-300">${p.feedback_avaliador}</p>
+                </div>
+              ` : ''}
+
+              ${(p.questoes_json || []).length > 0 && p.status === 'Corrigido' ? `
+                <div class="space-y-3 pt-2 border-t border-slate-200 dark:border-slate-800">
+                  <h5 class="text-xs font-bold text-slate-400">Detalhamento por Questão:</h5>
+                  ${(p.questoes_json || []).map((q, i) => {
+                    const notaItem = notasQuestoes[q.id] !== undefined ? notasQuestoes[q.id] : '-';
+                    const obsItem = feedbacksQuestoes[q.id] || '';
+                    return `
+                      <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs space-y-2">
+                        <div class="flex justify-between items-center">
+                          <p class="font-bold text-slate-800 dark:text-slate-200">Q${i+1}: ${q.enunciado}</p>
+                          <span class="px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 font-bold text-xs">Nota: ${notaItem} / 10</span>
+                        </div>
+                        <p class="text-slate-400"><strong>Sua Resposta:</strong> ${p.respostas_json[q.id] || 'Sem resposta'}</p>
+                        ${obsItem ? `<p class="text-amber-500 font-semibold"><strong>Observação do Avaliador:</strong> ${obsItem}</p>` : ''}
+                      </div>
+                    `;
+                  }).join('')}
                 </div>
               ` : ''}
             </div>

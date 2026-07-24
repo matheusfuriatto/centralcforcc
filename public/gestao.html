@@ -28,9 +28,9 @@
     <div class="flex justify-center border-b border-slate-800 pb-4 gap-2 flex-wrap">
       <button onclick="mudarAbaGestor('usuarios')" id="btnUsuarios" class="px-4 py-2 rounded-xl font-semibold bg-purple-600 text-white text-xs">Usuários & Senhas</button>
       <button onclick="mudarAbaGestor('questoes')" id="btnQuestoes" class="px-4 py-2 rounded-xl font-semibold bg-slate-800 text-slate-400 text-xs">Banco de Questões</button>
+      <button onclick="mudarAbaGestor('simuladores')" id="btnSimuladores" class="px-4 py-2 rounded-xl font-semibold bg-slate-800 text-slate-400 text-xs">🎮 Gerenciar Simuladores</button>
       <button onclick="mudarAbaGestor('sugestoes')" id="btnSugestoes" class="px-4 py-2 rounded-xl font-semibold bg-slate-800 text-slate-400 text-xs">Aprovar Sugestões</button>
-      <button onclick="mudarAbaGestor('indiceErros')" id="btnIndiceErros" class="px-4 py-2 rounded-xl font-semibold bg-slate-800 text-slate-400 text-xs">Índice de Erros</button>
-      <button onclick="mudarAbaGestor('tokens')" id="btnTokens" class="px-4 py-2 rounded-xl font-semibold bg-slate-800 text-slate-400 text-xs">Tokens Emitidos</button>
+      <button onclick="mudarAbaGestor('tokens')" id="btnTokens" class="px-4 py-2 rounded-xl font-semibold bg-slate-800 text-slate-400 text-xs">Avaliações Geradas</button>
       <button onclick="mudarAbaGestor('documentos')" id="btnDocumentos" class="px-4 py-2 rounded-xl font-semibold bg-slate-800 text-slate-400 text-xs">Documentos</button>
     </div>
 
@@ -78,7 +78,66 @@
       </section>
     </div>
 
-    <!-- APROVAR SUGESTÕES DE QUESTÕES -->
+    <!-- GERENCIAR SIMULADORES -->
+    <div id="abaSimuladores" class="hidden space-y-6">
+      <section class="bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-4">
+        <h2 class="text-xl font-bold text-purple-400">Criar Novo Cenário de Simulador</h2>
+        <form onsubmit="cadastrarCenarioSimulador(event)" class="space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div>
+              <label class="text-xs font-bold text-slate-400">Tipo do Simulador</label>
+              <select id="simTipo" class="mt-1 w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white text-sm">
+                <option value="pulso">Gestão de Pulso Firme</option>
+                <option value="tempo">Gestão de Tempo & Produtividade</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-xs font-bold text-slate-400">Nick do NPC Subordinado</label>
+              <input type="text" id="simNpcNick" required placeholder="Ex: Recruta_Silva" class="mt-1 w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white text-sm">
+            </div>
+            <div>
+              <label class="text-xs font-bold text-slate-400">Avatar Habbo do NPC</label>
+              <input type="text" id="simNpcAvatar" placeholder="Ex: Habbo ou Popricard88" class="mt-1 w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white text-sm">
+            </div>
+          </div>
+
+          <div>
+            <label class="text-xs font-bold text-slate-400">Fala do NPC (Situação do Cenário)</label>
+            <textarea id="simFalaNpc" rows="2" required placeholder="Ex: Senhor, estou com acúmulo de 5 relatórios e não sei qual postar primeiro." class="mt-1 w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white text-sm"></textarea>
+          </div>
+
+          <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-3">
+            <h3 class="font-bold text-xs text-purple-300 uppercase">Ações de Escolha do Aluno:</h3>
+
+            <div class="space-y-2">
+              <input type="text" id="opt1Texto" placeholder="Opção 1: Ação Correta (Eficiente/Pulso Firme)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-xs text-white">
+              <input type="text" id="opt1Feedback" placeholder="Feedback da Opção 1 (Justificativa Doutrinária)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-xs text-white">
+            </div>
+
+            <div class="space-y-2 pt-2 border-t border-slate-800">
+              <input type="text" id="opt2Texto" placeholder="Opção 2: Ação Incorreta (Excesso/Rudeza/Procrastinação)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-xs text-white">
+              <input type="text" id="opt2Feedback" placeholder="Feedback da Opção 2" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-xs text-white">
+            </div>
+
+            <div class="space-y-2 pt-2 border-t border-slate-800">
+              <input type="text" id="opt3Texto" placeholder="Opção 3: Ação Fraca (Omissão/Passividade/Atraso)" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-xs text-white">
+              <input type="text" id="opt3Feedback" placeholder="Feedback da Opção 3" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-xs text-white">
+            </div>
+          </div>
+
+          <button type="submit" class="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl text-sm transition">
+            Cadastrar Cenário no Simulador
+          </button>
+        </form>
+      </section>
+
+      <section class="bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-4">
+        <h2 class="text-xl font-bold text-white">Cenários Cadastrados</h2>
+        <div id="listaCenariosSimuladores" class="space-y-3"></div>
+      </section>
+    </div>
+
+    <!-- APROVAR SUGESTÕES -->
     <div id="abaSugestoes" class="hidden space-y-6">
       <section class="bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-4">
         <h2 class="text-xl font-bold text-purple-400">Sugestões de Questões dos Avaliadores</h2>
@@ -86,18 +145,10 @@
       </section>
     </div>
 
-    <!-- ÍNDICE DE ERROS -->
-    <div id="abaIndiceErros" class="hidden space-y-6">
-      <section class="bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-4">
-        <h2 class="text-xl font-bold text-purple-400">Índice de Erros e Feedback por Questão</h2>
-        <div id="listaIndiceErros" class="space-y-3"></div>
-      </section>
-    </div>
-
-    <!-- TOKENS EMITIDOS -->
+    <!-- TOKENS / AVALIAÇÕES EMITIDAS -->
     <div id="abaTokens" class="hidden space-y-6">
       <section class="bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-4">
-        <h2 class="text-xl font-bold text-white">Todos os Tokens Emitidos</h2>
+        <h2 class="text-xl font-bold text-white">Todas as Avaliações Geradas</h2>
         <div id="listaTokensGestor" class="space-y-2"></div>
       </section>
     </div>
@@ -131,7 +182,7 @@
     lucide.createIcons();
 
     function mudarAbaGestor(aba) {
-      ['Usuarios', 'Questoes', 'Sugestoes', 'IndiceErros', 'Tokens', 'Documentos'].forEach(a => {
+      ['Usuarios', 'Questoes', 'Simuladores', 'Sugestoes', 'Tokens', 'Documentos'].forEach(a => {
         document.getElementById('aba' + a).classList.add('hidden');
         document.getElementById('btn' + a).className = "px-4 py-2 rounded-xl font-semibold bg-slate-800 text-slate-400 hover:text-white text-xs";
       });
@@ -142,8 +193,8 @@
 
       if (aba === 'usuarios') carregarUsuariosGestao();
       if (aba === 'questoes') carregarQuestoes();
+      if (aba === 'simuladores') carregarCenariosSimuladores();
       if (aba === 'sugestoes') carregarSugestoesGestor();
-      if (aba === 'indiceErros') carregarIndiceErros();
       if (aba === 'tokens') carregarTokensGestor();
       if (aba === 'documentos') carregarDocumentosGestor();
     }
@@ -249,6 +300,74 @@
       carregarQuestoes();
     }
 
+    async function cadastrarCenarioSimulador(e) {
+      e.preventDefault();
+      const tipoSimulador = document.getElementById('simTipo').value;
+      const npcNick = document.getElementById('simNpcNick').value;
+      const npcAvatar = document.getElementById('simNpcAvatar').value;
+      const falaNpc = document.getElementById('simFalaNpc').value;
+
+      const opcoes = [
+        {
+          texto: document.getElementById('opt1Texto').value,
+          tipo: "pulso",
+          falaPlayer: document.getElementById('opt1Texto').value,
+          feedback: document.getElementById('opt1Feedback').value
+        },
+        {
+          texto: document.getElementById('opt2Texto').value,
+          tipo: "rudeza",
+          falaPlayer: document.getElementById('opt2Texto').value,
+          feedback: document.getElementById('opt2Feedback').value
+        },
+        {
+          texto: document.getElementById('opt3Texto').value,
+          tipo: "passividade",
+          falaPlayer: document.getElementById('opt3Texto').value,
+          feedback: document.getElementById('opt3Feedback').value
+        }
+      ];
+
+      const res = await fetch('/api/gestor?action=cadastrarCenarioSimulador', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tipoSimulador, npcNick, npcAvatar, falaNpc, opcoes })
+      });
+
+      if (res.ok) {
+        alert('Cenário cadastrado no simulador!');
+        e.target.reset();
+        carregarCenariosSimuladores();
+      }
+    }
+
+    async function carregarCenariosSimuladores() {
+      const res = await fetch('/api/gestor?action=listarCenariosSimuladores');
+      const data = await res.json();
+      const container = document.getElementById('listaCenariosSimuladores');
+
+      container.innerHTML = (data.cenarios || []).map(c => `
+        <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 flex justify-between items-start">
+          <div class="space-y-1">
+            <span class="px-2.5 py-0.5 rounded-full bg-purple-500/10 text-purple-300 font-bold text-[11px] uppercase">${c.tipoSimulador === 'pulso' ? 'Pulso Firme' : 'Tempo & Produtividade'}</span>
+            <p class="font-bold text-sm text-white">NPC: ${c.npcNick}</p>
+            <p class="text-xs text-slate-300">"${c.falaNpc}"</p>
+          </div>
+          <button onclick="excluirCenario('${c.id}')" class="text-red-400 hover:text-red-300 text-xs font-bold">Excluir</button>
+        </div>
+      `).join('') || '<p class="text-xs text-slate-500 py-4">Nenhum cenário cadastrado.</p>';
+    }
+
+    async function excluirCenario(id) {
+      if (!confirm('Excluir este cenário?')) return;
+      await fetch('/api/gestor?action=excluirCenarioSimulador', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id })
+      });
+      carregarCenariosSimuladores();
+    }
+
     async function carregarSugestoesGestor() {
       const res = await fetch('/api/gestor?action=listarSugestoes');
       const data = await res.json();
@@ -283,22 +402,6 @@
       });
       alert(`Sugestão ${acao === 'aprovar' ? 'Aprovada' : 'Reprovada'}!`);
       carregarSugestoesGestor();
-    }
-
-    async function carregarIndiceErros() {
-      const res = await fetch('/api/gestor?action=analiseQuestoes');
-      const data = await res.json();
-      document.getElementById('listaIndiceErros').innerHTML = (data.estatisticas || []).map(e => `
-        <div class="bg-slate-800 p-4 rounded-xl flex justify-between items-center border border-slate-700">
-          <div>
-            <p class="font-bold text-sm text-white">[${e.categoria}] ${e.enunciado}</p>
-            <p class="text-xs text-slate-400">Respostas totais em provas: ${e.totalRespostas}</p>
-          </div>
-          <span class="text-xs font-bold px-3 py-1.5 rounded-full ${e.errosObs > 0 ? 'bg-red-500/20 text-red-400' : 'bg-emerald-500/20 text-emerald-400'}">
-            ${e.errosObs} observações de erro
-          </span>
-        </div>
-      `).join('') || '<p class="text-xs text-slate-500 py-4">Sem dados estatísticos ainda.</p>';
     }
 
     async function carregarTokensGestor() {

@@ -9,6 +9,7 @@ function mapProva(p) {
     nota: p.nota !== undefined && p.nota !== null ? p.nota : null,
     feedback_avaliador: p.feedbackAvaliador || null,
     feedbacks_questoes: p.feedbacksQuestoes || {},
+    notasQuestoes: p.notasQuestoes || {},
     respostas_json: p.respostasJson || {},
     questoes_json: p.questoesJson || []
   };
@@ -50,13 +51,33 @@ module.exports = async function handler(req, res) {
         .where('alunoNickBusca', '==', String(alunoNick).trim().toLowerCase())
         .get();
 
-      return res.status(200).json({ duvidas: snap.docs.map(d => ({ id: d.id, ...d.data() })) });
+      return res.status(200).json({
+        duvidas: snap.docs.map(d => ({
+          id: d.id,
+          alunoNick: d.data().alunoNick,
+          titulo: d.data().titulo,
+          pergunta: d.data().pergunta,
+          status: d.data().status || 'Pendente',
+          avaliadorNick: d.data().avaliadorNick || null,
+          resposta: d.data().resposta || null
+        }))
+      });
     }
 
     // 3. Listar TODAS as Dúvidas
     if (req.method === 'GET' && action === 'todasDuvidas') {
       const snap = await db.collection('duvidas').orderBy('criadoEm', 'desc').get();
-      return res.status(200).json({ duvidas: snap.docs.map(d => ({ id: d.id, ...d.data() })) });
+      return res.status(200).json({
+        duvidas: snap.docs.map(d => ({
+          id: d.id,
+          alunoNick: d.data().alunoNick,
+          titulo: d.data().titulo,
+          pergunta: d.data().pergunta,
+          status: d.data().status || 'Pendente',
+          avaliadorNick: d.data().avaliadorNick || null,
+          resposta: d.data().resposta || null
+        }))
+      });
     }
 
     // 4. Listar Minhas Avaliações
@@ -96,6 +117,11 @@ module.exports = async function handler(req, res) {
 
       const todasSnap = await db.collection('questoes').get();
       const todas = todasSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+      if (todas.length === 0) {
+        return res.status(400).json({ error: 'O banco de questões está vazio. Avise a gestão.' });
+      }
+
       const sorteadas = todas.sort(() => Math.random() - 0.5).slice(0, 10);
 
       await docRef.update({ questoesJson: sorteadas, status: 'Em Andamento' });
@@ -116,13 +142,14 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ success: true, message: 'Avaliação entregue!' });
     }
 
-    // 8. SALVAR RESULTADO DA SIMULAÇÃO DE PULSO FIRME (NOVO)
+    // 8. Salvar Resultado do Simulador
     if (req.method === 'POST' && action === 'salvarSimulacaoPulsoFirme') {
-      const { nick, perfilGeral, scorePulso, scoreRudeza, scorePassividade, relatorio } = body;
+      const { nick, tipoSimulador, perfilGeral, scorePulso, scoreRudeza, scorePassividade, relatorio } = body;
 
-      await db.collection('simulacoes_pulsofirme').add({
+      await db.collection('simulacoes_resultados').add({
         alunoNick: String(nick).trim(),
         alunoNickBusca: String(nick).trim().toLowerCase(),
+        tipoSimulador: tipoSimulador || 'pulso',
         perfilGeral,
         scorePulso,
         scoreRudeza,
@@ -131,20 +158,20 @@ module.exports = async function handler(req, res) {
         realizadoEm: FieldValue.serverTimestamp()
       });
 
-      return res.status(200).json({ success: true, message: 'Simulação registrada no seu histórico!' });
+      return res.status(200).json({ success: true, message: 'Resultado salvo com sucesso!' });
     }
 
-    // 9. HISTÓRICO DE SIMULAÇÕES DO ALUNO (NOVO)
+    // 9. Minhas Simulações
     if (req.method === 'GET' && action === 'minhasSimulacoes') {
       const nick = req.query.nick;
-      const snap = await db.collection('simulacoes_pulsofirme')
+      const snap = await db.collection('simulacoes_resultados')
         .where('alunoNickBusca', '==', String(nick).trim().toLowerCase())
         .get();
 
       return res.status(200).json({ simulacoes: snap.docs.map(d => ({ id: d.id, ...d.data() })) });
     }
 
-    return res.status(400).json({ error: 'Ação inválida' });
+    return res.status(400).json({ error: 'Ação inválida.' });
   } catch (err) {
     return res.status(500).json({ error: 'Erro interno', message: err.message });
   }
