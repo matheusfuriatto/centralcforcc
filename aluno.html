@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Central CFO - Portal do Aluno & Simuladores</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: { extend: { colors: { brand: { 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' } } } }
+    }
+  </script>
+  <style>
+    .habbo-room {
+      background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+      background-image: radial-gradient(#334155 1px, transparent 1px);
+      background-size: 16px 16px;
+    }
+    .habbo-dialog-left {
+      position: relative; background: #ffffff; color: #000000; border: 2px solid #000000; border-radius: 12px; padding: 12px 16px; box-shadow: 0 4px 0px rgba(0,0,0,0.4);
+    }
+    .habbo-dialog-left::after {
+      content: ''; position: absolute; left: -10px; top: 50%; transform: translateY(-50%); border-width: 6px 10px 6px 0; border-style: solid; border-color: transparent #ffffff transparent transparent;
+    }
+    .habbo-dialog-right {
+      position: relative; background: #3b82f6; color: #ffffff; border: 2px solid #000000; border-radius: 12px; padding: 12px 16px; box-shadow: 0 4px 0px rgba(0,0,0,0.4);
+    }
+    .habbo-dialog-right::after {
+      content: ''; position: absolute; right: -10px; top: 50%; transform: translateY(-50%); border-width: 6px 0 6px 10px; border-style: solid; border-color: transparent transparent transparent #3b82f6;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-colors duration-200">
+
+  <div class="max-w-7xl mx-auto px-4 py-6 space-y-6">
+
+    <!-- BANNER SUPERIOR -->
+    <div class="w-full h-40 md:h-56 rounded-2xl bg-contain bg-no-repeat bg-center border border-slate-200 dark:border-slate-800 shadow-sm" style="background-image: url('/assets/images/banner-cfo.png');"></div>
+
+    <!-- CABEÇALHO -->
+    <header class="flex flex-wrap justify-between items-center gap-4 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
+      <div class="flex items-center gap-4">
+        <img id="habboAvatar" src="/assets/images/default-avatar.png" class="w-14 h-14 rounded-2xl border-2 border-brand-500 bg-slate-800">
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-xl font-black text-slate-900 dark:text-white">Painel do Aluno</h1>
+            <span id="habboStatusBadge" class="px-2 py-0.5 text-xs rounded-full bg-slate-200 dark:bg-slate-800 font-semibold">Verificando...</span>
+          </div>
+          <p class="text-xs text-slate-500">Nick: <strong id="userNick" class="text-brand-500"></strong> | Visto por último: <span id="habboLastAccess">-</span></p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button onclick="toggleTheme()" class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800"><i data-lucide="sun" class="w-5 h-5 hidden dark:block text-amber-400"></i><i data-lucide="moon" class="w-5 h-5 block dark:hidden text-slate-600"></i></button>
+        <button onclick="abrirModalTrocarSenha()" class="px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-bold">Trocar Senha</button>
+        <button onclick="logout()" class="px-4 py-2 bg-red-500/10 text-red-500 font-bold text-xs rounded-xl">Sair</button>
+      </div>
+    </header>
+
+    <!-- MENU DE NAVEGAÇÃO -->
+    <nav class="flex gap-2 overflow-x-auto pb-2 border-b border-slate-200 dark:border-slate-800">
+      <button onclick="mudarAba('realizar')" id="tab-realizar" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold bg-brand-500 text-white">Realizar Avaliação</button>
+      <button onclick="mudarAba('simulador')" id="tab-simulador" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">🎮 Simuladores Virtuais</button>
+      <button onclick="mudarAba('avaliacoes')" id="tab-avaliacoes" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Minhas Avaliações</button>
+      <button onclick="mudarAba('enviarDuvida')" id="tab-enviarDuvida" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Enviar Dúvida</button>
+      <button onclick="mudarAba('comunidadeDuvidas')" id="tab-comunidadeDuvidas" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Dúvidas (Todos)</button>
+      <button onclick="mudarAba('documentos')" id="tab-documentos" class="tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500">Documentos</button>
+    </nav>
+
+    <!-- ABA 1: REALIZAR AVALIAÇÃO -->
+    <section id="content-realizar" class="space-y-6">
+      <div id="areaProvasPendentes" class="space-y-4">
+        <h2 class="text-lg font-bold">Avaliação Liberada para Você</h2>
+        <div id="listaProvasDisponiveis" class="grid grid-cols-1 gap-4">
+          <p class="text-xs text-slate-500 py-4">Verificando se há avaliações liberadas...</p>
+        </div>
+      </div>
+
+      <div id="boxProva" class="hidden space-y-6">
+        <div class="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-500 text-xs flex justify-between items-center">
+          <span>Avaliação Ativa: <strong id="provaToken" class="font-mono text-sm"></strong></span>
+          <span class="font-bold">Atenção: A prova só pode ser submetida uma única vez!</span>
+        </div>
+        <form onsubmit="submeterProva(event)" id="formProva" class="space-y-4"></form>
+      </div>
+    </section>
+
+    <!-- ABA 2: SIMULADORES VIRTUAIS -->
+    <section id="content-simulador" class="hidden space-y-6">
+      <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3">
+        <h2 class="text-lg font-black text-brand-500 flex items-center gap-2">🎮 Simuladores Táticos da Doutrina CFO</h2>
+        <p class="text-xs text-slate-500">Selecione a matéria do simulador para testar suas atitudes operacionais no Habbo Batalhão.</p>
+
+        <div class="flex gap-2 pt-2">
+          <button onclick="selecionarTipoSimulador('pulso')" id="btnSimPulso" class="px-4 py-2 rounded-xl text-xs font-bold bg-brand-500 text-white shadow-md">
+            🛡️ Gestão de Pulso Firme
+          </button>
+          <button onclick="selecionarTipoSimulador('tempo')" id="btnSimTempo" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-400">
+            ⏱️ Gestão de Tempo & Produtividade
+          </button>
+        </div>
+      </div>
+
+      <!-- TELA DO SIMULADOR HABBO -->
+      <div class="p-6 rounded-3xl habbo-room border-2 border-slate-700 shadow-2xl space-y-6">
+        <div class="flex justify-between items-center text-xs font-bold text-slate-300 border-b border-slate-800 pb-3">
+          <span id="simuladorEtapaTexto">Cenário 1 de 3</span>
+          <div class="w-48 bg-slate-800 rounded-full h-2.5 overflow-hidden">
+            <div id="simuladorBarraProgresso" class="bg-brand-500 h-2.5 transition-all" style="width: 33%"></div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center my-4 min-h-[180px]">
+          <!-- SUBORDINADO / NPC -->
+          <div class="flex items-center gap-3">
+            <div class="relative bg-slate-900/80 p-2 rounded-2xl border border-slate-700 shrink-0">
+              <img id="simuladorNpcAvatar" src="https://www.habbo.com.br/habbo-imaging/avatarimage?user=Habbo&headonly=0&direction=2&head_direction=2&action=std&gesture=sml&size=m" class="w-16 h-auto">
+            </div>
+            <div class="habbo-dialog-left max-w-xs">
+              <strong id="simuladorNpcNick" class="block text-[11px] font-black text-slate-500 uppercase">Recruta / Subordinado</strong>
+              <p id="simuladorNpcFala" class="text-xs font-semibold leading-relaxed">Carregando situação do Batalhão...</p>
+            </div>
+          </div>
+
+          <!-- PLAYER / OFICIAL -->
+          <div class="flex items-center gap-3 justify-end md:flex-row-reverse">
+            <div class="relative bg-slate-900/80 p-2 rounded-2xl border border-brand-500 shrink-0">
+              <img id="simuladorPlayerAvatar" src="/assets/images/default-avatar.png" class="w-16 h-auto">
+            </div>
+            <div class="habbo-dialog-right max-w-xs text-right">
+              <strong id="simuladorPlayerNick" class="block text-[11px] font-black text-blue-200 uppercase">Você (Oficial)</strong>
+              <p id="simuladorPlayerFala" class="text-xs font-semibold leading-relaxed">Aguardando sua tomada de decisão...</p>
+            </div>
+          </div>
+        </div>
+
+        <div id="simuladorCaixaOpcoes" class="space-y-3 pt-2">
+          <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Qual ação você tomará como Líder?</h3>
+          <div id="simuladorBotoesOpcoes" class="grid grid-cols-1 gap-2"></div>
+        </div>
+
+        <div id="simuladorResultadoContainer" class="hidden p-6 rounded-2xl bg-slate-900/90 border-2 border-emerald-500/40 text-slate-100 space-y-4">
+          <div class="text-center space-y-1">
+            <span class="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 font-bold text-xs border border-emerald-500/30 uppercase">Simulação Concluída</span>
+            <h3 id="simuladorPerfilTitulo" class="text-xl font-black text-white">Perfil Calculado</h3>
+          </div>
+
+          <div class="grid grid-cols-3 gap-3 text-center py-2">
+            <div class="p-3 bg-slate-950 rounded-xl border border-emerald-500/30">
+              <p class="text-[11px] text-slate-400 font-bold">Pulso / Eficiência</p>
+              <p id="scorePulsoFirme" class="text-lg font-black text-emerald-400">0%</p>
+            </div>
+            <div class="p-3 bg-slate-950 rounded-xl border border-red-500/30">
+              <p class="text-[11px] text-slate-400 font-bold">Rudeza / Erros</p>
+              <p id="scoreRudeza" class="text-lg font-black text-red-400">0%</p>
+            </div>
+            <div class="p-3 bg-slate-950 rounded-xl border border-amber-500/30">
+              <p class="text-[11px] text-slate-400 font-bold">Passividade / Atraso</p>
+              <p id="scorePassividade" class="text-lg font-black text-amber-400">0%</p>
+            </div>
+          </div>
+
+          <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2 text-xs">
+            <strong class="text-brand-500 block font-bold">Análise Detalhada das Atitudes:</strong>
+            <p id="simuladorLaudoTexto" class="text-slate-300 leading-relaxed"></p>
+          </div>
+
+          <button onclick="carregarCenariosEIniciar()" class="w-full py-3 bg-brand-500 hover:bg-brand-600 text-white font-black rounded-xl text-xs transition">
+            Refazer Simulação
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABA 3: MINHAS AVALIAÇÕES -->
+    <section id="content-avaliacoes" class="hidden space-y-4">
+      <div class="flex justify-between items-center">
+        <h2 class="text-lg font-bold">Minhas Avaliações & Status de Andamento</h2>
+        <button onclick="carregarMinhasAvaliacoes()" class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 text-xs font-bold hover:bg-slate-100 dark:hover:bg-slate-800">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5 inline mr-1"></i> Atualizar
+        </button>
+      </div>
+      <div id="listaAvaliacoes" class="grid grid-cols-1 gap-4"></div>
+    </section>
+
+    <!-- ABA 4: ENVIAR DÚVIDA -->
+    <section id="content-enviarDuvida" class="hidden space-y-4">
+      <div class="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400 text-xs flex items-start gap-3">
+        <i data-lucide="alert-triangle" class="w-5 h-5 shrink-0 mt-0.5"></i>
+        <div>
+          <strong class="font-bold block text-sm mb-1">Aviso Importante sobre Dúvidas</strong>
+          <span>Esta seção é destinada exclusivamente para dúvidas sobre <strong>simulados do sistema</strong>. Dúvidas sobre questões oficiais do CFO devem ser retiradas na <a href="https://www.policiarcc.com/t38447-cfo-central-de-ajuda" target="_blank" class="underline font-bold text-brand-500">Central de Ajuda do CFO</a>.</span>
+        </div>
+      </div>
+
+      <div class="max-w-xl mx-auto p-6 rounded-2xl bg-white dark:bg-slate-900 border space-y-4 shadow-sm">
+        <h2 class="text-lg font-bold">Nova Dúvida do Simulado</h2>
+        <form onsubmit="enviarDuvida(event)" class="space-y-4">
+          <input type="text" id="duvidaTitulo" required placeholder="Título da Dúvida" class="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border text-sm focus:outline-none focus:border-brand-500">
+          <textarea id="duvidaPergunta" rows="4" required placeholder="Escreva sua pergunta..." class="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border text-sm focus:outline-none focus:border-brand-500"></textarea>
+          <button type="submit" class="w-full py-3 bg-brand-500 text-white font-extrabold rounded-xl text-sm transition hover:bg-brand-600">Enviar Dúvida</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- ABA 5: COMUNIDADE DE DÚVIDAS -->
+    <section id="content-comunidadeDuvidas" class="hidden space-y-4">
+      <h2 class="text-lg font-bold">Central de Dúvidas de Simulados</h2>
+      <div id="listaComunidadeDuvidas" class="grid grid-cols-1 gap-4"></div>
+    </section>
+
+    <!-- ABA 6: DOCUMENTOS -->
+    <section id="content-documentos" class="hidden space-y-4">
+      <h2 class="text-lg font-bold">Documentos e Regimentos Oficiais</h2>
+      <div id="listaDocumentos" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+    </section>
+
+  </div>
+
+  <!-- MODAL TROCA DE SENHA -->
+  <div id="modalTrocarSenha" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 border max-w-md w-full p-6 rounded-2xl space-y-4 shadow-2xl">
+      <h3 class="font-bold text-sm">Alterar Minha Senha</h3>
+      <input type="password" id="senhaAtualAluno" placeholder="Senha Atual" class="w-full p-3 bg-slate-50 dark:bg-slate-950 border rounded-xl text-sm">
+      <input type="password" id="novaSenhaAluno" placeholder="Nova Senha" class="w-full p-3 bg-slate-50 dark:bg-slate-950 border rounded-xl text-sm">
+      <div class="flex gap-2">
+        <button onclick="salvarNovaSenhaAluno()" class="flex-1 py-3 bg-brand-500 text-white font-extrabold rounded-xl text-sm">Salvar Nova Senha</button>
+        <button onclick="fecharModalTrocarSenha()" class="px-4 py-3 bg-slate-800 text-white rounded-xl text-sm">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/assets/js/auth-guard.js"></script>
+  <script>
+    function initTheme() {
+      const savedTheme = localStorage.getItem('cfo_theme') || 'dark';
+      if (savedTheme === 'dark') document.documentElement.classList.add('dark');
+      else document.documentElement.classList.remove('dark');
+    }
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('cfo_theme', isDark ? 'dark' : 'light');
+    }
+    initTheme();
+
+    const user = checkAuth('candidato');
+    let provaAtual = null;
+    document.getElementById('userNick').innerText = user.nick;
+    lucide.createIcons();
+
+    // LÓGICA DOS SIMULADORES
+    let tipoSimuladorAtivo = 'pulso';
+    let cenariosCarregados = [];
+    let simuladorEtapaAtual = 0;
+    let simuladorPontos = { pulso: 0, rudeza: 0, passividade: 0 };
+    let simuladorHistoricoLaudo = [];
+
+    const cenariosPadraoPulso = [
+      {
+        npcNick: "Recruta_Pérez",
+        npcAvatar: "Habbo",
+        falaNpc: "Senhor Oficial, cometi um erro na postagem do relatório do batalhão e esqueci de incluir o horário. O que faço?",
+        opcoes: [
+          { texto: "Gritar com o recruta, chamá-lo de incompetente e aplicar rebaixamento na hora.", tipo: "rudeza", falaPlayer: "Você é incompetente! Está rebaixado de cargo agora mesmo!", feedback: "Rudeza e Excesso de Poder." },
+          { texto: "Dizer que não tem problema, deixar o relatório errado para não chateá-lo.", tipo: "passividade", falaPlayer: "Tudo bem recruta, deixa para lá.", feedback: "Omissão e Passividade Regimental." },
+          { texto: "Explicar a importância do horário, orientar a edição imediata e cobrar atenção.", tipo: "pulso", falaPlayer: "Atenção Recruta. Edite o tópico imediatamente e mantenha o foco nos próximos.", feedback: "Pulso Firme Exemplar com liderança educativa." }
+        ]
+      }
+    ];
+
+    const cenariosPadraoTempo = [
+      {
+        npcNick: "Auxiliar_Lucas",
+        npcAvatar: "Popricard88",
+        falaNpc: "Senhor, temos 3 requerimentos urgentes e uma lista de presença para atualizar em 30 minutos. Por onde começamos?",
+        opcoes: [
+          { texto: "Priorizar os requerimentos urgentes com base em prazos regimentais e delegar a lista.", tipo: "pulso", falaPlayer: "Resolvemos os 3 requerimentos urgentes primeiro devido ao prazo limiar.", feedback: "Alta Produtividade e Gestão de Tempo Eficiente." },
+          { texto: "Fazer tudo ao mesmo tempo sem ordem de prioridade.", tipo: "rudeza", falaPlayer: "Abre tudo aí e vamos fazendo de qualquer jeito rápido!", feedback: "Desorganização Operacional." },
+          { texto: "Deixar para depois do horário de pico e ir conversar no chat.", tipo: "passividade", falaPlayer: "Depois a gente vê isso, vamos conversar um pouco primeiro.", feedback: "Procrastinação e Negligência." }
+        ]
+      }
+    ];
+
+    async function selecionarTipoSimulador(tipo) {
+      tipoSimuladorAtivo = tipo;
+      document.getElementById('btnSimPulso').className = tipo === 'pulso' ? "px-4 py-2 rounded-xl text-xs font-bold bg-brand-500 text-white shadow-md" : "px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-400";
+      document.getElementById('btnSimTempo').className = tipo === 'tempo' ? "px-4 py-2 rounded-xl text-xs font-bold bg-brand-500 text-white shadow-md" : "px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-400";
+
+      await carregarCenariosEIniciar();
+    }
+
+    async function carregarCenariosEIniciar() {
+      try {
+        const res = await fetch('/api/gestor?action=listarCenariosSimuladores');
+        const data = await res.json();
+
+        cenariosCarregados = (data.cenarios || []).filter(c => c.tipoSimulador === tipoSimuladorAtivo);
+        if (cenariosCarregados.length === 0) {
+          cenariosCarregados = tipoSimuladorAtivo === 'pulso' ? cenariosPadraoPulso : cenariosPadraoTempo;
+        }
+      } catch (e) {
+        cenariosCarregados = tipoSimuladorAtivo === 'pulso' ? cenariosPadraoPulso : cenariosPadraoTempo;
+      }
+
+      iniciarSimuladorUI();
+    }
+
+    function iniciarSimuladorUI() {
+      simuladorEtapaAtual = 0;
+      simuladorPontos = { pulso: 0, rudeza: 0, passividade: 0 };
+      simuladorHistoricoLaudo = [];
+
+      document.getElementById('simuladorPlayerNick').innerText = user.nick;
+      document.getElementById('simuladorPlayerAvatar').src = `https://www.habbo.com.br/habbo-imaging/avatarimage?user=${encodeURIComponent(user.nick)}&direction=4&head_direction=3&action=std&gesture=std&size=m`;
+
+      document.getElementById('simuladorResultadoContainer').classList.add('hidden');
+      document.getElementById('simuladorCaixaOpcoes').classList.remove('hidden');
+
+      carregarEtapaSimulador(0);
+    }
+
+    function carregarEtapaSimulador(index) {
+      const c = cenariosCarregados[index];
+      document.getElementById('simuladorEtapaTexto').innerText = `Cenário ${index + 1} de ${cenariosCarregados.length}`;
+      document.getElementById('simuladorBarraProgresso').style.width = `${((index + 1) / cenariosCarregados.length) * 100}%`;
+
+      document.getElementById('simuladorNpcNick').innerText = c.npcNick;
+      document.getElementById('simuladorNpcAvatar').src = c.npcAvatar.startsWith('http') ? c.npcAvatar : `https://www.habbo.com.br/habbo-imaging/avatarimage?user=${encodeURIComponent(c.npcAvatar)}&direction=2&head_direction=2&action=std&size=m`;
+      document.getElementById('simuladorNpcFala').innerText = c.falaNpc;
+      document.getElementById('simuladorPlayerFala').innerText = "Aguardando sua tomada de decisão...";
+
+      const containerBotoes = document.getElementById('simuladorBotoesOpcoes');
+      containerBotoes.innerHTML = c.opcoes.map((o, i) => `
+        <button onclick="escolherAcaoSimulador(${index}, ${i})" class="p-3 bg-slate-900 hover:bg-brand-600 border border-slate-700 hover:border-brand-500 rounded-xl text-xs font-semibold text-left text-slate-200 hover:text-white transition">
+          ${o.texto}
+        </button>
+      `).join('');
+    }
+
+    function escolherAcaoSimulador(cenarioIdx, opcaoIndex) {
+      const c = cenariosCarregados[cenarioIdx];
+      const opt = c.opcoes[opcaoIndex];
+
+      document.getElementById('simuladorPlayerFala').innerText = opt.falaPlayer;
+      simuladorPontos[opt.tipo]++;
+      simuladorHistoricoLaudo.push(`• <strong>Cenário ${cenarioIdx + 1}:</strong> ${opt.feedback}`);
+
+      setTimeout(() => {
+        if (cenarioIdx + 1 < cenariosCarregados.length) {
+          simuladorEtapaAtual++;
+          carregarEtapaSimulador(simuladorEtapaAtual);
+        } else {
+          finalizarSimulador();
+        }
+      }, 1500);
+    }
+
+    async function finalizarSimulador() {
+      document.getElementById('simuladorCaixaOpcoes').classList.add('hidden');
+
+      const total = cenariosCarregados.length;
+      const pctPulso = Math.round((simuladorPontos.pulso / total) * 100);
+      const pctRudeza = Math.round((simuladorPontos.rudeza / total) * 100);
+      const pctPassividade = Math.round((simuladorPontos.passividade / total) * 100);
+
+      document.getElementById('scorePulsoFirme').innerText = `${pctPulso}%`;
+      document.getElementById('scoreRudeza').innerText = `${pctRudeza}%`;
+      document.getElementById('scorePassividade').innerText = `${pctPassividade}%`;
+
+      let perfil = "";
+      if (pctPulso >= 66) perfil = tipoSimuladorAtivo === 'pulso' ? "Líder Exemplar com Pulso Firme 🛡️" : "Gestor de Alta Produtividade ⏱️";
+      else if (pctRudeza >= 50) perfil = tipoSimuladorAtivo === 'pulso' ? "Perfil Abusivo / Rudeza ⚡" : "Perfil Desorganizado ⚡";
+      else perfil = tipoSimuladorAtivo === 'pulso' ? "Perfil Omisso / Passividade 💤" : "Perfil Procrastinador 💤";
+
+      document.getElementById('simuladorPerfilTitulo').innerText = `Resultado: ${perfil}`;
+      document.getElementById('simuladorLaudoTexto').innerHTML = simuladorHistoricoLaudo.join('<br><br>');
+
+      document.getElementById('simuladorResultadoContainer').classList.remove('hidden');
+
+      await fetch('/api/aluno?action=salvarSimulacaoPulsoFirme', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nick: user.nick,
+          tipoSimulador: tipoSimuladorAtivo,
+          perfilGeral: perfil,
+          scorePulso: pctPulso,
+          scoreRudeza: pctRudeza,
+          scorePassividade: pctPassividade,
+          relatorio: simuladorHistoricoLaudo.join('\n')
+        })
+      });
+    }
+
+    async function carregarHabboProfile() {
+      try {
+        const res = await fetch(`/api/avaliador?action=habboProfile&nick=${encodeURIComponent(user.nick)}`);
+        const data = await res.json();
+        document.getElementById('habboAvatar').src = `https://www.habbo.com.br/habbo-imaging/avatarimage?user=${encodeURIComponent(user.nick)}&headonly=0&direction=2&head_direction=2&action=std&size=m`;
+        const badge = document.getElementById('habboStatusBadge');
+        badge.className = data.online ? "px-2 py-0.5 text-xs rounded-full bg-emerald-500/10 text-emerald-500 font-bold border border-emerald-500/20" : "px-2 py-0.5 text-xs rounded-full bg-slate-500/10 text-slate-400 font-bold border border-slate-500/20";
+        badge.innerText = data.online ? "ONLINE" : "OFFLINE";
+        document.getElementById('habboLastAccess').innerText = data.lastAccess;
+      } catch (e) {}
+    }
+    carregarHabboProfile();
+
+    function mudarAba(aba) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.className = "tab-btn px-4 py-2.5 rounded-xl text-xs font-bold text-slate-500");
+      document.getElementById(`tab-${aba}`).className = "tab-btn px-4 py-2.5 rounded-xl text-xs font-bold bg-brand-500 text-white";
+      ['realizar', 'simulador', 'avaliacoes', 'enviarDuvida', 'comunidadeDuvidas', 'documentos'].forEach(a => document.getElementById(`content-${a}`).classList.add('hidden'));
+      document.getElementById(`content-${aba}`).classList.remove('hidden');
+
+      if (aba === 'realizar') carregarAvaliacoesDisponiveis();
+      if (aba === 'simulador') carregarCenariosEIniciar();
+      if (aba === 'avaliacoes') carregarMinhasAvaliacoes();
+      if (aba === 'comunidadeDuvidas') carregarComunidadeDuvidas();
+      if (aba === 'documentos') carregarDocumentos();
+    }
+
+    async function carregarAvaliacoesDisponiveis() {
+      const container = document.getElementById('listaProvasDisponiveis');
+      try {
+        const res = await fetch(`/api/aluno?action=avaliacoesDisponiveis&nick=${encodeURIComponent(user.nick)}`);
+        const data = await res.json();
+
+        if (!data.disponiveis || data.disponiveis.length === 0) {
+          container.innerHTML = `
+            <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center space-y-2">
+              <p class="text-sm font-bold text-slate-400">Nenhuma avaliação pendente no momento.</p>
+              <p class="text-xs text-slate-500">Acompanhe suas provas em "Minhas Avaliações".</p>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = data.disponiveis.map(p => `
+          <div class="p-6 rounded-2xl bg-gradient-to-br from-brand-500/10 to-blue-600/5 border-2 border-brand-500/40 flex justify-between items-center">
+            <div>
+              <span class="px-3 py-1 text-xs font-black rounded-full bg-brand-500 text-white uppercase">Avaliação Liberada</span>
+              <h3 class="text-lg font-black mt-2">ID: ${p.token_utilizado}</h3>
+              <p class="text-xs text-slate-500">Avaliador Responsável: <strong>${p.avaliador_nick}</strong></p>
+            </div>
+            <button onclick="iniciarProvaDireto('${p.token_utilizado}')" class="px-6 py-3 bg-brand-500 hover:bg-brand-600 text-white font-black rounded-xl text-xs transition">
+              Iniciar Avaliação Agora →
+            </button>
+          </div>
+        `).join('');
+      } catch (err) {
+        container.innerHTML = `<p class="text-xs text-red-400">Erro ao carregar avaliações.</p>`;
+      }
+    }
+
+    async function iniciarProvaDireto(token) {
+      const res = await fetch(`/api/aluno?action=buscarProva&token=${encodeURIComponent(token)}`);
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || 'Erro ao carregar avaliação.');
+        return;
+      }
+
+      provaAtual = data.prova;
+      document.getElementById('areaProvasPendentes').classList.add('hidden');
+      document.getElementById('boxProva').classList.remove('hidden');
+      document.getElementById('provaToken').innerText = provaAtual.token_utilizado;
+
+      document.getElementById('formProva').innerHTML = (provaAtual.questoes_json || []).map((q, i) => `
+        <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3">
+          <span class="text-xs font-bold text-brand-500 uppercase">Questão ${i + 1} - ${q.categoria || 'Geral'}</span>
+          <h4 class="font-bold text-sm text-slate-900 dark:text-white">${q.enunciado || q.titulo}</h4>
+          <textarea class="w-full p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-sm focus:outline-none focus:border-brand-500" data-questao-id="${q.id}" rows="4" placeholder="Sua resposta detalhada..." required></textarea>
+        </div>
+      `).join('') + `<button type="submit" class="w-full py-3.5 bg-emerald-500 hover:bg-emerald-600 text-white font-black rounded-xl text-sm transition">Entregar Prova</button>`;
+    }
+
+    async function submeterProva(e) {
+      e.preventDefault();
+      if (!confirm('Confirma o envio definitivo da sua prova?')) return;
+      const respostas = {};
+      document.querySelectorAll('[data-questao-id]').forEach(el => respostas[el.getAttribute('data-questao-id')] = el.value.trim());
+
+      const res = await fetch('/api/aluno?action=submeterProva', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: provaAtual.token_utilizado, respostas })
+      });
+
+      if (res.ok) {
+        alert('Prova entregue com sucesso!');
+        location.reload();
+      }
+    }
+
+    async function carregarMinhasAvaliacoes() {
+      const container = document.getElementById('listaAvaliacoes');
+      try {
+        const res = await fetch(`/api/aluno?action=minhasAvaliacoes&nick=${encodeURIComponent(user.nick)}`);
+        const data = await res.json();
+
+        if (!data.provas || data.provas.length === 0) {
+          container.innerHTML = '<p class="text-xs text-slate-500 py-4 text-center">Nenhuma avaliação registrada até o momento.</p>';
+          return;
+        }
+
+        container.innerHTML = data.provas.map(p => {
+          let badgeColor = "bg-slate-500/10 text-slate-400 border-slate-500/20";
+          let statusText = p.status;
+          let andamentoTexto = "Aguardando início";
+
+          if (p.status === 'Pendente') {
+            badgeColor = "bg-amber-500/10 text-amber-500 border-amber-500/20";
+            andamentoTexto = "Liberada para você realizar";
+          } else if (p.status === 'Em Andamento') {
+            badgeColor = "bg-blue-500/10 text-blue-500 border-blue-500/20";
+            andamentoTexto = "Em Resolução pelo Aluno";
+          } else if (p.status === 'Submetido') {
+            badgeColor = "bg-purple-500/10 text-purple-400 border-purple-500/20";
+            statusText = "Entregue";
+            andamentoTexto = "Entregue — Aguardando Correção do Avaliador";
+          } else if (p.status === 'Corrigido') {
+            badgeColor = "bg-emerald-500/10 text-emerald-500 border-emerald-500/20";
+            andamentoTexto = "Correção Concluída";
+          } else if (p.status === 'Cancelada') {
+            badgeColor = "bg-red-500/10 text-red-500 border-red-500/20";
+            andamentoTexto = "Avaliação Cancelada";
+          }
+
+          const notasQuestoes = p.notasQuestoes || {};
+          const feedbacksQuestoes = p.feedbacks_questoes || {};
+
+          return `
+            <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-4 shadow-sm">
+              <div class="flex justify-between items-center flex-wrap gap-2">
+                <div>
+                  <span class="font-mono text-xs font-bold text-slate-400">ID: ${p.token_utilizado}</span>
+                  <p class="text-xs text-slate-500">Avaliador: ${p.avaliador_nick}</p>
+                </div>
+                <span class="px-3 py-1 text-xs font-bold rounded-full border ${badgeColor}">${statusText}</span>
+              </div>
+
+              <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-1">
+                <span class="text-[11px] font-bold text-slate-400 block">Situação do Andamento:</span>
+                <p class="text-xs font-bold text-slate-800 dark:text-slate-200">${andamentoTexto}</p>
+              </div>
+
+              <div class="flex items-center justify-between text-sm pt-1">
+                <strong>Pontuação Obtida:</strong>
+                ${p.nota !== null && p.nota !== undefined
+                  ? `<span class="text-xl font-black text-brand-500">${p.nota} / 10</span>`
+                  : `<span class="text-xs font-bold text-amber-500">Em Avaliação</span>`}
+              </div>
+
+              ${p.feedback_avaliador ? `
+                <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs">
+                  <strong class="text-brand-500 block mb-1">Feedback Geral do Avaliador:</strong>
+                  <p class="text-slate-700 dark:text-slate-300">${p.feedback_avaliador}</p>
+                </div>
+              ` : ''}
+
+              ${(p.questoes_json || []).length > 0 && p.status === 'Corrigido' ? `
+                <div class="space-y-3 pt-2 border-t border-slate-200 dark:border-slate-800">
+                  <h5 class="text-xs font-bold text-slate-400">Detalhamento por Questão:</h5>
+                  ${(p.questoes_json || []).map((q, i) => {
+                    const notaItem = notasQuestoes[q.id] !== undefined ? notasQuestoes[q.id] : '-';
+                    const obsItem = feedbacksQuestoes[q.id] || '';
+                    return `
+                      <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs space-y-2">
+                        <div class="flex justify-between items-center">
+                          <p class="font-bold text-slate-800 dark:text-slate-200">Q${i+1}: ${q.enunciado}</p>
+                          <span class="px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 font-bold text-xs">Nota: ${notaItem} / 10</span>
+                        </div>
+                        <p class="text-slate-400"><strong>Sua Resposta:</strong> ${p.respostas_json[q.id] || 'Sem resposta'}</p>
+                        ${obsItem ? `<p class="text-amber-500 font-semibold"><strong>Observação do Avaliador:</strong> ${obsItem}</p>` : ''}
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+              ` : ''}
+            </div>
+          `;
+        }).join('');
+      } catch (err) {
+        container.innerHTML = '<p class="text-xs text-red-500 py-4 text-center">Erro ao carregar avaliações.</p>';
+      }
+    }
+
+    async function enviarDuvida(e) {
+      e.preventDefault();
+      await fetch('/api/aluno?action=enviarDuvida', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nick: user.nick, titulo: document.getElementById('duvidaTitulo').value, pergunta: document.getElementById('duvidaPergunta').value })
+      });
+      alert('Dúvida enviada com sucesso!');
+      e.target.reset();
+      mudarAba('comunidadeDuvidas');
+    }
+
+    async function carregarComunidadeDuvidas() {
+      const container = document.getElementById('listaComunidadeDuvidas');
+      try {
+        const res = await fetch('/api/aluno?action=todasDuvidas');
+        const data = await res.json();
+
+        if (!data.duvidas || data.duvidas.length === 0) {
+          container.innerHTML = '<p class="text-xs text-slate-500 py-4 text-center">Nenhuma dúvida registrada ainda.</p>';
+          return;
+        }
+
+        container.innerHTML = data.duvidas.map(d => `
+          <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3 shadow-sm">
+            <div class="flex justify-between items-center">
+              <div class="flex items-center gap-2">
+                <img src="https://www.habbo.com.br/habbo-imaging/avatarimage?user=${encodeURIComponent(d.alunoNick || '')}&headonly=1&size=s" class="w-8 h-8 rounded-full bg-slate-800">
+                <h4 class="font-bold text-sm text-slate-900 dark:text-white">${d.titulo} <span class="text-xs font-normal text-slate-500">(${d.alunoNick})</span></h4>
+              </div>
+              <span class="px-2.5 py-1 text-xs font-bold rounded-full bg-slate-100 dark:bg-slate-800 text-brand-500">${d.status}</span>
+            </div>
+            <p class="text-xs bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300">${d.pergunta}</p>
+            ${d.resposta ? `
+              <div class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs flex items-start gap-2">
+                <img src="https://www.habbo.com.br/habbo-imaging/avatarimage?user=${encodeURIComponent(d.avaliadorNick || '')}&headonly=1&size=s" class="w-6 h-6 rounded-full bg-slate-800">
+                <div>
+                  <strong>Resposta de ${d.avaliadorNick || 'Avaliador'}:</strong>
+                  <p class="mt-1">${d.resposta}</p>
+                </div>
+              </div>
+            ` : '<p class="text-xs text-slate-500">Aguardando resposta do corpo docente.</p>'}
+          </div>
+        `).join('');
+      } catch (err) {
+        container.innerHTML = '<p class="text-xs text-red-500 py-4 text-center">Erro ao carregar dúvidas.</p>';
+      }
+    }
+
+    async function carregarDocumentos() {
+      const container = document.getElementById('listaDocumentos');
+      try {
+        const res = await fetch('/api/avaliador?action=listarDocumentos');
+        const data = await res.json();
+
+        if (!data.documentos || data.documentos.length === 0) {
+          container.innerHTML = '<p class="text-xs text-slate-500 py-4 col-span-2 text-center">Nenhum documento disponível.</p>';
+          return;
+        }
+
+        container.innerHTML = data.documentos.map(doc => `
+          <a href="${doc.url}" target="_blank" class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-brand-500 flex items-center justify-between transition group shadow-sm">
+            <div>
+              <h4 class="font-bold text-sm text-slate-900 dark:text-white group-hover:text-brand-500 transition">${doc.titulo}</h4>
+              <p class="text-xs text-slate-500">${doc.categoria || 'Geral'}</p>
+            </div>
+            <i data-lucide="external-link" class="w-4 h-4 text-slate-400 group-hover:text-brand-500 transition"></i>
+          </a>
+        `).join('');
+        lucide.createIcons();
+      } catch (err) {
+        container.innerHTML = '<p class="text-xs text-red-500 py-4 col-span-2 text-center">Erro ao carregar documentos.</p>';
+      }
+    }
+
+    function abrirModalTrocarSenha() { document.getElementById('modalTrocarSenha').classList.remove('hidden'); }
+    function fecharModalTrocarSenha() { document.getElementById('modalTrocarSenha').classList.add('hidden'); }
+
+    async function salvarNovaSenhaAluno() {
+      const res = await fetch('/api/auth?action=alterarMinhaSenha', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nick: user.nick, senhaAtual: document.getElementById('senhaAtualAluno').value, novaSenha: document.getElementById('novaSenhaAluno').value })
+      });
+      if (res.ok) { alert('Senha alterada com sucesso!'); fecharModalTrocarSenha(); }
+    }
+
+    carregarAvaliacoesDisponiveis();
+  </script>
+</body>
+</html>

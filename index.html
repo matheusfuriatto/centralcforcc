@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="pt-BR" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Central Marinha - Início</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+      body {
+        font-family: 'Inter', sans-serif;
+      }
+    </style>
+  </head>
+  <body class="min-h-screen bg-slate-950 text-white relative selection:bg-amber-500/30">
+    <!-- Background effects -->
+    <div class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+      <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-amber-600/10 blur-[120px]"></div>
+      <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-blue-600/10 blur-[120px]"></div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="fixed top-0 w-full z-50 bg-slate-950/70 backdrop-blur-md border-b border-white/5 transition-all duration-300">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-20">
+          <!-- Logo -->
+          <div class="flex-shrink-0 flex items-center gap-3">
+            <img src="/assets/images/logo-cfo.png" alt="Logo" class="h-10 w-auto drop-shadow-md" onerror="this.style.display='none'">
+            <span class="font-extrabold text-xl tracking-wide bg-gradient-to-r from-amber-400 to-amber-600 bg-clip-text text-transparent">CENTRAL MARINHA</span>
+          </div>
+          
+          <!-- Desktop Menu -->
+          <div class="hidden md:block">
+            <div class="ml-10 flex items-baseline space-x-8">
+              <a href="#" class="text-amber-400 font-semibold px-3 py-2 rounded-md text-sm transition-colors hover:bg-white/5">Início</a>
+              <a href="#sobre" class="text-slate-300 hover:text-amber-400 font-medium px-3 py-2 rounded-md text-sm transition-colors hover:bg-white/5">Sobre</a>
+              <a href="#noticias" class="text-slate-300 hover:text-amber-400 font-medium px-3 py-2 rounded-md text-sm transition-colors hover:bg-white/5">Notícias</a>
+              <a href="login.html" class="ml-4 flex items-center gap-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black px-5 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-amber-500/20 transition-all transform hover:scale-105">
+                <i data-lucide="log-in" class="w-4 h-4"></i>
+                Página de Login
+              </a>
+            </div>
+          </div>
+
+          <!-- Mobile menu button -->
+          <div class="md:hidden flex items-center">
+            <button id="mobile-menu-button" class="text-slate-300 hover:text-white p-2">
+              <i data-lucide="menu" class="w-6 h-6"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile Menu -->
+      <div id="mobile-menu" class="hidden md:hidden bg-slate-900 border-b border-white/5">
+        <div class="px-2 pt-2 pb-4 space-y-1 sm:px-3">
+          <a href="#" class="block px-3 py-2 rounded-md text-base font-medium text-amber-400 bg-white/5">Início</a>
+          <a href="#sobre" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:text-amber-400 hover:bg-white/5">Sobre</a>
+          <a href="#noticias" class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:text-amber-400 hover:bg-white/5">Notícias</a>
+          <a href="login.html" class="mt-4 block text-center bg-amber-500 text-black px-3 py-3 rounded-xl font-bold text-base shadow-lg shadow-amber-500/20">
+            Acessar Sistema
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="relative z-10 pt-32 pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto min-h-[80vh] flex flex-col justify-center">
+      <div class="text-center space-y-8 animate-fade-in-up">
+        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-sm font-semibold mb-4">
+          <span class="relative flex h-2.5 w-2.5">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span>
+          </span>
+          Portal Oficial da Corporação
+        </div>
+        
+        <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight text-white drop-shadow-sm">
+          Bem-vindo à <br class="hidden md:block"/> 
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-amber-600">Central Marinha</span>
+        </h1>
+        
+        <p class="max-w-2xl mx-auto text-lg md:text-xl text-slate-400 font-light leading-relaxed">
+          O portal integrado para gestão, comunicação e controle operacional da nossa corporação no Habbo Hotel. Acesse os recursos exclusivos e mantenha-se informado.
+        </p>
+
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+          <a href="login.html" class="w-full sm:w-auto px-8 py-4 bg-white text-black hover:bg-slate-200 rounded-xl font-bold text-lg transition-all transform hover:-translate-y-1 flex items-center justify-center gap-2 shadow-xl">
+            Acessar Painel
+            <i data-lucide="arrow-right" class="w-5 h-5"></i>
+          </a>
+          <a href="#sobre" class="w-full sm:w-auto px-8 py-4 bg-slate-800/50 hover:bg-slate-800 border border-slate-700 text-white rounded-xl font-semibold text-lg transition-all flex items-center justify-center gap-2 backdrop-blur-sm">
+            Saiba Mais
+          </a>
+        </div>
+      </div>
+      
+      <!-- Feature Cards (Sobre/Noticias placeholders) -->
+      <div class="grid md:grid-cols-3 gap-6 mt-32">
+        <div class="bg-slate-900/50 border border-white/5 p-6 rounded-2xl backdrop-blur-sm hover:border-amber-500/30 transition-colors group" id="sobre">
+          <div class="w-12 h-12 bg-amber-500/10 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+            <i data-lucide="shield" class="w-6 h-6 text-amber-400"></i>
+          </div>
+          <h3 class="text-xl font-bold text-white mb-2">Segurança Máxima</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">Sistema desenvolvido com as melhores práticas de proteção para garantir a integridade dos dados da corporação.</p>
+        </div>
+        
+        <div class="bg-slate-900/50 border border-white/5 p-6 rounded-2xl backdrop-blur-sm hover:border-amber-500/30 transition-colors group" id="noticias">
+          <div class="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+            <i data-lucide="newspaper" class="w-6 h-6 text-blue-400"></i>
+          </div>
+          <h3 class="text-xl font-bold text-white mb-2">Notícias em Tempo Real</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">Fique por dentro de todos os avisos, promoções e novidades da Marinha de forma rápida e centralizada.</p>
+        </div>
+        
+        <div class="bg-slate-900/50 border border-white/5 p-6 rounded-2xl backdrop-blur-sm hover:border-amber-500/30 transition-colors group">
+          <div class="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+            <i data-lucide="users" class="w-6 h-6 text-emerald-400"></i>
+          </div>
+          <h3 class="text-xl font-bold text-white mb-2">Gestão de Efetivo</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">Painel completo para controle de praças e oficiais, com relatórios detalhados e ferramentas de administração.</p>
+        </div>
+      </div>
+    </main>
+
+    <footer class="border-t border-white/5 bg-slate-950/50 relative z-10 mt-12">
+      <div class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between">
+        <p class="text-slate-500 text-sm">© 2026 Central Marinha Habbo. Todos os direitos reservados.</p>
+        <div class="flex space-x-6 mt-4 md:mt-0">
+          <a href="#" class="text-slate-500 hover:text-amber-400 transition-colors">
+            <span class="sr-only">Twitter</span>
+            <i data-lucide="twitter" class="w-5 h-5"></i>
+          </a>
+          <a href="#" class="text-slate-500 hover:text-amber-400 transition-colors">
+            <span class="sr-only">Discord</span>
+            <i data-lucide="disc" class="w-5 h-5"></i>
+          </a>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      lucide.createIcons();
+      
+      // Mobile menu toggle
+      const btn = document.getElementById('mobile-menu-button');
+      const menu = document.getElementById('mobile-menu');
+      
+      btn.addEventListener('click', () => {
+        menu.classList.toggle('hidden');
+      });
+    </script>
+    <style>
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .animate-fade-in-up {
+        animation: fadeInUp 0.8s ease-out forwards;
+      }
+    </style>
+  </body>
+</html>
