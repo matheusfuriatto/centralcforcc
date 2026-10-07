@@ -4,16 +4,17 @@ if (!admin.apps.length) {
   const serviceAccount = {
     type: "service_account",
     project_id: "estudecforcc",
-    private_key_id: "39d6ea070acaf684d9a25e8876e43064d0e1009c",
+    private_key_id: "4328cf6932c53e9bca21df08996f0e6971e8f7e5",
     private_key:
-      "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQDxmGvp6Jk2hjZS\nshSaP9NNQ8DyK6GxOxe7Y/V9dS4G8ZXUNhTdxw5bCagGQpTV06n+tWzdYE4pIBBP\nHr8xf+VoMd1E9rMxSSYdQPUW13cjukdx7TEvjfq9O9QODujyxxxul4fzABdjT67f\n4HZBxpexOOzwYwiSJZcAxCZJvGLePu48uEzM9HPDw7JZqiKYsIwAnO0y27GMNRtI\nRvOaTBPo5s1H+jLVC2jqam1mkzPfBWWrJsPVgmEXQTuQKs2RI8w/N1BMxwzAvQRB\nfnznHHRNuwDSbJbhj8+QclE8j6+bVbroeyNIafHESOt++9dqF58RwkjjSktMG+4i\ncwqjBV8vAgMBAAECgf8wvg4Rl4WHBkB7IjoWgQyHnhaEpC5OPRwy3Z4uxZNpGQt7\nShQ4Hs+//1P+TG1DISS2nz2kBTsgIZcbdqrggEpXZM9W4hHrV1hp2v2eW6UYOcYc\nXgRFQMb1UuRAaYkoYYiQJ9ptu1fRaGa+gdqZNXtKun3oCJFRsozv4HSTR0OGo47Q\n0Qw2nLg5s34BCwXC/Q2T/G2FAAztvEgg04h7S7xtP9UKFWSTf38mzFC3vwt3jjOo\nS0mEmGoJXGtMnxucfxDFCL4D9tO5XiwQbN/TCS3A8wcOYMvh0Gx+RgD34lYZf7xe\nzbSiCjoXYs7xAIVzEIt1aYHXPrpWT6NCFG49ZqkCgYEA+blxJTLlea+aHYcVuTv5\nl1xX/R8zRDTL1GgVPG8uFG9hw/3ZxPtNIVjOJ9pdMX1x1cn6Ahmds0r4L5Omo2ht\nmVt9PSDMaLEPNsgNBMYzbOBPuxY9bSUVwTM8vk5xTt+J92p9ZOczuikvyj9kQKAq\n5llRdqAAe16BeCbZ7N/xeEMCgYEA96qu42oM7W4wxj1Ko/D4DQ/lQTAMRafnn1on\nrbmDyFUomtDBh3uYdH96OSRmDDPcAsFMxBTrhDyhjM0RLVFcIzdt1XPKb4kUmeWV\nwdFoZvc+luDsoH8yDf/DjpPpkKQm04ZCwiNj6AmLf2iR8snq0a1juv6cSLKTcLco\nFISB9KUCgYEApg0TGUMgp6uGdP/wB/3DV0xGDcADXOUmbBTRmh/rqhbuEV7owTzA\n6t2cJ4/hzBi36wqkvWS/IgtFwI0TjzDPP9xACLeYdDzX+vtG/Ne2Nj1phuOg8MRq\nFM+3ImwSl/m4SdZ7ju7VzIG6j2dbiEV4gTb/HjwCVgZfXL+oxQOcEvUCgYALg8UD\nz79wHopn/RuGScLOoKmRAVHgvzC2qPNlUVW+L69mm0QUL3vkFrUxCO8xrAuTmTcf\nerWEfWkpabNdvwWgoYgav3pu+xmZGiJ/U2QePWqMi0KVJ7TFD9ogu+HFFsyzUu+x\npQGVHTR+JPd8KUUgoIYdgI71lk/ikrFrWsnL/QKBgQCn/llEUY5PE6dKeG0KmxvN\nIT5wz7Z4h8SoItlEv1mxAVBXPBWS/3sl+Ff7ucT9GbAEJ0rseB/EiKEFYFGdrky3\n8ZzigligNpMPYjZhyGC0CuKvvFvyz0LikU0bH03aODIOOgl8YEyAkGr9eJzmaUJQ\nD0k7++1pKSKG55n+6wlkAA==\n-----END PRIVATE KEY-----\n",
-    client_email: "teste-527@estudecforcc.iam.gserviceaccount.com",
-    client_id: "116357748121402709975",
+      "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDepFNeOm7j960i\nU9AaLX3Eu5TNNipk4iY/TrQX7rvv5tAQSUH1wTnXT2nFxXsbAVGYZ7M+u950a5SJ\nEZ6x3bGv+gnS68AGp23cpZb9AlkvNj8CEdBwGe2zMU8D72eR/WexPqhtaffHpRCW\nCRMEvoLynk9sWP3SIx10IdTqna4trj9sLs7lkbNYiVUL8L4llp+o8aFqeN9hSndp\nXYDxb1+lZKnCrnRobzzVfAbtOgKrkCCNWdqJY3z/4GLJ6rcl0LETbSnLEyv9aU6o\nw5NgVQIDMMHLMkV5rX3ZxRT3CjMuRdTSxoKYCTFE15lZNo98BkDJ/5Ncaor2wH1h\ntUDYN3ILAgMBAAECggEABGyqcj/DSd33cEgzaudTZrwI+FX+UROIaFpzDEq1QovL\n7F9HoMSCvbXQ9CrlrwGpIyYAP69MhukPtGPjpEqMvm3K5MuBywcD+uc0kqNiqCnW\nHcIyAETVCGo2T474XFTWCDeQbCyQoS46+OPOZ9znceWQSKxdohHS7MJ1ceuiRe16\n15Dyxx/0AS2zbwtirnhfCfHk+Ib6J11+RIu9fNUshVBK+PeebioiYHRbxluXyeh6\ngpQI6tBunbff+YunTwCjoONiyJy2kjr7lMHhwAcOYkoZ5rVf397S73ljCG7EGUAD\niI5ySSD2PdZwoUtkZJx/FhepM0wYlhn5T8zotTJ2cQKBgQD1T3SLLkN5U0DnCMEI\nfDSENyxoYFWdG61MCgOtbZ0kx31Ri1WRhJgnSDEOaNMMHTHdAhpKrqN0f+JwIjd5\nHcP42jUsJ+0P+eJFgAs4tV4FbroHNjfTfZ+9i95vLMnT5RXmlUM/SRF7vxuMN7vs\n9TjYarPpPJu3VC+EZmpOjBOTWQKBgQDoV/5emt2Wq1L9+J26EM6T1O1sYzC40RIy\nFzG0OdgIHACi4CMap0px4UJyqc4GzEIZVyV5xnhFpM5qKKQB7yOtwwxZqaPqXPlG\nau4hHmbM74Etb9nUY1vrFDpeXNLEE3g7HKggvMENUE6K/9qnCcs8kY3MBJk49B1b\nHmQid+N4AwKBgH6h2JCsfipYPs3E6BjgPR/vd14eNLPYgLobBVD2n8NHs7pviemH\noB/PFXvRwvii7YWgO0BILJrMFXE7SJWeNvb0dbRom+i+Xv7vnVtVzMZTJXbplyH2\n3Io1dMrBPSLERGz2qnM13e+adLcKYlltMT4Ovvbs0ZluvOTFFaWci9JpAoGBAONA\ntd8IsHXfSsR4OKW2LKexmyvpdM1ASQDPaOEztpZv9TtZ6Vv3hrwOLLUEWyyQ+pHY\niCIsupS71t1EtO3jXk1lup20bEwd9f8nNZUVLE2EcR/lB/VR3aT32wNS3R/FP1Lp\n+5RRqq1//+K6z72TucKbR0rmsIthUZk/B4gjJUzLAoGAc0yt9JuqHuj1HXo5qJIQ\nQYKc5LzCKwPe76ULf0Pxt6wALcIPj3JZxBOAMmuZqbf49DMvUSHAcBkHm9g3s4n4\nXmGCMhtWJrbEIr1Gch3FiOP2FBz+GGKzEP6WfoV8m8NeHsn6SSxuJdReN5w9Y7aj\ns4vB/PmUYijA6wA1B12v4pE=\n-----END PRIVATE KEY-----\n",
+    client_email:
+      "firebase-adminsdk-fbsvc@estudecforcc.iam.gserviceaccount.com",
+    client_id: "116469125569189768870",
     auth_uri: "https://accounts.google.com/o/oauth2/auth",
     token_uri: "https://oauth2.googleapis.com/token",
     auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
     client_x509_cert_url:
-      "https://www.googleapis.com/robot/v1/metadata/x509/teste-527%40estudecforcc.iam.gserviceaccount.com",
+      "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40estudecforcc.iam.gserviceaccount.com",
     universe_domain: "googleapis.com",
   };
 
