@@ -1,285 +1,773 @@
 <!doctype html>
-<html lang="pt-BR" class="dark">
+<html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="widSImth=device-width, initial-scale=1.0" />
-    <title>Central Marinha - Início</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Validador Oficial de Inspeção - Marinha do Brasil</title>
+    <!-- Bootstrap 5 CSS -->
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- FontAwesome para Ícones -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+    />
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
     <style>
       body {
+        background-color: #0d1117;
+        color: #ffffff;
         font-family: "Inter", sans-serif;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .navbar-custom {
+        background-color: #161b22;
+        border-bottom: 1px solid #30363d;
+      }
+
+      .card-custom {
+        background-color: #161b22;
+        border: 1px solid #30363d;
+        border-radius: 10px;
+      }
+
+      .form-control {
+        background-color: #0d1117;
+        border-color: #30363d;
+        color: #ffffff;
+        padding: 12px;
+      }
+      .form-control:focus {
+        background-color: #0d1117;
+        border-color: #f59e0b;
+        color: #ffffff;
+        box-shadow: 0 0 0 0.25rem rgba(245, 158, 11, 0.25);
+      }
+
+      .btn-gold {
+        background-color: #f59e0b;
+        color: #0d1117;
+        font-weight: 700;
+        padding: 12px 24px;
+      }
+      .btn-gold:hover {
+        background-color: #d97706;
+        color: #fff;
+      }
+
+      /* Animação do Naviozinho */
+      .ocean-loader {
+        position: relative;
+        width: 100%;
+        height: 90px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .ship {
+        font-size: 2.8rem;
+        color: #38bdf8;
+        animation: sail 2s ease-in-out infinite alternate;
+        z-index: 2;
+      }
+
+      @keyframes sail {
+        0% {
+          transform: translateY(4px) rotate(-3deg);
+        }
+        100% {
+          transform: translateY(-4px) rotate(3deg);
+        }
+      }
+
+      .waves {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        height: 12px;
+        background: linear-gradient(90deg, #1d4ed8, #38bdf8, #1d4ed8);
+        background-size: 200% 100%;
+        animation: wave-flow 1.5s linear infinite;
+      }
+
+      @keyframes wave-flow {
+        0% {
+          background-position: 0% 0%;
+        }
+        100% {
+          background-position: 200% 0%;
+        }
+      }
+
+      .badge-group-item {
+        background-color: #0d1117;
+        border: 1px solid #30363d;
+        border-radius: 8px;
+        padding: 10px 14px;
+        margin-bottom: 8px;
+      }
+
+      .avatar-box {
+        background-color: #0d1117;
+        border: 1px solid #30363d;
+        border-radius: 10px;
+        padding: 20px;
+        min-height: 280px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .text-muted-custom {
+        color: #94a3b8 !important;
       }
     </style>
   </head>
-  <body
-    class="min-h-screen bg-slate-950 text-white relative selection:bg-amber-500/30"
-  >
-    <!-- Background effects -->
-    <div class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+  <body>
+    <!-- Header / Navbar -->
+    <nav class="navbar navbar-custom py-3 px-4">
       <div
-        class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-amber-600/10 blur-[120px]"
-      ></div>
-      <div
-        class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-blue-600/10 blur-[120px]"
-      ></div>
-    </div>
-
-    <!-- Navbar -->
-    <nav
-      class="fixed top-0 w-full z-50 bg-slate-950/70 backdrop-blur-md border-b border-white/5 transition-all duration-300"
-    >
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-20">
-          <!-- Logo -->
-          <div class="flex-shrink-0 flex items-center gap-3">
-            <img
-              src="/assets/images/logo-cfo.png"
-              alt="Logo"
-              class="h-10 w-auto drop-shadow-md"
-              onerror="this.style.display = 'none'"
-            />
-            <span
-              class="font-extrabold text-xl tracking-wide bg-gradient-to-r from-amber-400 to-amber-600 bg-clip-text text-transparent"
-              >CENTRAL MARINHA</span
-            >
-          </div>
-
-          <!-- Desktop Menu -->
-          <div class="hidden md:block">
-            <div class="ml-10 flex items-baseline space-x-8">
-              <a
-                href="#"
-                class="text-amber-400 font-semibold px-3 py-2 rounded-md text-sm transition-colors hover:bg-white/5"
-                >Início</a
-              >
-              <a
-                href="#sobre"
-                class="text-slate-300 hover:text-amber-400 font-medium px-3 py-2 rounded-md text-sm transition-colors hover:bg-white/5"
-                >Sobre</a
-              >
-              <a
-                href="#noticias"
-                class="text-slate-300 hover:text-amber-400 font-medium px-3 py-2 rounded-md text-sm transition-colors hover:bg-white/5"
-                >Notícias</a
-              >
-              <a
-                href="login.html"
-                class="ml-4 flex items-center gap-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black px-5 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-amber-500/20 transition-all transform hover:scale-105"
-              >
-                <i data-lucide="log-in" class="w-4 h-4"></i>
-                Página de Login
-              </a>
-            </div>
-          </div>
-
-          <!-- Mobile menu button -->
-          <div class="md:hidden flex items-center">
-            <button
-              id="mobile-menu-button"
-              class="text-slate-300 hover:text-white p-2"
-            >
-              <i data-lucide="menu" class="w-6 h-6"></i>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Mobile Menu -->
-      <div
-        id="mobile-menu"
-        class="hidden md:hidden bg-slate-900 border-b border-white/5"
+        class="container-fluid d-flex justify-content-between align-items-center"
       >
-        <div class="px-2 pt-2 pb-4 space-y-1 sm:px-3">
-          <a
-            href="#"
-            class="block px-3 py-2 rounded-md text-base font-medium text-amber-400 bg-white/5"
-            >Início</a
-          >
-          <a
-            href="#sobre"
-            class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:text-amber-400 hover:bg-white/5"
-            >Sobre</a
-          >
-          <a
-            href="#noticias"
-            class="block px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:text-amber-400 hover:bg-white/5"
-            >Notícias</a
-          >
-          <a
-            href="login.html"
-            class="mt-4 block text-center bg-amber-500 text-black px-3 py-3 rounded-xl font-bold text-base shadow-lg shadow-amber-500/20"
-          >
-            Acessar Sistema
-          </a>
+        <div class="d-flex align-items-center gap-3">
+          <div class="bg-primary text-white p-2 rounded-3 shadow">
+            <i class="fa-solid fa-anchor fa-lg"></i>
+          </div>
+          <div>
+            <h5 class="mb-0 fw-bold text-white">Marinha do Brasil</h5>
+            <small class="text-muted-custom"
+              >Inspeção de Portaria Rigorosa (Missão Obrigatória)</small
+            >
+          </div>
         </div>
+        <a href="#" class="btn btn-outline-light btn-sm px-3"
+          ><i class="fa-solid fa-arrow-left me-1"></i> Voltar</a
+        >
       </div>
     </nav>
 
-    <!-- Main Content -->
-    <main
-      class="relative z-10 pt-32 pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto min-h-[80vh] flex flex-col justify-center"
-    >
-      <div class="text-center space-y-8 animate-fade-in-up">
-        <div
-          class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-sm font-semibold mb-4"
-        >
-          <span class="relative flex h-2.5 w-2.5">
-            <span
-              class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"
-            ></span>
-            <span
-              class="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"
-            ></span>
-          </span>
-          Portal Oficial da Corporação
-        </div>
+    <!-- Main Container -->
+    <div class="container my-4 flex-grow-1">
+      <!-- Input Section -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="card card-custom p-4 shadow-sm">
+            <h4 class="fw-bold text-white mb-2">
+              <i class="fa-solid fa-shield-halved text-warning me-2"></i
+              >Validador de Requisitos e Portaria
+            </h4>
+            <p class="text-muted-custom mb-4">
+              Insira o nickname para auditoria completa: Vínculo obrigatório,
+              Missão válida obrigatória (sem missões vazias ou pontos), Manga
+              Curta obrigatória, Boinas por patente, Tons de pele e Rivais.
+            </p>
 
-        <h1
-          class="text-5xl md:text-7xl font-extrabold tracking-tight text-white drop-shadow-sm"
-        >
-          Bem-vindo à <br class="hidden md:block" />
-          <span
-            class="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-amber-600"
-            >Central Marinha</span
-          >
-        </h1>
-
-        <p
-          class="max-w-2xl mx-auto text-lg md:text-xl text-slate-400 font-light leading-relaxed"
-        >
-          O portal integrado para gestão, comunicação e controle operacional da
-          nossa corporação no Habbo Hotel. Acesse os recursos exclusivos e
-          mantenha-se informado.
-        </p>
-
-        <div
-          class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4"
-        >
-          <a
-            href="login.html"
-            class="w-full sm:w-auto px-8 py-4 bg-white text-black hover:bg-slate-200 rounded-xl font-bold text-lg transition-all transform hover:-translate-y-1 flex items-center justify-center gap-2 shadow-xl"
-          >
-            Acessar Painel
-            <i data-lucide="arrow-right" class="w-5 h-5"></i>
-          </a>
-          <a
-            href="#sobre"
-            class="w-full sm:w-auto px-8 py-4 bg-slate-800/50 hover:bg-slate-800 border border-slate-700 text-white rounded-xl font-semibold text-lg transition-all flex items-center justify-center gap-2 backdrop-blur-sm"
-          >
-            Saiba Mais
-          </a>
+            <div class="input-group">
+              <input
+                type="text"
+                id="habboName"
+                class="form-control"
+                placeholder="Digite o nickname exato do Habbo..."
+              />
+              <button
+                class="btn btn-gold"
+                type="button"
+                onclick="consultarHabbo()"
+              >
+                <i class="fa-solid fa-magnifying-glass me-2"></i> PESQUISAR
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- Feature Cards (Sobre/Noticias placeholders) -->
-      <div class="grid md:grid-cols-3 gap-6 mt-32">
-        <div
-          class="bg-slate-900/50 border border-white/5 p-6 rounded-2xl backdrop-blur-sm hover:border-amber-500/30 transition-colors group"
-          id="sobre"
-        >
-          <div
-            class="w-12 h-12 bg-amber-500/10 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform"
-          >
-            <i data-lucide="shield" class="w-6 h-6 text-amber-400"></i>
+      <!-- Loading com Naviozinho -->
+      <div id="loadingSection" class="row d-none my-5">
+        <div class="col-12 text-center">
+          <div class="card card-custom p-5">
+            <div class="ocean-loader mb-3">
+              <div class="ship"><i class="fa-solid fa-sailboat"></i></div>
+              <div class="waves"></div>
+            </div>
+            <h5 class="text-white fw-bold mt-2">
+              Navegando pelos mares do Habbo Hotel...
+            </h5>
+            <p class="text-muted-custom small">
+              Executando auditoria rigorosa de portaria...
+            </p>
           </div>
-          <h3 class="text-xl font-bold text-white mb-2">Segurança Máxima</h3>
-          <p class="text-slate-400 text-sm leading-relaxed">
-            Sistema desenvolvido com as melhores práticas de proteção para
-            garantir a integridade dos dados da corporação.
-          </p>
-        </div>
-
-        <div
-          class="bg-slate-900/50 border border-white/5 p-6 rounded-2xl backdrop-blur-sm hover:border-amber-500/30 transition-colors group"
-          id="noticias"
-        >
-          <div
-            class="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform"
-          >
-            <i data-lucide="newspaper" class="w-6 h-6 text-blue-400"></i>
-          </div>
-          <h3 class="text-xl font-bold text-white mb-2">
-            Notícias em Tempo Real
-          </h3>
-          <p class="text-slate-400 text-sm leading-relaxed">
-            Fique por dentro de todos os avisos, promoções e novidades da
-            Marinha de forma rápida e centralizada.
-          </p>
-        </div>
-
-        <div
-          class="bg-slate-900/50 border border-white/5 p-6 rounded-2xl backdrop-blur-sm hover:border-amber-500/30 transition-colors group"
-        >
-          <div
-            class="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform"
-          >
-            <i data-lucide="users" class="w-6 h-6 text-emerald-400"></i>
-          </div>
-          <h3 class="text-xl font-bold text-white mb-2">Gestão de Efetivo</h3>
-          <p class="text-slate-400 text-sm leading-relaxed">
-            Painel completo para controle de praças e oficiais, com relatórios
-            detalhados e ferramentas de administração.
-          </p>
         </div>
       </div>
-    </main>
 
-    <footer class="border-t border-white/5 bg-slate-950/50 relative z-10 mt-12">
+      <!-- Erro Container -->
       <div
-        class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between"
+        id="errorSection"
+        class="alert alert-danger d-none text-center py-4 rounded-3 shadow-sm"
+        role="alert"
       >
-        <p class="text-slate-500 text-sm">
-          © 2026 Central Marinha Habbo. Todos os direitos reservados.
+        <i class="fa-solid fa-triangle-exclamation fa-2x mb-2"></i>
+        <h5 class="fw-bold mb-1">Militar não encontrado</h5>
+        <p class="mb-0 text-white-50">
+          Confira se o nick foi digitado corretamente ou se a conta é pública.
         </p>
-        <div class="flex space-x-6 mt-4 md:mt-0">
-          <a
-            href="#"
-            class="text-slate-500 hover:text-amber-400 transition-colors"
-          >
-            <span class="sr-only">Twitter</span>
-            <i data-lucide="twitter" class="w-5 h-5"></i>
-          </a>
-          <a
-            href="#"
-            class="text-slate-500 hover:text-amber-400 transition-colors"
-          >
-            <span class="sr-only">Discord</span>
-            <i data-lucide="disc" class="w-5 h-5"></i>
-          </a>
+      </div>
+
+      <!-- Resultados da Consulta -->
+      <div id="resultSection" class="row g-4 d-none">
+        <!-- Coluna Esquerda -->
+        <div class="col-lg-7">
+          <div class="card card-custom p-4 h-100 shadow-sm">
+            <div
+              class="d-flex justify-content-between align-items-center border-bottom border-secondary pb-3 mb-3"
+            >
+              <div>
+                <h3 id="resultNick" class="fw-bold mb-0 text-white"></h3>
+                <span id="resultOnlineBadge" class="badge mt-1">Status</span>
+              </div>
+              <div
+                id="overallStatusBadge"
+                class="badge p-2 px-3 fw-bold fs-6"
+              ></div>
+            </div>
+
+            <!-- Alerta de Facção / Polícia Rival -->
+            <div
+              id="rivalAlert"
+              class="alert alert-danger d-none mb-3 py-2 px-3"
+              role="alert"
+            >
+              <i class="fa-solid fa-triangle-exclamation me-1"></i>
+              <strong>Atenção:</strong> Identificado grupo de facção/polícia
+              rival!
+            </div>
+
+            <!-- Missão -->
+            <div class="mb-3">
+              <label class="text-muted-custom small fw-bold text-uppercase mb-1"
+                ><i class="fa-solid fa-flag me-1"></i> Missão Atual</label
+              >
+              <div
+                class="p-3 bg-black rounded-3 border border-secondary text-info font-monospace fs-6"
+                id="resultMotto"
+              >
+                -
+              </div>
+            </div>
+
+            <!-- Auditoria de Fardamento e Patente -->
+            <div class="mb-3">
+              <label class="text-muted-custom small fw-bold text-uppercase mb-1"
+                ><i class="fa-solid fa-shirt me-1"></i> Auditoria de Missão,
+                Vínculo e Fardamento</label
+              >
+              <div
+                class="p-3 bg-black rounded-3 border border-secondary d-flex justify-content-between align-items-center"
+                id="uniformBox"
+              >
+                <span id="uniformText" class="small text-light"
+                  >Aguardando auditoria...</span
+                >
+                <span id="uniformStatusBadge" class="badge">Analisando</span>
+              </div>
+            </div>
+
+            <!-- Validações Visuais (Pele e Cabelo) -->
+            <div class="row g-2 mb-3">
+              <div class="col-md-6">
+                <div
+                  class="p-3 bg-black rounded-3 border border-secondary d-flex justify-content-between align-items-center"
+                >
+                  <span class="small text-muted-custom"
+                    ><i class="fa-solid fa-user me-1"></i> Tom de Pele</span
+                  >
+                  <span id="skinStatus" class="badge">Analisando</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div
+                  class="p-3 bg-black rounded-3 border border-secondary d-flex justify-content-between align-items-center"
+                >
+                  <span class="small text-muted-custom"
+                    ><i class="fa-solid fa-scissors me-1"></i>
+                    Cabelo/Estilo</span
+                  >
+                  <span id="hairStatus" class="badge">Analisando</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Grupos do Usuário -->
+            <div>
+              <label class="text-muted-custom small fw-bold text-uppercase mb-2"
+                ><i class="fa-solid fa-users-rectangle me-1"></i> Grupos
+                Vinculados (<span id="groupCount">0</span>)</label
+              >
+              <div
+                id="groupsContainer"
+                style="max-height: 160px; overflow-y: auto"
+                class="pe-1"
+              >
+                <!-- Injetado dinamicamente -->
+              </div>
+            </div>
+          </div>
         </div>
+
+        <!-- Coluna Direita: Avatar Renderizado -->
+        <div class="col-lg-5">
+          <div
+            class="card card-custom p-4 h-100 shadow-sm text-center d-flex flex-column justify-content-center align-items-center"
+          >
+            <div class="avatar-box w-100 mb-3 shadow-inner">
+              <img
+                id="habboAvatarImg"
+                src=""
+                alt="Avatar Habbo"
+                class="img-fluid"
+                style="filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.8))"
+              />
+            </div>
+            <span class="text-muted-custom small"
+              ><i class="fa-solid fa-circle-info me-1"></i> Renderizado em tempo
+              real pela API oficial.</span
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="py-3 text-center text-muted-custom small">
+      <div class="container">
+        <strong>MARINHA DO BRASIL • HABBO HOTEL BR</strong><br />
+        Sistema de Inspeção de Portaria Rigorosa
       </div>
     </footer>
 
+    <!-- JavaScript Scripting -->
     <script>
-      lucide.createIcons();
+      const GRUPOS_PERMITIDOS = [
+        "g-hhbr-6c26546bb9f49c1c6c1b6934242891fb",
+        "g-hhbr-8a37a643ecd858ee97cd928408591a1a",
+        "g-hhbr-4a9986de2aa75fda38654b9b37ce6e9d",
+        "g-hhbr-4dd86d6b1857f325b0552129dbe78dd8",
+        "g-hhbr-6e149408a8c95a2f0860c6ddfa036b91",
+        "g-hhbr-61d16b91a4ae10dea696c6d764b581b5",
+        "g-hhbr-e13bad8fdde1c536804cada7b06176a6",
+        "g-hhbr-b2f5fa0949059c2b53a43f54cdb876dd",
+        "g-hhbr-33bf8ce06cd1b645d34fb4a83e86da70",
+        "g-hhbr-090327ed47bef20e038100d83d619c4a",
+        "g-hhbr-004cf0a0134dc852a18835c6032a51c6",
+        "g-hhbr-6050247dd69cec65857c143cdf5daf9b",
+        "g-hhbr-4b95b245116bd928dc7d4d46ead8887a",
+        "g-hhbr-3583eebe536729c1c8f0a4dd216d060e",
+        "g-hhbr-81cc5d526e2ea652bf1fea7f917cecfd",
+        "g-hhbr-2f1505e1d127a8f2dbd2a297b2fd1cc5",
+        "g-hhbr-1771009da742c8a247d8c396f5996e5f",
+        "g-hhbr-2f38dc228318c1806f78ae64b661dec0",
+        "g-hhbr-0581addc9b4282b5cc74b1081b0750ba",
+        "g-hhbr-98edae9780545c36dd30999d5e108e29",
+        "g-hhbr-2609ee109fa22f5b148bf40f452e3c46",
+        "g-hhbr-6379b46a18fb1da05b2b4c5734c0dabc",
+        "g-hhbr-a764616ce1fc87469beaad1d5d38905b",
+        "g-hhbr-02b14b00903013cbd3d607e92298876c",
+        "g-hhbr-63144a8b3644f4534e63533537ad610b",
+        "g-hhbr-5ce582f4c3d0a99a7f34e2ed3f1ea530",
+        "g-hhbr-9c7049ecb1f495b08f61120570552078",
+        "g-hhbr-677f70d3c111bf5651365969191bb36b",
+        "g-hhbr-ba763cf74b00b099bf658a699e59a43b",
+        "g-hhbr-9b9ff943cf0de30f667114749c0ad7c7",
+        "g-hhbr-fec83bd29371f6061be07e856d5a77df",
+        "g-hhbr-e549b5aa10e4a37decd46fa6470db784",
+        "g-hhbr-17bb4569f7c99479f5b4ab52fbca750e",
+        "g-hhbr-544970fd02030734ae91540ae24427e3",
+        "g-hhbr-cc46500604bd859a3c66eb2c4cff6145",
+        "g-hhbr-b897b10db8b6c607c2016e245e826a4f",
+        "g-hhbr-70efafbc5a02e4422de575f4c8d8336d",
+        "g-hhbr-3eb7a6305267ea8fde01ea0f9629b885",
+        "g-hhbr-7d26dd4ed9d5b675b18f62dda229eca5",
+        "g-hhbr-36df396be23f403a5fd8b6282496befc",
+        "g-hhbr-e72953fb007df7b9e313f4327b548fd4",
+        "g-hhbr-8f7e76f3f801f9545bf0e9df392abea4",
+        "g-hhbr-4db200b30aa554684052657e742f654a",
+        "g-hhbr-1aadeed9ba3a6ed4a7939e4c8ed6fbdd",
+        "g-hhbr-b24530ef804417005b9ee57edb90bc6c",
+        "g-hhbr-82039b65f4239a54b5d9416ad95a6429",
+        "g-hhbr-2df7e67e5239bd6ae3baa810053dc136",
+        "g-hhbr-98377fff3935d9042cbb274eccb6a7c2",
+      ];
 
-      // Mobile menu toggle
-      const btn = document.getElementById("mobile-menu-button");
-      const menu = document.getElementById("mobile-menu");
+      const TERMOS_RIVAIS = [
+        "RCC",
+        "POLÍCIA RCC",
+        "COE",
+        "DPH",
+        "DME",
+        "POLICIA",
+        "PM",
+      ];
 
-      btn.addEventListener("click", () => {
-        menu.classList.toggle("hidden");
-      });
+      const GRUPOS_ESTN = [
+        "g-hhbr-2609ee109fa22f5b148bf40f452e3c46",
+        "g-hhbr-4a9986de2aa75fda38654b9b37ce6e9d",
+      ];
+      const GRUPOS_COLEGIO_NAVAL = ["g-hhbr-81cc5d526e2ea652bf1fea7f917cecfd"];
+      const GRUPOS_PRACAS = [
+        "g-hhbr-e13bad8fdde1c536804cada7b06176a6",
+        "g-hhbr-36df396be23f403a5fd8b6282496befc",
+        "g-hhbr-ba763cf74b00b099bf658a699e59a43b",
+      ];
+
+      const PELES_PROIBIDAS = [
+        "hd-180-4",
+        "hd-180-5",
+        "hd-180-12",
+        "hd-180-13",
+        "hd-180-20",
+        "hd-180-21",
+        "hd-180-26",
+        "hd-180-27",
+        "hd-180-28",
+        "hd-180-29",
+        "hd-180-30",
+        "hd-180-31",
+        "hd-180-32",
+        "hd-180-33",
+        "hd-180-34",
+        "hd-180-35",
+        "hd-180-36",
+        "hd-180-37",
+        "hd-180-38",
+        "hd-180-39",
+        "hd-180-40",
+        "hd-180-45",
+        "hd-180-46",
+        "hd-180-47",
+        "hd-180-48",
+        "hd-180-51",
+        "hd-180-53",
+        "hd-180-55",
+        "hd-180-56",
+        "hd-180-57",
+        "hd-180-58",
+        "hd-180-59",
+        "hd-180-60",
+        "hd-180-61",
+      ];
+
+      async function consultarHabbo() {
+        const nick = document.getElementById("habboName").value.trim();
+        if (!nick) return;
+
+        const loadingSec = document.getElementById("loadingSection");
+        const errorSec = document.getElementById("errorSection");
+        const resultSec = document.getElementById("resultSection");
+
+        loadingSec.classList.remove("d-none");
+        errorSec.classList.add("d-none");
+        resultSec.classList.add("d-none");
+
+        try {
+          const habboRes = await fetch(
+            `https://www.habbo.com.br/api/public/users?name=${encodeURIComponent(nick)}`,
+          );
+          if (!habboRes.ok) throw new Error("Usuário não localizado");
+          const habboData = await habboRes.json();
+
+          let groupsData = [];
+          try {
+            const groupsRes = await fetch(
+              `https://www.habbo.com.br/api/public/users/${habboData.uniqueId}/groups`,
+            );
+            if (groupsRes.ok) groupsData = await groupsRes.json();
+          } catch (gErr) {
+            console.warn("Erro ao carregar grupos:", gErr);
+          }
+
+          document.getElementById("resultNick").innerText = habboData.name;
+          document.getElementById("resultMotto").innerText =
+            habboData.motto || "(Sem missão)";
+          document.getElementById("habboAvatarImg").src =
+            `https://www.habbo.com.br/habbo-imaging/avatarimage?figure=${habboData.figureString}&size=l&direction=2&head_direction=2`;
+
+          const onlineBadge = document.getElementById("resultOnlineBadge");
+          if (habboData.online) {
+            onlineBadge.className = "badge bg-success px-2 py-1";
+            onlineBadge.innerText = "Online no Hotel";
+          } else {
+            onlineBadge.className = "badge bg-secondary px-2 py-1";
+            onlineBadge.innerText = "Offline";
+          }
+
+          const userGroupIds = groupsData.map((g) => g.id);
+
+          // TRAVA 1: Vínculo obrigatório com a Marinha
+          const pertenceMarinha = userGroupIds.some((id) =>
+            GRUPOS_PERMITIDOS.includes(id),
+          );
+
+          const statusPele = validarPele(habboData.figureString);
+          const statusCabelo = validarCabelo(habboData.figureString);
+
+          // TRAVA 2: Fardamento (com checagem rígida de missão válida e sem ponto/vazia)
+          const statusFarda = pertenceMarinha
+            ? validarFardamento(
+                habboData.figureString,
+                habboData.motto,
+                userGroupIds,
+              )
+            : false;
+
+          renderizarGrupos(groupsData);
+
+          const overallBadge = document.getElementById("overallStatusBadge");
+          if (pertenceMarinha && statusPele && statusCabelo && statusFarda) {
+            overallBadge.className = "badge bg-success text-white px-3 py-2";
+            overallBadge.innerHTML =
+              '<i class="fa-solid fa-circle-check me-1"></i> Aprovado na Inspeção';
+          } else {
+            overallBadge.className = "badge bg-danger text-white px-3 py-2";
+            overallBadge.innerHTML =
+              '<i class="fa-solid fa-circle-xmark me-1"></i> Reprovado (Fora dos Padrões / Sem Vínculo)';
+          }
+
+          loadingSec.classList.add("d-none");
+          resultSec.classList.remove("d-none");
+        } catch (err) {
+          console.error(err);
+          loadingSec.classList.add("d-none");
+          errorSec.classList.add("d-none");
+        }
+      }
+
+      function validarPele(figureString) {
+        const skinStatus = document.getElementById("skinStatus");
+        let ehProibida = false;
+        PELES_PROIBIDAS.forEach((pele) => {
+          if (figureString.includes(pele)) ehProibida = true;
+        });
+
+        if (!ehProibida) {
+          skinStatus.className = "badge bg-success";
+          skinStatus.innerHTML = '<i class="fa-solid fa-check"></i> Permitido';
+          return true;
+        } else {
+          skinStatus.className = "badge bg-danger";
+          skinStatus.innerHTML =
+            '<i class="fa-solid fa-xmark"></i> Tom Proibido';
+          return false;
+        }
+      }
+
+      function validarCabelo(figureString) {
+        const hairStatus = document.getElementById("hairStatus");
+        if (
+          figureString.includes("he-") ||
+          figureString.includes("cartola") ||
+          figureString.includes("peruca") ||
+          figureString.includes("ey-") ||
+          figureString.includes("fc-")
+        ) {
+          hairStatus.className = "badge bg-danger";
+          hairStatus.innerHTML = '<i class="fa-solid fa-xmark"></i> Irregular';
+          return false;
+        }
+        hairStatus.className = "badge bg-success";
+        hairStatus.innerHTML = '<i class="fa-solid fa-check"></i> Permitido';
+        return true;
+      }
+
+      function validarFardamento(figureString, motto, userGroupIds) {
+        const uniformText = document.getElementById("uniformText");
+        const uniformBadge = document.getElementById("uniformStatusBadge");
+
+        const mottoTrim = motto ? motto.trim() : "";
+        const mottoUpper = mottoTrim.toUpperCase();
+
+        // TRAVA RÍGIDA: Missão inválida (vazia, ponto ".", ou sem tag institucional é REPROVADA)
+        const missaoInvalida =
+          mottoTrim === "" ||
+          mottoTrim === "." ||
+          mottoTrim === "-" ||
+          mottoLengthInvalido(mottoTrim) ||
+          (!mottoUpper.includes("[") &&
+            !mottoUpper.includes("MAR") &&
+            !mottoUpper.includes("ESTN") &&
+            !mottoUpper.includes("GRUMETE") &&
+            !mottoUpper.includes("ALUNO"));
+
+        if (missaoInvalida) {
+          uniformBadge.className = "badge bg-danger";
+          uniformBadge.innerHTML =
+            '<i class="fa-solid fa-xmark"></i> Incorreto';
+          uniformText.innerText =
+            "Reprovado: Missão vazia, sem tag regulamentar ou inválida (ex: ponto ou caracteres soltos).";
+          return false;
+        }
+
+        // COMBO ESTRITO: Missão + Grupos correspondentes
+        const temGrupoEstn = userGroupIds.some((id) =>
+          GRUPOS_ESTN.includes(id),
+        );
+        const temGrupoColegioNaval = userGroupIds.some((id) =>
+          GRUPOS_COLEGIO_NAVAL.includes(id),
+        );
+        const temGrupoPraca = userGroupIds.some((id) =>
+          GRUPOS_PRACAS.includes(id),
+        );
+
+        let isCorreto = true;
+        let mensagem = "Fardamento em conformidade.";
+
+        const temCasacoOuMangaLonga =
+          figureString.includes("cp-") || figureString.includes("cc-");
+        const temOculosOuBarba =
+          figureString.includes("ey-") || figureString.includes("fc-");
+        const temChapéuOuAcessorio =
+          figureString.includes("ha-") || figureString.includes("he-");
+
+        if (temCasacoOuMangaLonga) {
+          isCorreto = false;
+          mensagem =
+            "Reprovado: Exige camisa de MANGA CURTA (detectado casaco/manga longa)!";
+        } else if (temOculosOuBarba) {
+          isCorreto = false;
+          mensagem = "Reprovado: Uso proibido de óculos ou barbas!";
+        } else if (mottoUpper.includes("ESTN")) {
+          if (!temGrupoEstn) {
+            isCorreto = false;
+            mensagem =
+              "Reprovado: Missão indica EsTN, mas o militar NÃO possui o grupo da EsTN!";
+          } else if (!temChapéuOuAcessorio) {
+            isCorreto = false;
+            mensagem =
+              "Reprovado: Aluno da EsTN está SEM a boina regulamentar!";
+          } else {
+            mensagem = "Combo EsTN (Missão + Grupo) e Boina: Correto.";
+          }
+        } else if (
+          mottoUpper.includes("COLÉGIO NAVAL") ||
+          mottoUpper.includes("COLEGIO NAVAL")
+        ) {
+          if (!temGrupoColegioNaval) {
+            isCorreto = false;
+            mensagem =
+              "Reprovado: Missão indica Colégio Naval, mas o militar NÃO possui o grupo correspondente!";
+          } else if (!temChapéuOuAcessorio) {
+            isCorreto = false;
+            mensagem =
+              "Reprovado: Aluno do Colégio Naval está SEM a boina regulamentar!";
+          } else {
+            mensagem = "Combo Colégio Naval e Boina: Correto.";
+          }
+        } else if (mottoUpper.includes("GRUMETE")) {
+          if (temChapéuOuAcessorio) {
+            isCorreto = false;
+            mensagem =
+              "Reprovado: Grumetes NÃO devem utilizar boinas ou chapéus!";
+          } else {
+            mensagem = "Patente Grumete: Farda correta sem chapéu.";
+          }
+        } else {
+          if (temChapéuOuAcessorio) {
+            isCorreto = false;
+            mensagem = "Reprovado: Acessório de cabeça não autorizado!";
+          }
+        }
+
+        if (isCorreto) {
+          uniformBadge.className = "badge bg-success";
+          uniformBadge.innerHTML = '<i class="fa-solid fa-check"></i> Correto';
+          uniformText.innerText = mensagem;
+          return true;
+        } else {
+          uniformBadge.className = "badge bg-danger";
+          uniformBadge.innerHTML =
+            '<i class="fa-solid fa-xmark"></i> Incorreto';
+          uniformText.innerText = mensagem;
+          return false;
+        }
+      }
+
+      function mottoLengthInvalido(motto) {
+        return motto.length <= 3; // Missões muito curtas (ex: ".", "abc", "oi") são consideradas inválidas
+      }
+
+      function renderizarGrupos(groups) {
+        const container = document.getElementById("groupsContainer");
+        const countLabel = document.getElementById("groupCount");
+        const rivalAlert = document.getElementById("rivalAlert");
+        container.innerHTML = "";
+
+        if (!groups || groups.length === 0) {
+          countLabel.innerText = "0";
+          rivalAlert.classList.add("d-none");
+          container.innerHTML =
+            '<div class="text-muted-custom small fst-italic p-2">Nenhum grupo público encontrado.</div>';
+          return;
+        }
+
+        countLabel.innerText = groups.length;
+        let encontrouRival = false;
+
+        groups.forEach((group) => {
+          const isPermitido = GRUPOS_PERMITIDOS.includes(group.id);
+          const nomeGrupoUpper = group.name.toUpperCase();
+          const isRival =
+            TERMOS_RIVAIS.some((termo) => nomeGrupoUpper.includes(termo)) &&
+            !isPermitido;
+
+          if (isRival) encontrouRival = true;
+
+          const badgeStatusHTML = isPermitido
+            ? '<span class="badge bg-success" style="font-size: 0.65rem;">Permitido</span>'
+            : isRival
+              ? '<span class="badge bg-danger" style="font-size: 0.65rem;">Rival</span>'
+              : '<span class="badge bg-secondary" style="font-size: 0.65rem;">Outro</span>';
+
+          const groupEl = document.createElement("div");
+          groupEl.className =
+            "badge-group-item d-flex align-items-center gap-3";
+          groupEl.innerHTML = `
+                    <div style="width: 36px; height: 36px; background: #161b22; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid #30363d;">
+                        <img src="https://www.habbo.com.br/habbo-imaging/badge/${group.badgeCode}.gif" alt="Emblema" style="max-width: 28px; max-height: 28px;" onerror="this.style.display='none'">
+                    </div>
+                    <div class="overflow-hidden flex-grow-1">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="text-white fw-bold text-truncate" style="font-size: 0.85rem; max-width: 180px;">${group.name}</div>
+                            ${badgeStatusHTML}
+                        </div>
+                        <div class="text-muted-custom" style="font-size: 0.7rem;">ID: ${group.id}</div>
+                    </div>
+                `;
+          container.appendChild(groupEl);
+        });
+
+        if (encontrouRival) {
+          rivalAlert.classList.remove("d-none");
+        } else {
+          rivalAlert.classList.add("d-none");
+        }
+      }
+
+      document
+        .getElementById("habboName")
+        .addEventListener("keypress", function (e) {
+          if (e.key === "Enter") consultarHabbo();
+        });
     </script>
-    <style>
-      @keyframes fadeInUp {
-        from {
-          opacity: 0;
-          transform: translateY(20px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-      .animate-fade-in-up {
-        animation: fadeInUp 0.8s ease-out forwards;
-      }
-    </style>
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   </body>
 </html>
