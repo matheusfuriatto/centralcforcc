@@ -2,7 +2,7 @@ function checkAuth(roleEsperada = null) {
   const user = JSON.parse(sessionStorage.getItem('cfo_user') || 'null');
 
   if (!user || !user.nick) {
-    window.location.href = '/index.html';
+    window.location.href = '/login.html';
     return null;
   }
 
@@ -18,12 +18,12 @@ function redirecionarPorRole(role) {
   if (role === 'candidato') window.location.href = '/aluno.html';
   else if (role === 'avaliador') window.location.href = '/avaliador.html';
   else if (role === 'gestor') window.location.href = '/gestao.html';
-  else window.location.href = '/index.html';
+  else window.location.href = '/login.html';
 }
 
 function logout() {
   sessionStorage.removeItem('cfo_user');
-  window.location.href = '/index.html';
+  window.location.href = '/login.html';
 }
 
 function habboAvatarUrl(nick) {
